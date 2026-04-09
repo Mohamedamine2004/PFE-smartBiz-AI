@@ -1,0 +1,421 @@
+{
+  "app": {
+    "loading": "جاري تحميل مساحة العمل..."
+  },
+  "topbar": {
+    "adminSpace": "مساحة المسؤول",
+    "collaboratorSpace": "مساحة المتعاون",
+    "logout": "تسجيل الخروج"
+  },
+  "sidebar": {
+    "dashboard": "لوحة القيادة",
+    "team": "فريق العمل",
+    "valuation": "التقييم",
+    "settings": "الإعدادات"
+  },
+  "validation": {
+    "emailRequired": "البريد الإلكتروني مطلوب.",
+    "emailInvalid": "صيغة البريد الإلكتروني غير صالحة.",
+    "passwordRequired": "كلمة المرور مطلوبة.",
+    "passwordMin": "يجب أن تتكون من 8 أحرف على الأقل.",
+    "passwordsMismatch": "كلمتا المرور غير متطابقتين.",
+    "companyRequired": "اسم الشركة مطلوب.",
+    "firstNameRequired": "الاسم الأول مطلوب.",
+    "lastNameRequired": "اسم العائلة مطلوب.",
+    "registrationNumberRequired": "رقم السجل التجاري مطلوب.",
+    "tokenMissing": "الرمز مفقود أو غير صالح."
+  },
+  "auth": {
+    "common": {
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "contact@smartbiz.ai",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "••••••••",
+      "newPasswordLabel": "كلمة مرور جديدة",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "companyLabel": "اسم الشركة",
+      "companyPlaceholder": "SmartBiz AI",
+      "firstNameLabel": "الاسم الأول",
+      "firstNamePlaceholder": "أحمد",
+      "lastNameLabel": "اسم العائلة",
+      "lastNamePlaceholder": "بن علي",
+      "registrationNumberLabel": "رقم السجل التجاري",
+      "registrationNumberPlaceholder": "مثال: 1234567A/B/N/000",
+      "backToLogin": "العودة لتسجيل الدخول"
+    },
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "الوصول إلى مساحة العمل الخاصة بك",
+      "forgotPasswordLink": "هل نسيت كلمة المرور؟",
+      "submitButton": "تسجيل الدخول",
+      "loadingButton": "جاري تسجيل الدخول...",
+      "noAccount": "ليس لديك حساب؟",
+      "registerLink": "إنشاء حساب"
+    },
+    "register": {
+      "title": "إنشاء حساب",
+      "subtitle": "قم بإنشاء مساحة العمل الخاصة بك.",
+      "submitButton": "إنشاء حساب",
+      "loadingButton": "جاري الإنشاء...",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "loginLink": "تسجيل الدخول",
+      "successTitle": "تم التسجيل بنجاح",
+      "successMessage": "يرجى التحقق من صندوق الوارد لتفعيل حسابك."
+    },
+    "forgotPassword": {
+      "title": "نسيت كلمة المرور",
+      "subtitle": "أدخل بريدك الإلكتروني لتلقي رابط إعادة التعيين.",
+      "submitButton": "إرسال الرابط",
+      "loadingButton": "جاري الإرسال...",
+      "cancelLink": "العودة لتسجيل الدخول",
+      "successTitle": "تم إرسال البريد الإلكتروني",
+      "successMessage": "تحقق من صندوق الوارد لإعادة تعيين كلمة المرور."
+    },
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "اختر كلمة مرور جديدة وآمنة.",
+      "submitButton": "إعادة التعيين",
+      "loadingButton": "جاري إعادة التعيين...",
+      "successTitle": "تم إعادة تعيين كلمة المرور بنجاح"
+    },
+    "acceptInvite": {
+      "title": "قبول الدعوة",
+      "subtitle": "أكمل ملفك الشخصي لتفعيل حسابك.",
+      "submitButton": "تفعيل حسابي",
+      "loadingButton": "جاري التفعيل...",
+      "successTitle": "تم تفعيل الحساب!",
+      "successMessage": "تم حفظ ملفك الشخصي. جاري إعادة التوجيه...",
+      "error": "حدث خطأ."
+    },
+    "emailVerified": {
+      "successTitle": "تم التحقق من البريد الإلكتروني!",
+      "successMessage": "تم التحقق من عنوان بريدك الإلكتروني بنجاح. يمكنك الآن تسجيل الدخول إلى حسابك.",
+      "errorTitle": "فشل التحقق",
+      "errorMessage": "رابط التحقق غير صالح أو منتهي الصلاحية. يرجى التسجيل مرة أخرى أو الاتصال بالدعم."
+    }
+  },
+  "team": {
+    "title": "إدارة الفريق",
+    "subtitle": "إدارة أعضاء شركتك وصلاحياتهم.",
+    "inviteMember": "دعوة عضو",
+    "inviteDescription": "أرسل دعوة للانضمام إلى مساحة العمل الخاصة بك.",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "colleague@company.com",
+    "roleLabel": "الدور",
+    "roleAdmin": "مسؤول",
+    "roleUser": "متعاون",
+    "roleReader": "قارئ",
+    "sendInvite": "إرسال الدعوة",
+    "sending": "جاري الإرسال...",
+    "inviteSuccess": "تم إرسال الدعوة بنجاح.",
+    "inviteError": "حدث خطأ أثناء إرسال الدعوة.",
+    "table": {
+      "user": "المستخدم",
+      "role": "الدور",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "statusPending": "قيد الانتظار",
+      "statusActive": "نشط",
+      "resendInvite": "إعادة إرسال الدعوة",
+      "resendSuccess": "تم إعادة إرسال الدعوة.",
+      "noMembers": "لم يتم العثور على أعضاء."
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة ملف الشركة وحسابك وتفضيلاتك.",
+    "tabs": {
+      "company": "الشركة",
+      "account": "حسابي",
+      "team": "الفريق",
+      "preferences": "التفضيلات"
+    },
+    "onboarding": {
+      "banner": "أكمل ملف شركتك للبدء.",
+      "bannerHint": "املأ الحقول المطلوبة أدناه ثم احفظ."
+    },
+    "company": {
+      "heading": "ملف الشركة",
+      "name": "اسم الشركة",
+      "registrationNumber": "رقم السجل التجاري",
+      "sector": "قطاع النشاط",
+      "selectSector": "اختر قطاعاً…",
+      "currency": "العملة",
+      "fiscalYearStart": "شهر بداية السنة المالية",
+      "country": "البلد",
+      "countryPlaceholder": "مثال: تونس",
+      "requiredFields": "القطاع والعملة وشهر بداية السنة المالية مطلوبة.",
+      "save": "حفظ الملف",
+      "saveSuccess": "تم حفظ ملف الشركة بنجاح.",
+      "saveError": "فشل في حفظ ملف الشركة.",
+      "sectors": {
+        "agriculture": "الزراعة",
+        "mining": "التعدين والموارد الطبيعية",
+        "construction": "البناء والعقارات",
+        "manufacturing": "الصناعة والتصنيع",
+        "transport": "النقل والخدمات اللوجستية",
+        "wholesale": "تجارة الجملة والتوزيع",
+        "retail": "التجارة والتجارة الإلكترونية",
+        "services": "الخدمات المهنية",
+        "technology": "التكنولوجيا",
+        "finance": "المالية والبنوك",
+        "health": "الصحة والتعليم"
+      },
+      "months": {
+        "1": "يناير",
+        "2": "فبراير",
+        "3": "مارس",
+        "4": "أبريل",
+        "5": "مايو",
+        "6": "يونيو",
+        "7": "يوليو",
+        "8": "أغسطس",
+        "9": "سبتمبر",
+        "10": "أكتوبر",
+        "11": "نوفمبر",
+        "12": "ديسمبر"
+      }
+    },
+    "account": {
+      "heading": "حسابي",
+      "changePassword": "تغيير كلمة المرور",
+      "currentPassword": "كلمة المرور الحالية",
+      "savePassword": "تحديث كلمة المرور",
+      "passwordChanged": "تم تغيير كلمة المرور بنجاح.",
+      "passwordError": "فشل في تغيير كلمة المرور."
+    },
+    "team": {
+      "heading": "الفريق",
+      "description": "إدارة أعضاء الفريق من صفحة الفريق المخصصة.",
+      "goToTeam": "الذهاب إلى الفريق"
+    },
+    "preferences": {
+      "heading": "التفضيلات",
+      "language": "اللغة",
+      "theme": "المظهر",
+      "lightTheme": "فاتح",
+      "darkTheme": "داكن",
+      "systemTheme": "النظام"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "صباح الخير، {{name}}",
+      "afternoon": "مساء الخير، {{name}}",
+      "evening": "مساء الخير، {{name}}"
+    },
+    "subtitle": "إليك مؤشراتك المالية.",
+    "importBtn": "استيراد",
+    "historyBtn": "السجل",
+    "empty": {
+      "title": "لا توجد بيانات مالية بعد",
+      "description": "قم باستيراد بياناتك المالية لفتح لوحات المعلومات والتنبؤات والتحليلات الذكية.",
+      "importBtn": "استيراد البيانات",
+      "settingsBtn": "إعدادات الشركة"
+    },
+    "kpis": {
+      "cac": "تكلفة اكتساب العميل",
+      "ltv": "قيمة العميل مدى الحياة",
+      "tam": "السوق الإجمالي القابل للعنونة",
+      "marketShare": "حصة السوق",
+      "employees": "الموظفون",
+      "ltvCacRatio": "نسبة LTV:CAC",
+      "ltvCacHealthy": "جيدة",
+      "ltvCacWarning": "تحتاج متابعة",
+      "ltvCacCritical": "حرجة",
+      "avgBurnRate": "متوسط معدل الحرق",
+      "perMonth": "شهرياً",
+      "ltvCacTitle": "نسبة LTV/CAC",
+      "cacTitle": "تكلفة اكتساب العميل (CAC)",
+      "ltvTitle": "قيمة العميل مدى الحياة (LTV)",
+      "marketShareTitle": "حصة السوق",
+      "employeesTitle": "الموظفون",
+      "evTitle": "قيمة المنشأة المتوقعة (EV)"
+    },
+    "charts": {
+      "revenue": "الإيرادات والأرباح",
+      "expenses": "المصاريف والتكاليف",
+      "overview": "نظرة التدفق النقدي",
+      "cashFlowTableTitle": "جدول مؤشرات التدفق النقدي",
+      "cashFlowTableSubtitle": "قيم مباشرة من بيانات الاستيراد في الخلفية",
+      "selectMetrics": "اختر المؤشرات",
+      "selectAll": "تحديد الكل",
+      "clear": "مسح",
+      "showRows": "عرض الصفوف",
+      "last6": "آخر 6",
+      "last12": "آخر 12",
+      "allPeriods": "كل الفترات",
+      "period": "الفترة",
+      "noMetricSelected": "اختر مؤشراً واحداً على الأقل لعرض الجدول.",
+      "customerGrowth": "تحليل نمو العملاء",
+      "costStructure": "هيكل التكاليف",
+      "payroll": "مصاريف الرواتب",
+      "otherExpenses": "مصاريف تشغيلية أخرى",
+      "payrollShare": "نسبة الرواتب",
+      "annualFundamentals": "الأساسيات السنوية",
+      "metric": "المؤشر",
+      "currentYear": "السنة الحالية",
+      "yoyChange": "التغير السنوي",
+      "assets": "الأصول",
+      "liabilities": "الالتزامات",
+      "revenues": "الإيرادات",
+      "operatingIncome": "الدخل التشغيلي",
+      "operatingCashFlow": "التدفق النقدي التشغيلي",
+      "metrics": {
+        "grossRevenue": "الإيراد الإجمالي",
+        "operatingExpensesTotal": "إجمالي المصاريف التشغيلية",
+        "payrollExpenses": "مصاريف الرواتب",
+        "marketingSpend": "الإنفاق التسويقي",
+        "netCashBurn": "صافي الحرق النقدي",
+        "endingCashBalance": "الرصيد النقدي الختامي"
+      }
+    },
+    "tabs": {
+      "strategic": "الرؤية الاستراتيجية",
+      "financial": "الأداء المالي",
+      "operational": "التحليل التشغيلي",
+      "mlProjection": "التوقع الذكي"
+    },
+    "mlZone": {
+      "title": "مركز المحرك التنبؤي",
+      "runPrediction": "تشغيل التنبؤ الذكي",
+      "running": "جارٍ التشغيل...",
+      "success": "تم تنفيذ التنبؤ بنجاح.",
+      "error": "فشل تنفيذ التنبؤ. يرجى المحاولة مرة أخرى.",
+      "noData": "لا توجد بيانات تنبؤ متاحة.",
+      "noDataHint": "يرجى تشغيل النموذج لإنشاء التوقعات.",
+      "failedTitle": "فشل التنبؤ",
+      "failedHint": "لم يُرجِع النموذج بيانات قابلة للاستخدام. تحقّق من محرك ML والبيانات المالية المستوردة.",
+      "pendingTitle": "التنبؤ قيد التنفيذ",
+      "pendingHint": "يرجى الانتظار لبضع ثوانٍ ثم تحديث هذا التبويب.",
+      "revenueProjection": "توقع الإيرادات",
+      "maeDisclaimer": "يتم عرض عدم اليقين في التوقع ضمن نطاق MAE تقديري بين 12% و16%.",
+      "featureImportance": "أهمية العوامل",
+      "projectionRangeHint": "الخطوط المنقطة توضح النطاق المتوقع (الحد الأدنى - الحد الأقصى).",
+      "featureHint": "هذه العوامل توضح ما يؤثر أكثر على التوقع.",
+      "impact": "التأثير",
+      "projectedValuations": "التقييمات المتوقعة",
+      "featureImportanceTitle": "رؤى نموذج الذكاء الاصطناعي"
+    },
+    "history": {
+      "title": "سجل الاستيراد",
+      "close": "إغلاق",
+      "empty": "لا توجد عمليات استيراد بعد.",
+      "emptyHint": "قم بتحميل ملف Excel للبدء.",
+      "date": "التاريخ",
+      "records": "السجلات",
+      "actions": "الإجراءات",
+      "delete": "حذف هذا الاستيراد",
+      "confirmDelete": "تأكيد؟",
+      "yes": "نعم",
+      "no": "لا",
+      "deleteError": "فشل في الحذف.",
+      "fetchError": "فشل في تحميل السجل.",
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "daysAgo": "منذ {{count}} أيام",
+      "active": "قيد المشاهدة الحالية"
+    },
+    "fetchError": "فشل تحميل بيانات لوحة القيادة.",
+    "lastImport": "آخر استيراد",
+    "downloadTemplate": "تحميل النموذج",
+    "downloading": "جاري التحميل...",
+    "downloadError": "فشل تحميل النموذج. يرجى المحاولة مرة أخرى."
+  },
+  "valuation": {
+    "title": "تقييم الأعمال",
+    "subtitle": "قدّر قيمة شركتك باستخدام طرق التقييم المعتمدة.",
+    "selectMethod": "اختر طريقة التقييم",
+    "chooseMethod": "-- اختر طريقة --",
+    "bestFor": "الأنسب لـ",
+    "calculating": "جاري الحساب...",
+    "calculateButton": "احسب التقييم",
+    "enterpriseValue": "قيمة المنشأة (EV)",
+    "equityValue": "قيمة حقوق الملكية",
+    "evDescription": "القيمة الإجمالية للشركة (الديون + حقوق الملكية)",
+    "equityDescription": "القيمة المنسوبة للمساهمين",
+    "formulaApplied": "الصيغة المطبّقة",
+    "explanation": "الشرح",
+    "loadError": "فشل تحميل طرق التقييم.",
+    "calcError": "فشل الحساب.",
+    "fieldRequired": "{{field}} مطلوب.",
+    "fieldNumeric": "{{field}} يجب أن يكون رقمًا.",
+    "fields": {
+      "ebitda": "الأرباح قبل الفوائد والضرائب والإهلاك والاستهلاك",
+      "multiple": "المضاعف",
+      "netDebt": "صافي الدين",
+      "revenue": "الإيرادات",
+      "netIncome": "صافي الدخل",
+      "peRatio": "نسبة السعر إلى الأرباح",
+      "totalAssets": "إجمالي الأصول",
+      "totalLiabilities": "إجمالي الالتزامات",
+      "freeCashFlow": "التدفق النقدي الحر",
+      "growthRate": "معدل النمو (عشري)",
+      "wacc": "المتوسط المرجح لتكلفة رأس المال (عشري)"
+    },
+    "tooltips": {
+      "ebitda": "الأرباح قبل الفوائد والضرائب والإهلاك والاستهلاك — يقيس الربحية التشغيلية.",
+      "multiple_ebitda": "مضاعف EV/EBITDA للقطاع (عادة 6–12).",
+      "netDebt": "إجمالي الديون ناقص النقد والمعادلات النقدية.",
+      "revenue": "الإيرادات السنوية.",
+      "multiple_revenue": "مضاعف EV/الإيرادات للقطاع (عادة 1–10 لـ SaaS).",
+      "netIncome": "الربح بعد الضرائب (صافي الدخل).",
+      "peRatio": "نسبة السعر إلى الأرباح (عادة 10–25).",
+      "totalAssets": "مجموع جميع الأصول في الميزانية العمومية.",
+      "totalLiabilities": "مجموع جميع الالتزامات في الميزانية العمومية.",
+      "freeCashFlow": "النقد المتولّد بعد النفقات الرأسمالية.",
+      "growthRate": "معدل النمو الدائم (مثال: 0.03 = 3%).",
+      "wacc": "المتوسط المرجح لتكلفة رأس المال (مثال: 0.10 = 10%)."
+    },
+    "placeholders": {
+      "ebitda": "مثال: 1,000,000",
+      "multiple_ebitda": "مثال: 8",
+      "netDebt": "مثال: 2,000,000",
+      "revenue": "مثال: 5,000,000",
+      "multiple_revenue": "مثال: 3",
+      "netIncome": "مثال: 500,000",
+      "peRatio": "مثال: 15",
+      "totalAssets": "مثال: 10,000,000",
+      "totalLiabilities": "مثال: 4,000,000",
+      "freeCashFlow": "مثال: 1,000,000",
+      "growthRate": "مثال: 0.03",
+      "wacc": "مثال: 0.10"
+    },
+    "sensitivity": {
+      "title": "تحليل الحساسية",
+      "adjustSliders": "عدّل المعلمات لرؤية التأثير فوريًا على التقييم.",
+      "multiple": "المضاعف",
+      "peRatio": "نسبة السعر إلى الأرباح",
+      "wacc": "المتوسط المرجح لتكلفة رأس المال",
+      "growthRate": "معدل النمو",
+      "adjustedEV": "قيمة المنشأة المعدّلة",
+      "adjustedEquity": "حقوق الملكية المعدّلة"
+    },
+    "history": {
+      "title": "السجل",
+      "loading": "جاري تحميل السجل...",
+      "empty": "لا توجد تقييمات محفوظة بعد.",
+      "restore": "استعادة",
+      "delete": "حذف"
+    },
+    "compare": {
+      "toggle": "مقارنة",
+      "title": "مقارنة الطرق",
+      "secondMethod": "الطريقة الثانية",
+      "equityComparison": "مقارنة قيمة حقوق الملكية",
+      "difference": "الفرق"
+    },
+    "export": {
+      "inputs": "المدخلات",
+      "generatedOn": "تم الإنشاء في",
+      "exported": "تم التصدير ✓"
+    },
+    "save": "حفظ",
+    "saved": "تم الحفظ ✓"
+  },
+  "waitingSetup": {
+    "title": "الإعداد جارٍ",
+    "description": "يقوم المسؤول بتكوين مساحة العمل. ستتم إعادة توجيهك تلقائياً بمجرد اكتمال الإعداد.",
+    "refresh": "تحقق مرة أخرى"
+  }
+}

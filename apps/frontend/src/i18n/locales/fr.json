@@ -1,0 +1,421 @@
+{
+  "app": {
+    "loading": "Chargement de l'espace de travail..."
+  },
+  "topbar": {
+    "adminSpace": "Espace Administrateur",
+    "collaboratorSpace": "Espace Collaborateur",
+    "logout": "Déconnexion"
+  },
+  "sidebar": {
+    "dashboard": "Tableau de bord",
+    "team": "Équipe",
+    "valuation": "Évaluation",
+    "settings": "Paramètres"
+  },
+  "validation": {
+    "emailRequired": "L'adresse email est requise.",
+    "emailInvalid": "Format d'email invalide.",
+    "passwordRequired": "Le mot de passe est requis.",
+    "passwordMin": "8 caractères minimum requis.",
+    "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+    "companyRequired": "Le nom de l'entreprise est requis.",
+    "firstNameRequired": "Le prénom est requis.",
+    "lastNameRequired": "Le nom de famille est requis.",
+    "registrationNumberRequired": "Le matricule fiscal est requis.",
+    "tokenMissing": "Le jeton est manquant ou invalide."
+  },
+  "auth": {
+    "common": {
+      "firstNameLabel": "Prénom",
+      "firstNamePlaceholder": "Jean",
+      "lastNameLabel": "Nom",
+      "lastNamePlaceholder": "Dupont",
+      "emailLabel": "Adresse email",
+      "emailPlaceholder": "contact@smartbiz.ai",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "companyLabel": "Nom de l'entreprise",
+      "companyPlaceholder": "SmartBiz AI",
+      "registrationNumberLabel": "Matricule fiscal",
+      "registrationNumberPlaceholder": "ex: 1234567A/B/N/000",
+      "backToLogin": "Retour à la connexion"
+    },
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace de travail",
+      "forgotPasswordLink": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "loadingButton": "Connexion...",
+      "noAccount": "Pas encore de compte ?",
+      "registerLink": "S'inscrire"
+    },
+    "register": {
+      "title": "Inscription",
+      "subtitle": "Créez votre espace de travail.",
+      "submitButton": "S'inscrire",
+      "loadingButton": "Création...",
+      "hasAccount": "Déjà un compte ?",
+      "loginLink": "Se connecter",
+      "successTitle": "Inscription réussie",
+      "successMessage": "Veuillez vérifier votre boîte de réception pour activer votre compte."
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Saisissez votre email pour recevoir un lien de réinitialisation.",
+      "submitButton": "Envoyer le lien",
+      "loadingButton": "Envoi en cours...",
+      "cancelLink": "Retour à la connexion",
+      "successTitle": "Email envoyé",
+      "successMessage": "Consultez votre boîte de réception pour réinitialiser votre mot de passe."
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Choisissez un nouveau mot de passe sécurisé.",
+      "submitButton": "Réinitialiser",
+      "loadingButton": "Réinitialisation...",
+      "successTitle": "Mot de passe réinitialisé"
+    },
+    "acceptInvite": {
+      "title": "Accepter l'invitation",
+      "subtitle": "Complétez votre profil pour activer votre compte.",
+      "submitButton": "Activer mon compte",
+      "loadingButton": "Activation...",
+      "successTitle": "Compte activé !",
+      "successMessage": "Votre profil a été enregistré. Redirection vers la connexion...",
+      "error": "Une erreur est survenue."
+    },
+    "emailVerified": {
+      "successTitle": "Email vérifié !",
+      "successMessage": "Votre adresse email a été vérifiée avec succès. Vous pouvez maintenant vous connecter à votre compte.",
+      "errorTitle": "Échec de la vérification",
+      "errorMessage": "Le lien de vérification est invalide ou a expiré. Veuillez vous inscrire à nouveau ou contacter le support."
+    }
+  },
+  "team": {
+    "title": "Gestion de l'Équipe",
+    "subtitle": "Gérez les membres de votre entreprise et leurs accès.",
+    "inviteMember": "Inviter un membre",
+    "inviteDescription": "Envoyez une invitation pour rejoindre votre espace de travail.",
+    "emailLabel": "Adresse email",
+    "emailPlaceholder": "collegue@entreprise.com",
+    "roleLabel": "Rôle",
+    "roleAdmin": "Administrateur",
+    "roleUser": "Collaborateur",
+    "roleReader": "Lecteur",
+    "sendInvite": "Envoyer l'invitation",
+    "sending": "Envoi...",
+    "inviteSuccess": "Invitation envoyée avec succès.",
+    "inviteError": "Erreur lors de l'envoi de l'invitation.",
+    "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "status": "Statut",
+      "actions": "Actions",
+      "statusPending": "En attente",
+      "statusActive": "Actif",
+      "resendInvite": "Renvoyer l'invitation",
+      "resendSuccess": "Invitation renvoyée.",
+      "noMembers": "Aucun membre trouvé."
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez le profil de votre entreprise, votre compte et vos préférences.",
+    "tabs": {
+      "company": "Entreprise",
+      "account": "Mon compte",
+      "team": "Équipe",
+      "preferences": "Préférences"
+    },
+    "onboarding": {
+      "banner": "Complétez le profil de votre entreprise pour commencer.",
+      "bannerHint": "Remplissez les champs obligatoires ci-dessous puis enregistrez."
+    },
+    "company": {
+      "heading": "Profil de l'entreprise",
+      "name": "Nom de l'entreprise",
+      "registrationNumber": "Matricule fiscal",
+      "sector": "Secteur d'activité",
+      "selectSector": "Sélectionnez un secteur…",
+      "currency": "Devise",
+      "fiscalYearStart": "Mois de début de l'exercice fiscal",
+      "country": "Pays",
+      "countryPlaceholder": "ex. Tunisie",
+      "requiredFields": "Le secteur, la devise et le mois de début fiscal sont requis.",
+      "save": "Enregistrer le profil",
+      "saveSuccess": "Profil de l'entreprise enregistré avec succès.",
+      "saveError": "Échec de l'enregistrement du profil.",
+      "sectors": {
+        "agriculture": "Agriculture",
+        "mining": "Mines & Ressources naturelles",
+        "construction": "Construction & Immobilier",
+        "manufacturing": "Industrie & Fabrication",
+        "transport": "Transport & Logistique",
+        "wholesale": "Commerce de gros & Distribution",
+        "retail": "Commerce de détail & E-commerce",
+        "services": "Services professionnels",
+        "technology": "Technologie",
+        "finance": "Finance & Banque",
+        "health": "Santé & Éducation"
+      },
+      "months": {
+        "1": "Janvier",
+        "2": "Février",
+        "3": "Mars",
+        "4": "Avril",
+        "5": "Mai",
+        "6": "Juin",
+        "7": "Juillet",
+        "8": "Août",
+        "9": "Septembre",
+        "10": "Octobre",
+        "11": "Novembre",
+        "12": "Décembre"
+      }
+    },
+    "account": {
+      "heading": "Mon compte",
+      "changePassword": "Changer le mot de passe",
+      "currentPassword": "Mot de passe actuel",
+      "savePassword": "Mettre à jour le mot de passe",
+      "passwordChanged": "Mot de passe modifié avec succès.",
+      "passwordError": "Échec du changement de mot de passe."
+    },
+    "team": {
+      "heading": "Équipe",
+      "description": "Gérez les membres de l'équipe depuis la page dédiée.",
+      "goToTeam": "Aller à Équipe"
+    },
+    "preferences": {
+      "heading": "Préférences",
+      "language": "Langue",
+      "theme": "Thème",
+      "lightTheme": "Clair",
+      "darkTheme": "Sombre",
+      "systemTheme": "Système"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Bonjour, {{name}}",
+      "afternoon": "Bon apr\u00e8s-midi, {{name}}",
+      "evening": "Bonsoir, {{name}}"
+    },
+    "subtitle": "Voici vos indicateurs financiers.",
+    "importBtn": "Importer",
+    "historyBtn": "Historique",
+    "empty": {
+      "title": "Aucune donn\u00e9e financi\u00e8re",
+      "description": "Importez vos donn\u00e9es financi\u00e8res pour d\u00e9bloquer les tableaux de bord, pr\u00e9dictions et analyses IA.",
+      "importBtn": "Importer des donn\u00e9es",
+      "settingsBtn": "Param\u00e8tres entreprise"
+    },
+    "kpis": {
+      "cac": "Co\u00fbt d'Acquisition Client",
+      "ltv": "Valeur Vie Client",
+      "tam": "March\u00e9 Total Adressable",
+      "marketShare": "Part de March\u00e9",
+      "employees": "Effectifs",
+      "ltvCacRatio": "Ratio LTV:CAC",
+      "ltvCacHealthy": "Sain",
+      "ltvCacWarning": "\u00c0 surveiller",
+      "ltvCacCritical": "Critique",
+      "avgBurnRate": "Burn Rate Moyen",
+      "perMonth": "par mois",
+      "ltvCacTitle": "RATIO LTV/CAC",
+      "cacTitle": "COÛT D'ACQUISITION CLIENT (CAC)",
+      "ltvTitle": "VALEUR VIE CLIENT (LTV)",
+      "marketShareTitle": "PART DE MARCHÉ",
+      "employeesTitle": "EFFECTIFS",
+      "evTitle": "VALEUR D'ENTREPRISE PRÉDITE (EV)"
+    },
+    "charts": {
+      "revenue": "Revenus & B\u00e9n\u00e9fices",
+      "expenses": "D\u00e9penses & Co\u00fbts",
+      "overview": "Vue Flux de Tr\u00e9sorerie",
+      "cashFlowTableTitle": "Tableau des Indicateurs de Tr\u00e9sorerie",
+      "cashFlowTableSubtitle": "Valeurs en direct r\u00e9cup\u00e9r\u00e9es depuis les donn\u00e9es import\u00e9es du backend",
+      "selectMetrics": "Choisir les indicateurs",
+      "selectAll": "Tout s\u00e9lectionner",
+      "clear": "Effacer",
+      "showRows": "Afficher les lignes",
+      "last6": "6 derni\u00e8res",
+      "last12": "12 derni\u00e8res",
+      "allPeriods": "Toutes les p\u00e9riodes",
+      "period": "P\u00e9riode",
+      "noMetricSelected": "S\u00e9lectionnez au moins un indicateur pour afficher le tableau.",
+      "customerGrowth": "Analyse Croissance Clients",
+      "costStructure": "Structure des Co\u00fbts",
+      "payroll": "D\u00e9penses Salariales",
+      "otherExpenses": "Autres D\u00e9penses Op\u00e9rationnelles",
+      "payrollShare": "Part Salariale",
+      "annualFundamentals": "Fondamentaux Annuels",
+      "metric": "Indicateur",
+      "currentYear": "Ann\u00e9e Courante",
+      "yoyChange": "Variation Annuelle",
+      "assets": "Actifs",
+      "liabilities": "Passifs",
+      "revenues": "Revenus",
+      "operatingIncome": "R\u00e9sultat Op\u00e9rationnel",
+      "operatingCashFlow": "Flux de Tr\u00e9sorerie Op\u00e9rationnel",
+      "metrics": {
+        "grossRevenue": "Revenus bruts",
+        "operatingExpensesTotal": "D\u00e9penses op\u00e9rationnelles totales",
+        "payrollExpenses": "D\u00e9penses de paie",
+        "marketingSpend": "D\u00e9penses marketing",
+        "netCashBurn": "Burn net de tr\u00e9sorerie",
+        "endingCashBalance": "Tr\u00e9sorerie finale"
+      }
+    },
+    "tabs": {
+      "strategic": "Vue Stratégique",
+      "financial": "Performance Financière",
+      "operational": "Analyse Opérationnelle",
+      "mlProjection": "Projection ML"
+    },
+    "mlZone": {
+      "title": "Centre Moteur Pr\u00e9dictif",
+      "runPrediction": "Lancer la Pr\u00e9diction IA",
+      "running": "Ex\u00e9cution...",
+      "success": "Pr\u00e9diction ex\u00e9cut\u00e9e avec succ\u00e8s.",
+      "error": "\u00c9chec de la pr\u00e9diction. Veuillez r\u00e9essayer.",
+      "noData": "Aucune donn\u00e9e de pr\u00e9diction disponible.",
+      "noDataHint": "Veuillez lancer le mod\u00e8le pour g\u00e9n\u00e9rer une projection.",
+      "failedTitle": "\u00c9chec de la pr\u00e9diction",
+      "failedHint": "Le mod\u00e8le n'a pas renvoy\u00e9 de donn\u00e9es exploitables. V\u00e9rifiez le moteur ML et les donn\u00e9es import\u00e9es.",
+      "pendingTitle": "Pr\u00e9diction en cours",
+      "pendingHint": "Veuillez patienter quelques secondes puis actualiser cet onglet.",
+      "revenueProjection": "Projection des Revenus",
+      "maeDisclaimer": "L'incertitude de projection est affich\u00e9e avec une MAE estim\u00e9e entre 12 et 16%.",
+      "featureImportance": "Facteurs d'Influence",
+      "projectionRangeHint": "La zone pointill\u00e9e indique la fourchette probable (min-max).",
+      "featureHint": "Les facteurs ci-dessous montrent ce qui influence le plus la projection.",
+      "impact": "Impact",
+      "projectedValuations": "Évaluations Projetées",
+      "featureImportanceTitle": "Aperçus du Modèle ML"
+    },
+    "history": {
+      "title": "Historique des imports",
+      "close": "Fermer",
+      "empty": "Aucun import pour le moment.",
+      "emptyHint": "Uploadez votre fichier Excel pour commencer.",
+      "date": "Date",
+      "records": "Lignes",
+      "actions": "Actions",
+      "delete": "Supprimer cet import",
+      "confirmDelete": "Confirmer ?",
+      "yes": "Oui",
+      "no": "Non",
+      "deleteError": "\u00c9chec de la suppression.",
+      "fetchError": "\u00c9chec du chargement de l'historique.",
+      "active": "Affichage actif",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "Il y a {{count}} jours"
+    },
+    "fetchError": "\u00c9chec du chargement des donn\u00e9es.",
+    "lastImport": "Derni\u00e8re importation",
+    "downloadTemplate": "T\u00e9l\u00e9charger le mod\u00e8le",
+    "downloading": "T\u00e9l\u00e9chargement en cours...",
+    "downloadError": "\u00c9chec du t\u00e9l\u00e9chargement du mod\u00e8le. Veuillez r\u00e9essayer."
+  },
+  "valuation": {
+    "title": "Évaluation d'entreprise",
+    "subtitle": "Estimez la valeur de votre entreprise à l'aide de méthodes standards.",
+    "selectMethod": "Sélectionnez une méthode d'évaluation",
+    "chooseMethod": "-- Choisir une méthode --",
+    "bestFor": "Idéal pour",
+    "calculating": "Calcul en cours...",
+    "calculateButton": "Calculer l'évaluation",
+    "enterpriseValue": "Valeur d'entreprise (VE)",
+    "equityValue": "Valeur des capitaux propres",
+    "evDescription": "Valeur totale de l'entreprise (dette + capitaux propres)",
+    "equityDescription": "Valeur attribuable aux actionnaires",
+    "formulaApplied": "Formule appliquée",
+    "explanation": "Explication",
+    "loadError": "Échec du chargement des méthodes d'évaluation.",
+    "calcError": "Échec du calcul.",
+    "fieldRequired": "{{field}} est requis.",
+    "fieldNumeric": "{{field}} doit être un nombre.",
+    "fields": {
+      "ebitda": "EBITDA",
+      "multiple": "Multiple",
+      "netDebt": "Dette nette",
+      "revenue": "Chiffre d'affaires",
+      "netIncome": "Résultat net",
+      "peRatio": "Ratio P/E",
+      "totalAssets": "Total des actifs",
+      "totalLiabilities": "Total des passifs",
+      "freeCashFlow": "Flux de trésorerie disponible",
+      "growthRate": "Taux de croissance (décimal)",
+      "wacc": "CMPC (décimal)"
+    },
+    "tooltips": {
+      "ebitda": "Bénéfice avant intérêts, impôts, dépréciation et amortissement — mesure la rentabilité opérationnelle.",
+      "multiple_ebitda": "Multiple EV/EBITDA du secteur (généralement 6–12).",
+      "netDebt": "Dette totale moins trésorerie et équivalents.",
+      "revenue": "Chiffre d'affaires annuel.",
+      "multiple_revenue": "Multiple EV/CA du secteur (généralement 1–10 pour le SaaS).",
+      "netIncome": "Bénéfice après impôts (résultat net).",
+      "peRatio": "Ratio cours/bénéfice (généralement 10–25).",
+      "totalAssets": "Somme de tous les actifs du bilan.",
+      "totalLiabilities": "Somme de tous les passifs du bilan.",
+      "freeCashFlow": "Trésorerie générée après les dépenses d'investissement.",
+      "growthRate": "Taux de croissance perpétuel (ex. : 0,03 = 3 %).",
+      "wacc": "Coût moyen pondéré du capital (ex. : 0,10 = 10 %)."
+    },
+    "placeholders": {
+      "ebitda": "ex. 1 000 000",
+      "multiple_ebitda": "ex. 8",
+      "netDebt": "ex. 2 000 000",
+      "revenue": "ex. 5 000 000",
+      "multiple_revenue": "ex. 3",
+      "netIncome": "ex. 500 000",
+      "peRatio": "ex. 15",
+      "totalAssets": "ex. 10 000 000",
+      "totalLiabilities": "ex. 4 000 000",
+      "freeCashFlow": "ex. 1 000 000",
+      "growthRate": "ex. 0,03",
+      "wacc": "ex. 0,10"
+    },
+    "sensitivity": {
+      "title": "Analyse de sensibilit\u00e9",
+      "adjustSliders": "Ajustez les param\u00e8tres pour voir l\u2019impact en temps r\u00e9el sur la valorisation.",
+      "multiple": "Multiple",
+      "peRatio": "Ratio P/E",
+      "wacc": "CMPC",
+      "growthRate": "Taux de croissance",
+      "adjustedEV": "VE ajust\u00e9e",
+      "adjustedEquity": "Capitaux propres ajust\u00e9s"
+    },
+    "history": {
+      "title": "Historique",
+      "loading": "Chargement de l'historique...",
+      "empty": "Aucune évaluation enregistrée.",
+      "restore": "Restaurer",
+      "delete": "Supprimer"
+    },
+    "compare": {
+      "toggle": "Comparer",
+      "title": "Comparaison de méthodes",
+      "secondMethod": "Deuxième méthode",
+      "equityComparison": "Comparaison de la valeur des capitaux propres",
+      "difference": "Différence"
+    },
+    "export": {
+      "inputs": "Données d'entrée",
+      "generatedOn": "Généré le",
+      "exported": "Exporté ✓"
+    },
+    "save": "Enregistrer",
+    "saved": "Enregistré ✓"
+  },
+  "waitingSetup": {
+    "title": "Configuration en cours",
+    "description": "Votre administrateur configure l'espace de travail. Vous serez redirigé automatiquement une fois la configuration terminée.",
+    "refresh": "Vérifier à nouveau"
+  }
+}

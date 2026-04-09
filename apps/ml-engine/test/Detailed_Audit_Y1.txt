@@ -1,0 +1,24 @@
+SMARTBIZ AI - PURE CATBOOST AUDIT (Y1)
+==================================================
+Rows: 677 | Target Mean: 0.0861
+Real-Space MAE   : 16.47%
+Directional Acc  : 69.0%
+
+FEATURE IMPORTANCE
+--------------------------------------------------
+Assets_Momentum_1Y             : 12.18%
+Revenues_Momentum_1Y           :  9.78%
+Liabilities_Momentum_1Y        :  7.92%
+Revenues_Momentum_2Y           :  7.65%
+Revenues_Accel                 :  7.08%
+Revenues_Momentum_1Y_Rank      :  6.92%
+LeverageRatio                  :  6.40%
+sic1                           :  5.21%
+CashFlow_to_Assets             :  5.20%
+OperatingMargin                :  4.82%
+Accruals                       :  4.72%
+AssetTurnover_Rank             :  4.61%
+AssetTurnover                  :  4.46%
+AssetTurnover_Momentum_1Y      :  4.43%
+OperatingMargin_Rank           :  4.35%
+CashFlow_Margin_Rank           :  4.28%

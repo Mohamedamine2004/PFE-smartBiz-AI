@@ -1,0 +1,424 @@
+{
+  "app": {
+    "loading": "Loading workspace..."
+  },
+  "topbar": {
+    "adminSpace": "Admin Workspace",
+    "collaboratorSpace": "Collaborator Workspace",
+    "logout": "Log out"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "team": "Team",
+    "valuation": "Valuation",
+    "settings": "Settings"
+  },
+  "validation": {
+    "emailRequired": "Email is required.",
+    "emailInvalid": "Invalid email format.",
+    "passwordRequired": "Password is required.",
+    "passwordMin": "Minimum 8 characters required.",
+    "passwordsMismatch": "Passwords do not match.",
+    "companyRequired": "Company name is required.",
+    "firstNameRequired": "First name is required.",
+    "lastNameRequired": "Last name is required.",
+    "registrationNumberRequired": "Registration number is required.",
+    "tokenMissing": "Token is missing or invalid."
+  },
+  "auth": {
+    "common": {
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "John",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "Doe",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "contact@smartbiz.ai",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm password",
+      "companyLabel": "Company name",
+      "companyPlaceholder": "SmartBiz AI",
+      "registrationNumberLabel": "Registration number (Matricule Fiscal)",
+      "registrationNumberPlaceholder": "e.g. 1234567A/B/N/000",
+      "backToLogin": "Back to login"
+    },
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your workspace",
+      "forgotPasswordLink": "Forgot password?",
+      "submitButton": "Sign in",
+      "loadingButton": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "title": "Sign up",
+      "subtitle": "Create your workspace.",
+      "submitButton": "Sign up",
+      "loadingButton": "Creating...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "successTitle": "Registration successful",
+      "successMessage": "Please check your inbox to activate your account."
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "Enter your email to receive a reset link.",
+      "submitButton": "Send reset link",
+      "loadingButton": "Sending...",
+      "cancelLink": "Back to login",
+      "successTitle": "Email sent",
+      "successMessage": "Check your inbox to reset your password."
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Choose a new secure password.",
+      "submitButton": "Reset password",
+      "loadingButton": "Resetting...",
+      "successTitle": "Password reset successfully"
+    },
+    "acceptInvite": {
+      "title": "Accept invitation",
+      "subtitle": "Complete your profile to activate your account.",
+      "submitButton": "Activate my account",
+      "loadingButton": "Activating...",
+      "successTitle": "Account activated!",
+      "successMessage": "Your profile has been saved. Redirecting to login...",
+      "error": "An error occurred."
+    },
+    "emailVerified": {
+      "successTitle": "Email verified!",
+      "successMessage": "Your email address has been successfully verified. You can now log in to your account.",
+      "errorTitle": "Verification failed",
+      "errorMessage": "The verification link is invalid or has expired. Please sign up again or contact support."
+    }
+  },
+  "team": {
+    "title": "Team Management",
+    "subtitle": "Manage your company members and their access.",
+    "inviteMember": "Invite a member",
+    "inviteDescription": "Send an invitation to join your workspace.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "colleague@company.com",
+    "roleLabel": "Role",
+    "roleAdmin": "Administrator",
+    "roleUser": "Collaborator",
+    "roleReader": "Reader",
+    "sendInvite": "Send invitation",
+    "sending": "Sending...",
+    "inviteSuccess": "Invitation sent successfully.",
+    "inviteError": "Error sending invitation.",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions",
+      "statusPending": "Pending",
+      "statusActive": "Active",
+      "resendInvite": "Resend invite",
+      "resendSuccess": "Invitation resent.",
+      "noMembers": "No members found."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your company profile, account, and preferences.",
+    "tabs": {
+      "company": "Company",
+      "account": "My Account",
+      "team": "Team",
+      "preferences": "Preferences"
+    },
+    "onboarding": {
+      "banner": "Complete your company profile to get started.",
+      "bannerHint": "Fill in the required fields below then save."
+    },
+    "company": {
+      "heading": "Company Profile",
+      "name": "Company name",
+      "registrationNumber": "Registration number",
+      "sector": "Industry sector",
+      "selectSector": "Select a sector…",
+      "currency": "Currency",
+      "fiscalYearStart": "Fiscal year start month",
+      "country": "Country",
+      "countryPlaceholder": "e.g. Tunisia",
+      "requiredFields": "Sector, currency and fiscal year start are required.",
+      "save": "Save profile",
+      "saveSuccess": "Company profile saved successfully.",
+      "saveError": "Failed to save company profile.",
+      "sectors": {
+        "agriculture": "Agriculture",
+        "mining": "Mining & Natural Resources",
+        "construction": "Construction & Real Estate",
+        "manufacturing": "Manufacturing & Industry",
+        "transport": "Transport & Logistics",
+        "wholesale": "Wholesale & Distribution",
+        "retail": "Retail & E-commerce",
+        "services": "Professional Services",
+        "technology": "Technology",
+        "finance": "Finance & Banking",
+        "health": "Healthcare & Education"
+      },
+      "months": {
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      }
+    },
+    "account": {
+      "heading": "My Account",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "savePassword": "Update password",
+      "passwordChanged": "Password changed successfully.",
+      "passwordError": "Failed to change password."
+    },
+    "team": {
+      "heading": "Team",
+      "description": "Manage team members from the dedicated Team page.",
+      "goToTeam": "Go to Team"
+    },
+    "preferences": {
+      "heading": "Preferences",
+      "language": "Language",
+      "theme": "Theme",
+      "lightTheme": "Light",
+      "darkTheme": "Dark",
+      "systemTheme": "System"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+        "morning": "Good morning, {{name}}",
+        "afternoon": "Good afternoon, {{name}}",
+        "evening": "Good evening, {{name}}"
+    },
+    "subtitle": "Here are your financial indicators.",
+    "importBtn": "Import",
+    "historyBtn": "History",
+    "empty": {
+      "title": "No financial data yet",
+      "description": "Import your financial data to unlock dashboards, predictions and AI-powered insights.",
+      "importBtn": "Import data",
+      "settingsBtn": "Company settings"
+    },
+    "kpis": {
+      "cac": "Customer Acquisition Cost",
+      "ltv": "Lifetime Value",
+      "tam": "Total Addressable Market",
+      "marketShare": "Market Share",
+      "employees": "Employees",
+      "ltvCacRatio": "LTV:CAC Ratio",
+      "ltvCacHealthy": "Healthy",
+      "ltvCacWarning": "Watch",
+      "ltvCacCritical": "Critical",
+      "avgBurnRate": "Average Burn Rate",
+      "perMonth": "per month",
+      "ltvCacTitle": "LTV/CAC RATIO",
+      "cacTitle": "CUSTOMER ACQUISITION COST (CAC)",
+      "ltvTitle": "CUSTOMER LIFETIME VALUE (LTV)",
+      "marketShareTitle": "MARKET SHARE",
+      "employeesTitle": "HEADCOUNT",
+      "evTitle": "PREDICTED ENTERPRISE VALUE (EV)"
+    },
+    "charts": {
+      "revenue": "Revenue & Expenses",
+      "revenueSubtitle": "Compare your generated revenue against operational expenses",
+      "expenses": "Expenses & Costs",
+      "netCashBurn": "Net Cash Burn",
+      "netCashBurnSubtitle": "Monthly net cash burn trend",
+      "overview": "Cash Flow Overview",
+      "cashFlowTableTitle": "Cash Flow Metrics Table",
+      "cashFlowTableSubtitle": "Live values fetched from backend import data",
+      "selectMetrics": "Select metrics",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "showRows": "Show rows",
+      "last6": "Last 6",
+      "last12": "Last 12",
+      "allPeriods": "All periods",
+      "period": "Period",
+      "noMetricSelected": "Select at least one metric to display the table.",
+      "customerGrowth": "Customer Growth Analysis",
+      "costStructure": "Cost Structure",
+      "payroll": "Payroll Expenses",
+      "otherExpenses": "Other Operating Expenses",
+      "payrollShare": "Payroll Share",
+      "annualFundamentals": "Annual Fundamentals",
+      "metric": "Metric",
+      "currentYear": "Current Year",
+      "yoyChange": "YoY Change",
+      "assets": "Assets",
+      "liabilities": "Liabilities",
+      "revenues": "Revenues",
+      "operatingIncome": "Operating Income",
+      "operatingCashFlow": "Operating Cash Flow",
+      "metrics": {
+        "grossRevenue": "Gross Revenue",
+        "operatingExpensesTotal": "Operating Expenses Total",
+        "payrollExpenses": "Payroll Expenses",
+        "marketingSpend": "Marketing Spend",
+        "netCashBurn": "Net Cash Burn",
+        "endingCashBalance": "Ending Cash Balance"
+      }
+    },
+    "tabs": {
+      "strategic": "Strategic View",
+      "financial": "Financial Performance",
+      "operational": "Operational Analytics",
+      "mlProjection": "ML Projection"
+    },
+    "mlZone": {
+      "title": "Predictive Engine Center",
+      "runPrediction": "Run AI Prediction",
+      "running": "Running...",
+      "success": "Prediction completed successfully.",
+      "error": "Prediction failed. Please try again.",
+      "noData": "No prediction data available.",
+      "noDataHint": "Please run the model to generate a projection.",
+      "failedTitle": "Prediction failed",
+      "failedHint": "The model did not return usable data. Check ML engine and imported financial data.",
+      "pendingTitle": "Prediction in progress",
+      "pendingHint": "Please wait a few seconds and refresh this tab.",
+      "revenueProjection": "Revenue Projection",
+      "maeDisclaimer": "Projection uncertainty is shown with an estimated MAE range of 12-16%.",
+      "featureImportance": "Feature Importance",
+      "projectionRangeHint": "Dotted lines indicate the likely range (min-max).",
+      "featureHint": "These factors show what most influences the projection.",
+      "impact": "Impact",
+      "projectedValuations": "Projected Valuations",
+      "featureImportanceTitle": "ML Model Insights"
+    },
+    "history": {
+      "title": "Import History",
+      "close": "Close",
+      "empty": "No imports yet.",
+      "emptyHint": "Upload your Excel file to get started.",
+      "date": "Date",
+      "records": "Records",
+      "actions": "Actions",
+      "delete": "Delete this import",
+      "confirmDelete": "Confirm?",
+      "yes": "Yes",
+      "no": "No",
+      "deleteError": "Failed to delete import.",
+      "fetchError": "Failed to load import history.",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{{count}} days ago",
+      "active": "Currently viewing"
+    },
+    "fetchError": "Failed to load dashboard data.",
+    "lastImport": "Last import",
+    "downloadTemplate": "Download Template",
+    "downloading": "Downloading...",
+    "downloadError": "Failed to download template. Please try again."
+  },
+  "valuation": {
+    "title": "Business Valuation",
+    "subtitle": "Estimate your company's value using industry-standard methods.",
+    "selectMethod": "Select Valuation Method",
+    "chooseMethod": "-- Choose a method --",
+    "bestFor": "Best for",
+    "calculating": "Calculating...",
+    "calculateButton": "Calculate Valuation",
+    "enterpriseValue": "Enterprise Value (EV)",
+    "equityValue": "Equity Value",
+    "evDescription": "Total value of the company (debt + equity)",
+    "equityDescription": "Value attributable to shareholders",
+    "formulaApplied": "Formula Applied",
+    "explanation": "Explanation",
+    "loadError": "Failed to load valuation methods.",
+    "calcError": "Calculation failed.",
+    "fieldRequired": "{{field}} is required.",
+    "fieldNumeric": "{{field}} must be a number.",
+    "fields": {
+      "ebitda": "EBITDA",
+      "multiple": "Multiple",
+      "netDebt": "Net Debt",
+      "revenue": "Revenue",
+      "netIncome": "Net Income",
+      "peRatio": "P/E Ratio",
+      "totalAssets": "Total Assets",
+      "totalLiabilities": "Total Liabilities",
+      "freeCashFlow": "Free Cash Flow",
+      "growthRate": "Growth Rate (decimal)",
+      "wacc": "WACC (decimal)"
+    },
+    "tooltips": {
+      "ebitda": "Earnings Before Interest, Taxes, Depreciation & Amortization — measures operating profitability.",
+      "multiple_ebitda": "Industry EV/EBITDA multiple (typically 6–12).",
+      "netDebt": "Total Debt minus Cash & Cash Equivalents.",
+      "revenue": "Annual top-line revenue.",
+      "multiple_revenue": "Industry EV/Revenue multiple (typically 1–10 for SaaS).",
+      "netIncome": "After-tax profit (bottom line).",
+      "peRatio": "Price-to-Earnings ratio (typically 10–25).",
+      "totalAssets": "Sum of all assets on the balance sheet.",
+      "totalLiabilities": "Sum of all liabilities on the balance sheet.",
+      "freeCashFlow": "Cash generated after capital expenditures.",
+      "growthRate": "Perpetual growth rate (e.g., 0.03 = 3%).",
+      "wacc": "Weighted Average Cost of Capital (e.g., 0.10 = 10%)."
+    },
+    "placeholders": {
+      "ebitda": "e.g. 1,000,000",
+      "multiple_ebitda": "e.g. 8",
+      "netDebt": "e.g. 2,000,000",
+      "revenue": "e.g. 5,000,000",
+      "multiple_revenue": "e.g. 3",
+      "netIncome": "e.g. 500,000",
+      "peRatio": "e.g. 15",
+      "totalAssets": "e.g. 10,000,000",
+      "totalLiabilities": "e.g. 4,000,000",
+      "freeCashFlow": "e.g. 1,000,000",
+      "growthRate": "e.g. 0.03",
+      "wacc": "e.g. 0.10"
+    },
+    "sensitivity": {
+      "title": "Sensitivity Analysis",
+      "adjustSliders": "Adjust parameters to see real-time impact on valuation.",
+      "multiple": "Multiple",
+      "peRatio": "P/E Ratio",
+      "wacc": "WACC",
+      "growthRate": "Growth Rate",
+      "adjustedEV": "Adjusted EV",
+      "adjustedEquity": "Adjusted Equity"
+    },
+    "history": {
+      "title": "History",
+      "loading": "Loading history...",
+      "empty": "No saved valuations yet.",
+      "restore": "Restore",
+      "delete": "Delete"
+    },
+    "compare": {
+      "toggle": "Compare",
+      "title": "Method Comparison",
+      "secondMethod": "Second method",
+      "equityComparison": "Equity Value Comparison",
+      "difference": "Difference"
+    },
+    "export": {
+      "inputs": "Inputs",
+      "generatedOn": "Generated on",
+      "exported": "Exported ✓"
+    },
+    "save": "Save",
+    "saved": "Saved ✓"
+  },
+  "waitingSetup": {
+    "title": "Setup in progress",
+    "description": "Your administrator is configuring the company workspace. You will be redirected automatically once the setup is complete.",
+    "refresh": "Check again"
+  }
+}

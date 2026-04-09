@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- CORE MULTI-TENANCY ---
+
+model Company {
+  id                 String           @id @default(uuid())
+  name               String           @unique
+  registrationNumber String           @unique
+  sector             String?
+  currency           String?
+  fiscalYearStart    Int?
+  country            String?
+  users              User[]
+  batches            ImportBatch[]
+  predictions        Prediction[]
+  valuations         SavedValuation[]
+  createdAt          DateTime         @default(now())
+  deletedAt          DateTime?
+}
+
+model User {
+  id           String    @id @default(uuid())
+  firstName    String
+  lastName     String
+  email        String    @unique
+  password     String
+  refreshToken String?
+  role         UserRole  @default(USER)
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+  createdAt    DateTime  @default(now())
+  deletedAt    DateTime?
+
+  isEmailVerified      Boolean   @default(false)
+  verifyEmailToken     String?   @unique
+  resetPasswordToken   String?   @unique
+  resetPasswordExpires DateTime?
+  inviteToken          String?   @unique
+  inviteTokenExpires   DateTime?
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  READER
+}
+
+// --- DATA & AI PIPELINE ---
+
+model ImportBatch {
+  id            String          @id @default(uuid())
+  companyId     String
+  company       Company         @relation(fields: [companyId], references: [id])
+  data          FinancialData[]
+  createdAt     DateTime        @default(now())
+  // --- Sheet 3: Strategic KPIs ---
+  cac           Float?
+  ltv           Float?
+  tam           Float?
+  marketShare   Float?
+  employeeCount Int?
+  // --- Sheet 1: Annual Valuation Data ---
+  macroFeatures Json?
+}
+
+model FinancialData {
+  id      String      @id @default(uuid())
+  batchId String
+  batch   ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  metric  String
+  value   Float
+  period  DateTime
+
+  @@index([batchId, metric, period])
+}
+
+model Prediction {
+  id        String           @id @default(uuid())
+  companyId String
+  company   Company          @relation(fields: [companyId], references: [id])
+  status    PredictionStatus @default(PENDING)
+  result    Json?
+  createdAt DateTime         @default(now())
+}
+
+enum PredictionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// --- VALUATION HISTORY ---
+
+model SavedValuation {
+  id              String   @id @default(uuid())
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+  userId          String
+  method          String
+  inputs          Json
+  enterpriseValue Float?
+  equityValue     Float
+  formula         String
+  explanation     String
+  label           String?
+  createdAt       DateTime @default(now())
+
+  @@index([companyId, createdAt(sort: Desc)])
+}
