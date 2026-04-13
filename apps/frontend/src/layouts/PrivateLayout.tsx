@@ -3,11 +3,14 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { Topbar } from '../components/Topbar';
 import { useAuthStore } from '../store/authStore';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { ShortcutsHelpModal } from '../components/ui/ShortcutsHelpModal';
 
 export const PrivateLayout = () => {
   const { isAuthenticated, onboardingComplete, user } = useAuthStore();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { shortcuts, showHelp, setShowHelp } = useKeyboardShortcuts();
 
   // Protection de la route
   if (!isAuthenticated) {
@@ -49,6 +52,9 @@ export const PrivateLayout = () => {
           </div>
         </main>
       </div>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <ShortcutsHelpModal open={showHelp} onClose={() => setShowHelp(false)} shortcuts={shortcuts} />
     </div>
   );
 };

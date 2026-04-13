@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Install dependencies first (cached layer)
+COPY package*.json ./
+
+RUN npm install
+
+# Copy Prisma schema and generate client
+COPY prisma ./prisma/
+RUN npx prisma generate
+
+# Copy rest of the application
+COPY . .
+
+# Expose NestJS port
+EXPOSE 3000
+
+# Start NestJS in development mode with hot-reload
+CMD ["npm", "run", "start:dev"]

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Dict, Optional
 
 class RawFinancials(BaseModel):
@@ -70,6 +70,8 @@ class FeatureImportanceItem(BaseModel):
     importance: float
 
 class PredictionResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     model_version: str = "2.0-Cascade"
     predictions: List[GrowthPrediction]
     valuations: List[FinancialValuation]

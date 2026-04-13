@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { loginSchema, type LoginInputs } from '../lib/validations';
 import { FormInput } from '../components/FormInput';
@@ -25,9 +26,12 @@ export const Login = () => {
       setIsLoading(true);
       setApiError(null);
       const result = await login(data.email, data.password);
+      toast.success(t('auth.login.success', 'Welcome back!'));
       navigate(result.redirect);
     } catch (error: any) {
-      setApiError(error.response?.data?.message || 'Une erreur est survenue.');
+      const msg = error.response?.data?.message || t('auth.login.error', 'An error occurred.');
+      setApiError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

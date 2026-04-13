@@ -1,5 +1,6 @@
 import { Controller, Post, Put, Body, HttpCode, HttpStatus, Get, UseGuards, Res, Req, UnauthorizedException, Query, Delete, Param } from '@nestjs/common';
 import express from 'express';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { PostLoginService } from './post-login.service';
 import { RegisterDto } from './dto/register.dto';
@@ -13,6 +14,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(

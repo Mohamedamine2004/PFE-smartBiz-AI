@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../lib/axios';
 import { useAuthStore } from '../store/authStore';
 import { TeamTable } from '../components/team/TeamTable';
@@ -52,11 +53,14 @@ export const Team = () => {
   const handleResendInvite = async (email: string, role: string) => {
     try {
       await api.post('/auth/invite', { email, role });
+      toast.success(t('team.table.resendSuccess', 'Invitation resent successfully.'));
       setFeedbackType('success');
       setFeedbackMessage(t('team.table.resendSuccess'));
     } catch (err: any) {
+      const msg = err.response?.data?.message || t('team.inviteError', 'Failed to resend invitation.');
+      toast.error(msg);
       setFeedbackType('error');
-      setFeedbackMessage(err.response?.data?.message || t('team.inviteError'));
+      setFeedbackMessage(msg);
     }
   };
 
@@ -73,12 +77,16 @@ export const Team = () => {
       await api.delete(`/auth/team/${userToDelete.id}`);
       setDeleteModalOpen(false);
       setUserToDelete(null);
+      const msg = t('team.deleteSuccess', 'User removed successfully.');
+      toast.success(msg);
       setFeedbackType('success');
-      setFeedbackMessage(t('team.deleteSuccess', 'User removed successfully.'));
+      setFeedbackMessage(msg);
       fetchTeam(); // Refresh the list
     } catch (err: any) {
+      const msg = err.response?.data?.message || t('team.deleteError', 'Failed to delete user');
+      toast.error(msg);
       setFeedbackType('error');
-      setFeedbackMessage(err.response?.data?.message || t('team.deleteError', 'Failed to delete user'));
+      setFeedbackMessage(msg);
     } finally {
       setIsDeleting(false);
     }

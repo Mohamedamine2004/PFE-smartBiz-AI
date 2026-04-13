@@ -58,7 +58,7 @@ export class AuthService {
               email: dto.email,
               password: hashedPassword,
               role: UserRole.ADMIN,
-              verifyEmailToken: verifyToken, 
+              isEmailVerified: true, // ✅ Auto-verify email on registration
             },
           },
         },
@@ -67,12 +67,13 @@ export class AuthService {
         },
       });
 
-      await this.mailService.sendUserConfirmation(dto.email, verifyToken);
+      // Skip email sending - auto-verify
+      // await this.mailService.sendUserConfirmation(dto.email, verifyToken);
 
       const { password, refreshToken, verifyEmailToken, ...adminWithoutSecrets } = company.users[0];
 
       return {
-        message: 'Entreprise créée avec succès. Veuillez vérifier votre email pour activer le compte.',
+        message: 'Entreprise créée avec succès.',
         company: {
           id: company.id,
           name: company.name,
@@ -127,9 +128,10 @@ export class AuthService {
         throw new UnauthorizedException('Identifiants invalides.');
       }
 
-      if (!user.isEmailVerified) {
-        throw new ForbiddenException('Veuillez vérifier votre adresse email avant de vous connecter.');
-      }
+      // ✅ Email verification check removed - auto-verified on registration
+      // if (!user.isEmailVerified) {
+      //   throw new ForbiddenException('Veuillez vérifier votre adresse email avant de vous connecter.');
+      // }
 
       const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId);
       await this.updateRefreshToken(user.id, tokens.refreshToken);

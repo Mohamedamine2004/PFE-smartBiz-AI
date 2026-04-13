@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, User, CheckCircle, Clock, Eye, Trash2 } from 'lucide-react';
+import { Shield, User, CheckCircle, Clock, Eye, Trash2, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { EmptyState } from '../ui/EmptyState';
 
 export interface TeamMember {
   id: string;
@@ -57,8 +58,12 @@ export const TeamTable: React.FC<TeamTableProps> = ({
               </tr>
             ) : members.length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-gray-500 dark:text-gray-400">
-                  {t('team.table.noMembers')}
+                <td colSpan={4} className="p-0">
+                  <EmptyState
+                    icon={Users}
+                    title={t('team.empty.title', 'No team members yet')}
+                    description={t('team.empty.description', 'Invite your team members to collaborate on financial analysis and valuations.')}
+                  />
                 </td>
               </tr>
             ) : (

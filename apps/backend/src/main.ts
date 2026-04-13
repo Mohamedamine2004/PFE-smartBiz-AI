@@ -1,9 +1,20 @@
+// Sentry MUST be the first import — placed before any other module
+import * as Sentry from '@sentry/node';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser'; 
+import cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
+  // Initialize Sentry SDK
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.5 : 1.0,
+    profilesSampleRate: 1.0,
+  });
+
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
@@ -25,6 +36,50 @@ async function bootstrap() {
     credentials: true, // LIGNE CRITIQUE : Autorise l'envoi de cookies cross-origin
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  // ─── Swagger API Documentation ─────────────────────────────────
+  const config = new DocumentBuilder()
+    .setTitle('SmartBiz AI API')
+    .setDescription(
+      'AI-powered business intelligence platform for SMEs. ' +
+      'Features financial data management, company valuation, and ML predictions.',
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter your JWT access token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('auth', 'Authentication and authorization')
+    .addTag('company', 'Company management')
+    .addTag('financial', 'Financial data import and metrics')
+    .addTag('valuation', 'Company valuation')
+    .addTag('prediction', 'ML predictions')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config, {
+    deepScanRoutes: true,
+  });
+  
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+    customSiteTitle: 'SmartBiz AI API Documentation',
+  });
+  // ────────────────────────────────────────────────────────────────
+
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+  
+  console.log(`🚀 Application running on port ${port}`);
+  console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
 }
 bootstrap();

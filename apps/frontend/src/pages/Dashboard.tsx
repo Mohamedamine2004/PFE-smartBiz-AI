@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 import { useAuthStore } from '../store/authStore';
 import { financialApi } from '../lib/financial.service';
@@ -19,6 +20,7 @@ import { RevenuePieChart } from '../components/dashboard/RevenuePieChart';
 import { CashRunwayChart } from '../components/dashboard/CashRunwayChart';
 import { TrendAnalysisChart } from '../components/dashboard/TrendAnalysisChart';
 import { PredictionStatesCard } from '../components/dashboard/PredictionStatesCard';
+import { EmptyState } from '../components/ui/EmptyState';
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -102,6 +104,7 @@ export const Dashboard = () => {
     try {
       setPredictionLoading(true);
       await financialApi.runPrediction();
+      toast.success(t('dashboard.mlZone.predictionStarted', 'ML prediction started. This may take a moment...'));
 
       // Poll for completion (up to 30s)
       let attempts = 0;
@@ -113,12 +116,15 @@ export const Dashboard = () => {
         const result = await financialApi.getPrediction();
         setPrediction(result);
 
-        if (
-          result.status === 'COMPLETED' ||
-          result.status === 'FAILED' ||
-          attempts >= maxAttempts
-        ) {
+        if (result.status === 'COMPLETED') {
           setPredictionLoading(false);
+          toast.success(t('dashboard.mlZone.predictionComplete', 'Prediction complete!'));
+          return;
+        }
+
+        if (result.status === 'FAILED' || attempts >= maxAttempts) {
+          setPredictionLoading(false);
+          toast.error(t('dashboard.mlZone.predictionFailed', 'Prediction failed. Please try again.'));
           return;
         }
 
@@ -129,6 +135,7 @@ export const Dashboard = () => {
       setTimeout(poll, 1500);
     } catch {
       setPredictionLoading(false);
+      toast.error(t('dashboard.mlZone.error', 'Failed to start prediction.'));
       setPrediction((prev) =>
         prev
           ? { ...prev, status: 'FAILED', error: t('dashboard.mlZone.error') }
@@ -142,8 +149,12 @@ export const Dashboard = () => {
   /* ================================================================ */
 
   const handleExportPDF = async () => {
-    // Generate snapshot from the root dashboard ID container
-    await exportToPDF('dashboard-root-export');
+    try {
+      await exportToPDF('dashboard-root-export');
+      toast.success(t('dashboard.exportSuccess', 'Dashboard exported as PDF.'));
+    } catch {
+      toast.error(t('dashboard.exportError', 'Failed to export dashboard.'));
+    }
   };
 
   // Derive filtered metrics based on period
@@ -177,6 +188,34 @@ export const Dashboard = () => {
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center justify-center font-medium">
           {error}
         </div>
+      </div>
+    );
+  }
+
+  // Show empty state when no financial data exists
+  if (!metrics || !metrics.chartData || metrics.chartData.length === 0) {
+    return (
+      <div className="space-y-5 page-animate">
+        <DashboardTopbar
+          userName={user?.firstName || ''}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          importCount={0}
+          onToggleHistory={() => {}}
+          onNavigateImport={() => navigate('/import')}
+          onRunPrediction={handleRunPrediction}
+          predictionLoading={predictionLoading}
+          onExportPDF={handleExportPDF}
+          period={period}
+          onPeriodChange={setPeriod}
+        />
+        <EmptyState
+          icon={TrendingUp}
+          title={t('dashboard.empty.title', 'No financial data yet')}
+          description={t('dashboard.empty.description', 'Import your financial data to unlock AI-powered insights, valuations, and strategic forecasts.')}
+          actionLabel={t('dashboard.empty.action', 'Import Data')}
+          onAction={() => navigate('/import')}
+        />
       </div>
     );
   }

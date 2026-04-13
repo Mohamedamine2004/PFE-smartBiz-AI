@@ -1,19 +1,20 @@
-import { 
-  Controller, 
-  Post, 
-  Get, 
+import {
+  Controller,
+  Post,
+  Get,
   Delete,
   Param,
-  UseInterceptors, 
-  UploadedFile, 
-  UseGuards, 
-  ParseFilePipe, 
-  MaxFileSizeValidator, 
-  FileTypeValidator, 
-  StreamableFile, 
-  Header 
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  StreamableFile,
+  Header
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FinancialService } from './financial.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -22,6 +23,8 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserRole } from '@prisma/client';
 import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
+@ApiTags('financial')
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('financial')
 export class FinancialController {

@@ -1,9 +1,10 @@
-@import "tailwindcss";
-
-/* 1. Importation des polices Google Fonts */
+/* 1. Importation des polices Google Fonts (MUST be first) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* 2. Configuration du moteur Tailwind v4 (@theme) */
+/* 2. Import Tailwind */
+@import "tailwindcss";
+
+/* 3. Configuration du moteur Tailwind v4 (@theme) */
 @theme {
   /* Typographie */
   --font-sans: 'Inter', system-ui, sans-serif;

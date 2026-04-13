@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 import { AuthInitializer } from './components/AuthInitializer';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ToasterProvider } from './components/ui/ToasterProvider';
+import { SkeletonPage } from './components/ui/SkeletonPage';
 
 // Layouts (small — always loaded)
 import { PrivateLayout } from './layouts/PrivateLayout';
@@ -34,6 +35,7 @@ function App() {
     <BrowserRouter>
       <ErrorBoundary>
         <AuthInitializer>
+          <ToasterProvider />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public Routes */}

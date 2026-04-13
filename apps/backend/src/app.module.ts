@@ -11,6 +11,8 @@ import { MailModule } from './mail/mail.module';
 import { ValuationModule } from './valuation/valuation.module';
 import { FinancialModule } from './financial/financial.module';
 import { PredictionModule } from './prediction/prediction.module';
+import { CommonModule } from './common/common.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { PredictionModule } from './prediction/prediction.module';
       },
     ]),
 
+    CommonModule,
     PrismaModule,
     AuthModule,
     CompanyModule,
@@ -32,6 +35,7 @@ import { PredictionModule } from './prediction/prediction.module';
     ValuationModule,
     FinancialModule,
     PredictionModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

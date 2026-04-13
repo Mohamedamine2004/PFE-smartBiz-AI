@@ -1,0 +1,147 @@
+# ==========================================
+# Docker Compose - Development Environment
+# ==========================================
+# This file defines all services for local development.
+# Run: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # ==================== PostgreSQL Database ====================
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartbiz-postgres
+    environment:
+      POSTGRES_USER: smartbiz_user
+      POSTGRES_PASSWORD: smartbiz_password
+      POSTGRES_DB: smartbiz_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - smartbiz-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartbiz_user -d smartbiz_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ==================== Redis Cache ====================
+  redis:
+    image: redis:7-alpine
+    container_name: smartbiz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - smartbiz-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ==================== Backend API (NestJS) ====================
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.dev
+    container_name: smartbiz-backend
+    env_file:
+      - ./apps/backend/.env
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://smartbiz_user:smartbiz_password@postgres:5432/smartbiz_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_ACCESS_SECRET=your-super-secret-jwt-access-key-change-this-in-production
+      - JWT_EXPIRES_IN=15m
+      - JWT_REFRESH_SECRET=your-super-secret-jwt-refresh-key-change-this-in-production
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - MAIL_HOST=sandbox.smtp.mailtrap.io
+      - MAIL_PORT=587
+      - MAIL_USER=4afea0fd82c6e4
+      - MAIL_PASSWORD=3a9689bdee1eff
+      - MAIL_FROM=noreply@smartbiz.ai
+      - FRONTEND_URL=http://localhost:5173
+      - API_URL=http://localhost:3000/api/v1
+      - ML_ENGINE_URL=http://ml-engine:8000
+      - ML_API_KEY=dev-secret-key
+      - SENTRY_DSN=
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/backend:/usr/src/app
+      - backend_modules:/usr/src/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - smartbiz-network
+    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+    restart: unless-stopped
+
+  # ==================== Frontend (React) ====================
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: smartbiz-frontend
+    environment:
+      - VITE_API_URL=http://localhost:3000/api/v1
+      - VITE_SENTRY_DSN=
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/frontend:/usr/src/app
+      - frontend_modules:/usr/src/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - smartbiz-network
+    restart: unless-stopped
+
+  # ==================== ML Engine (Python) ====================
+  ml-engine:
+    build:
+      context: ./apps/ml-engine
+      dockerfile: Dockerfile
+    container_name: smartbiz-ml-engine
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://smartbiz_user:smartbiz_password@postgres:5432/smartbiz_db
+      - ML_API_KEY=dev-secret-key-123
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/ml-engine:/usr/src/app
+      - ml_models:/usr/src/app/models
+    depends_on:
+      - postgres
+    networks:
+      - smartbiz-network
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+# ==================== Volumes ====================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_modules:
+  frontend_modules:
+  ml_models:
+
+# ==================== Networks ====================
+networks:
+  smartbiz-network:
+    driver: bridge

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, Users, Settings, Calculator, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, Calculator, PanelLeft, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 interface SidebarProps {
@@ -27,8 +27,19 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       className={`
         relative z-20 flex h-full flex-col bg-surface border-r border-border transition-all duration-300
         ${isOpen ? 'w-[220px]' : 'w-[80px]'}
+        lg:w-[220px]
+        fixed lg:relative inset-y-0 left-0
+        ${!isOpen && 'lg:translate-x-0'}
       `}
     >
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 lg:hidden -z-10"
+          onClick={onToggleSidebar}
+        />
+      )}
+
       <div
         className={`flex h-[58px] items-center border-b border-border transition-colors duration-300 ${
           isOpen ? 'px-4' : 'justify-center px-2'
@@ -36,10 +47,10 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       >
         <button
           onClick={onToggleSidebar}
-          className="p-1.5 text-text-muted hover:text-text-main hover:bg-elevated rounded-[8px] transition-colors"
+          className="p-1.5 text-text-muted hover:text-text-main hover:bg-elevated rounded-[8px] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label={isOpen ? 'Fermer la barre latérale' : 'Ouvrir la barre latérale'}
         >
-          <PanelLeft className="h-4 w-4" />
+          {isOpen ? <X className="h-5 w-5 lg:hidden" /> : <PanelLeft className="h-5 w-5" />}
         </button>
       </div>
 
@@ -54,7 +65,7 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
               to={item.href}
               onClick={onNavigate}
               title={item.name}
-              className={`group flex items-center rounded-[8px] py-2.5 text-sm font-medium transition-all duration-200 ${
+              className={`group flex items-center rounded-[8px] py-2.5 text-sm font-medium transition-all duration-200 min-h-[44px] ${
                 isOpen ? 'px-3' : 'justify-center px-2'
               } ${
                 isActive

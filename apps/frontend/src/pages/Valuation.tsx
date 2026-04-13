@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, Save, GitCompareArrows } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Clock, Save, GitCompareArrows, Calculator } from 'lucide-react';
 import { useValuationStore } from '../store/valuationStore';
 import { valuationApi } from '../lib/valuationApi';
-import { PageHeader, Button } from '../components/ui';
+import { PageHeader, Button, EmptyState } from '../components/ui';
 import { MethodSelector } from '../components/valuation/MethodSelector';
 import { ValuationForm } from '../components/valuation/ValuationForm';
 import { ValuationResultCard } from '../components/valuation/ValuationResultCard';
@@ -58,8 +59,11 @@ export const Valuation = () => {
     try {
       const data = await valuationApi.calculate(inputs);
       setResult(data);
+      toast.success(t('valuation.calcSuccess', 'Valuation calculated successfully!'));
     } catch (err: any) {
-      setError(err?.response?.data?.message || t('valuation.calcError'));
+      const msg = err?.response?.data?.message || t('valuation.calcError', 'Failed to calculate valuation.');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -86,8 +90,9 @@ export const Valuation = () => {
         ...result.inputs,
       } as ValuationInputs);
       setSaved(true);
+      toast.success(t('valuation.saveSuccess', 'Valuation saved successfully!'));
     } catch {
-      // ignore
+      toast.error(t('valuation.saveError', 'Failed to save valuation.'));
     } finally {
       setSaving(false);
     }
@@ -207,14 +212,11 @@ export const Valuation = () => {
                 )}
               </div>
             ) : (
-              <div className="card empty-state">
-                <div className="icon-circle mb-4">
-                  <span className="text-brand text-lg font-semibold font-mono">=</span>
-                </div>
-                <p className="text-helper max-w-xs">
-                  {t('valuation.subtitle')}
-                </p>
-              </div>
+              <EmptyState
+                icon={Calculator}
+                title={t('valuation.empty.title', 'Ready to calculate')}
+                description={t('valuation.empty.description', 'Fill in the valuation parameters on the left to calculate your company\'s worth using AI-powered methods.')}
+              />
             )}
           </div>
         </div>
