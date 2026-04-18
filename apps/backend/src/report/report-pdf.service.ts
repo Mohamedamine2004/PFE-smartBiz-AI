@@ -439,7 +439,7 @@ export class ReportPdfService {
   // MARKDOWN CONTENT RENDERER
   // ═══════════════════════════════════════════════════════════════
   private renderMarkdownContent(doc: PDFKit.PDFDocument, text: string, contentW: number) {
-    const lines = text.split('\n');
+    const lines = this.sanitizePdfText(text).split('\n');
     const leftMargin = 56;
     let isFirstContent = true;
 
@@ -554,13 +554,14 @@ export class ReportPdfService {
   // FORMATTED TEXT RENDERER (handles **bold** inline)
   // ═══════════════════════════════════════════════════════════════
   private renderFormattedText(doc: PDFKit.PDFDocument, text: string, x: number, width: number) {
+    const safe = this.sanitizePdfText(text);
     // Split text by **bold** markers
-    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    const parts = safe.split(/(\*\*[^*]+\*\*)/g);
 
     if (parts.length === 1) {
       // No bold markers, render as plain text
       doc.font(FONTS.body).fontSize(10).fillColor(THEME.textPrimary)
-        .text(this.stripMarkdownFormatting(text), x, doc.y, { width, lineGap: 3, align: 'justify' });
+        .text(this.stripMarkdownFormatting(safe), x, doc.y, { width, lineGap: 3, align: 'justify' });
       return;
     }
 
@@ -585,11 +586,32 @@ export class ReportPdfService {
     }
   }
 
+  /**
+   * PDF built-in fonts (Helvetica) do not cover full Unicode; drop C0 controls (except tab/LF/CR)
+   * and replace astral characters to avoid garbled glyphs.
+   */
+  private sanitizePdfText(text: string): string {
+    let out = '';
+    for (const ch of text) {
+      const cp = ch.codePointAt(0)!;
+      if (cp < 32 && cp !== 9 && cp !== 10 && cp !== 13) {
+        continue;
+      }
+      if (cp >= 0xd800 && cp <= 0xdfff) {
+        continue;
+      }
+      out += cp > 0xffff ? '?' : ch;
+    }
+    return out;
+  }
+
   private stripMarkdownFormatting(text: string): string {
-    return text
-      .replace(/\*\*([^*]+)\*\*/g, '$1')   // Remove bold markers for plain text rendering
-      .replace(/\*([^*]+)\*/g, '$1')         // Remove italic markers
-      .replace(/`([^`]+)`/g, '$1');           // Remove code markers
+    return this.sanitizePdfText(
+      text
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold markers for plain text rendering
+        .replace(/\*([^*]+)\*/g, '$1') // Remove italic markers
+        .replace(/`([^`]+)`/g, '$1'), // Remove code markers
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════

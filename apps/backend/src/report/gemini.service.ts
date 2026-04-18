@@ -64,6 +64,10 @@ export class GeminiService {
   private xaiBaseUrl = 'https://api.x.ai/v1';
   private generationQueue: Promise<void> = Promise.resolve();
   private readonly requestTimeoutMs = 90000;
+  /** Hard cap on full user prompt to reduce context-length / invalid-request 400s. */
+  private readonly maxLlmPromptChars = 100_000;
+  /** Cap on the embedded monthly trend block inside the base prompt. */
+  private readonly maxMonthlyTableChars = 45_000;
 
   constructor(private readonly configService: ConfigService) {
     const xaiKey =
@@ -353,6 +357,22 @@ export class GeminiService {
   }
 
   /**
+   * Truncate very long prompts before sending to the LLM (context window / request size limits).
+   */
+  private capPromptForLlm(prompt: string): string {
+    if (prompt.length <= this.maxLlmPromptChars) {
+      return prompt;
+    }
+    this.logger.warn(
+      `LLM prompt truncated from ${prompt.length} to ${this.maxLlmPromptChars} chars (API context limits)`,
+    );
+    return (
+      prompt.slice(0, this.maxLlmPromptChars) +
+      '\n\n[Report prompt truncated for API safety limits.]'
+    );
+  }
+
+  /**
    * OpenAI-compatible APIs may return `message.content` as a string or as an array of parts
    * (e.g. `{ type: 'text', text: '...' }`). Treating non-strings as "empty" caused LLM
    * calls to succeed on the wire but fall back to template content for every section.
@@ -415,27 +435,46 @@ export class GeminiService {
     const runLabel =
       this.activeLlm === 'xai' ? 'xAI Grok chat completion' : 'OpenRouter chat completion';
 
-    const run = this.generationQueue.then(async () => {
-      this.logger.debug(`Sending prompt (${prompt.length} chars) to ${this.activeLlm}...`);
-      const response = await this.runWithTimeout(
-        axios.post(
-          url,
-          {
+    const cappedPrompt = this.capPromptForLlm(prompt);
+
+    const parseCap = (raw: string | undefined, fallback: number) => {
+      const n = Number.parseInt(raw ?? '', 10);
+      return Number.isFinite(n) && n > 0 ? Math.min(n, 128_000) : fallback;
+    };
+    const xaiMaxCompletion = parseCap(
+      this.configService.get<string>('XAI_MAX_COMPLETION_TOKENS'),
+      4096,
+    );
+    const openRouterMaxTokens = parseCap(
+      this.configService.get<string>('OPENROUTER_MAX_TOKENS'),
+      4096,
+    );
+
+    const requestBody =
+      this.activeLlm === 'xai'
+        ? {
             model: this.activeModel,
-            messages: [
-              {
-                role: 'user',
-                content: prompt,
-              },
-            ],
+            messages: [{ role: 'user', content: cappedPrompt }],
             temperature: 0.7,
-            max_tokens: 4096,
-          },
-          {
-            headers,
-            timeout: this.requestTimeoutMs,
-          },
-        ),
+            stream: false,
+            max_completion_tokens: xaiMaxCompletion,
+          }
+        : {
+            model: this.activeModel,
+            messages: [{ role: 'user', content: cappedPrompt }],
+            temperature: 0.7,
+            max_tokens: openRouterMaxTokens,
+          };
+
+    const run = this.generationQueue.then(async () => {
+      this.logger.debug(
+        `Sending prompt (${cappedPrompt.length} chars, capped from ${prompt.length}) to ${this.activeLlm}...`,
+      );
+      const response = await this.runWithTimeout(
+        axios.post(url, requestBody, {
+          headers,
+          timeout: this.requestTimeoutMs,
+        }),
         this.requestTimeoutMs,
         runLabel,
       );
@@ -461,7 +500,17 @@ export class GeminiService {
   private describeLlmHttpError(error: unknown): string {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-      const data = error.response?.data as
+      const rawData = error.response?.data;
+
+      if (status !== undefined && status >= 400 && rawData !== undefined) {
+        const serialized =
+          typeof rawData === 'string' ? rawData : JSON.stringify(rawData);
+        const truncated =
+          serialized.length > 4000 ? `${serialized.slice(0, 4000)}...[truncated]` : serialized;
+        this.logger.error(`LLM HTTP ${status} response body: ${truncated}`);
+      }
+
+      const data = rawData as
         | { error?: { message?: string }; message?: string }
         | undefined;
 
@@ -634,7 +683,19 @@ Main business problem: ${problemStatement?.trim() || 'No specific problem provid
     if (rows.length === 0) {
       return 'No monthly data available.';
     }
-    return rows.join('\n');
+
+    let lines = [...rows];
+    let joined = lines.join('\n');
+    if (joined.length > this.maxMonthlyTableChars) {
+      while (joined.length > this.maxMonthlyTableChars && lines.length > 1) {
+        lines = lines.slice(1);
+        joined = lines.join('\n');
+      }
+      this.logger.warn(
+        `Monthly trend table truncated to ${lines.length} rows (${joined.length} chars) for LLM context limits`,
+      );
+    }
+    return joined;
   }
 
   private toIsoDate(value: string | Date | undefined): string {
