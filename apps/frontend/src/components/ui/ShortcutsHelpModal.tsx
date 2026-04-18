@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import type { ShortcutDefinition } from '../hooks/useKeyboardShortcuts';
+import type { ShortcutDefinition } from '../../hooks/useKeyboardShortcuts';
 
 interface ShortcutsHelpModalProps {
   open: boolean;
@@ -56,7 +56,7 @@ export const ShortcutsHelpModal = ({ open, onClose, shortcuts }: ShortcutsHelpMo
                   <div key={s.key} className="flex items-center justify-between py-1">
                     <span className="text-sm text-text-main">{s.label}</span>
                     <div className="flex items-center gap-1">
-                      {s.key.split(' ').map((part, idx) => (
+                      {s.key.split(' ').map((part: string, idx: number) => (
                         <kbd
                           key={idx}
                           className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 text-xs font-mono font-medium text-text-muted bg-elevated border border-border rounded-md shadow-sm"

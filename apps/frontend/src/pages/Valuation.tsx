@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Clock, Save, GitCompareArrows, Calculator } from 'lucide-react';
 import { useValuationStore } from '../store/valuationStore';
@@ -13,9 +14,13 @@ import { ExportButtons } from '../components/valuation/ExportButtons';
 import { HistoryPanel } from '../components/valuation/HistoryPanel';
 import { ComparisonView } from '../components/valuation/ComparisonView';
 import type { ValuationInputs } from '../types/valuation';
+import { ValuationMethod } from '../types/valuation';
 
 export const Valuation = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const {
     methods,
     selectedMethod,
@@ -44,12 +49,35 @@ export const Valuation = () => {
       try {
         const data = await valuationApi.getMethods();
         setMethods(data);
+
+        const methodParam = searchParams.get('method') as typeof selectedMethod;
+        if (methodParam && data.some(m => m.id === methodParam)) {
+          setSelectedMethod(methodParam);
+        } else if (!selectedMethod) {
+          const defaultMethod = data.find((m) => m.id === ValuationMethod.EV_EBITDA)?.id ?? data[0]?.id;
+          if (defaultMethod) {
+            setSelectedMethod(defaultMethod);
+            setSearchParams({ method: defaultMethod }, { replace: true });
+          }
+        }
       } catch {
         setError(t('valuation.loadError'));
       }
     };
     fetchMethods();
-  }, [setMethods, setError]);
+  }, [setMethods, setError, t]);
+
+  useEffect(() => {
+    const methodParam = searchParams.get('method') as typeof selectedMethod;
+    if (methodParam && methodParam !== selectedMethod && methods.some(m => m.id === methodParam)) {
+      setSelectedMethod(methodParam);
+    }
+  }, [searchParams, selectedMethod, setSelectedMethod, methods]);
+
+  const handleMethodSelect = (method: any) => {
+    setSelectedMethod(method);
+    setSearchParams({ method });
+  };
 
   const handleCalculate = async (inputs: ValuationInputs) => {
     setLoading(true);
@@ -153,7 +181,7 @@ export const Valuation = () => {
       <MethodSelector
         methods={methods}
         selected={selectedMethod}
-        onSelect={setSelectedMethod}
+        onSelect={handleMethodSelect}
       />
 
       {/* Main content — form + results side by side */}

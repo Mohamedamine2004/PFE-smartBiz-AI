@@ -5,6 +5,8 @@ import {
   ResponsiveContainer, Legend
 } from 'recharts';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { ChartHeader } from '../ui/ChartHeader';
+import { getMetricByAliases } from '../../lib/format.utils';
 
 interface RevenueExpensesChartProps {
   data: ChartDataPoint[];
@@ -38,49 +40,19 @@ export const RevenueExpensesChart = ({ data }: RevenueExpensesChartProps) => {
   const safeData = data || [];
   const [chartMode, setChartMode] = useState<'grouped' | 'stacked'>('grouped');
 
-  const normalizeKey = (key: string) => key.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const getMetricValue = (point: ChartDataPoint, candidateKeys: string[]): number => {
-    const entries = Object.entries(point);
-    for (const candidate of candidateKeys) {
-      const exact = point[candidate];
-      if (typeof exact === 'number') return exact;
-      if (typeof exact === 'string' && exact.trim() !== '') {
-        const parsed = Number(exact);
-        if (!Number.isNaN(parsed)) return parsed;
-      }
-      const normalizedCandidate = normalizeKey(candidate);
-      const matched = entries.find(([key]) => normalizeKey(key) === normalizedCandidate)?.[1];
-      if (typeof matched === 'number') return matched;
-      if (typeof matched === 'string' && matched.trim() !== '') {
-        const parsed = Number(matched);
-        if (!Number.isNaN(parsed)) return parsed;
-      }
-    }
-    return 0;
-  };
 
   const chartData = safeData.map((d) => ({
     period: String(d.period || ''),
-    revenue: getMetricValue(d, ['Gross_Revenue', 'Revenue', 'revenue']),
-    expenses: getMetricValue(d, ['Operating_Expenses_Total', 'Expenses', 'expenses']),
+    revenue: getMetricByAliases(d as Record<string, unknown>, ['Gross_Revenue', 'Revenue', 'revenue']),
+    expenses: getMetricByAliases(d as Record<string, unknown>, ['Operating_Expenses_Total', 'Expenses', 'expenses']),
   }));
 
   return (
     <div className="chart-container">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
-        <div className="space-y-1 text-left">
-          <h3
-            className="text-lg font-bold text-text-primary tracking-tight"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            {t('dashboard.charts.revenue', 'Revenue & Expenses')}
-          </h3>
-          <p className="text-xs font-medium text-text-muted">
-            {t('dashboard.charts.revenueSubtitle', 'Compare your generated revenue against operational expenses')}
-          </p>
-        </div>
-        
+      <ChartHeader
+        title={t('dashboard.charts.revenue', 'Revenue & Expenses')}
+        subtitle={t('dashboard.charts.revenueSubtitle', 'Compare your generated revenue against operational expenses')}
+      >
         <div className="flex items-center bg-elevated border border-border rounded-lg p-1">
           <button
             onClick={() => setChartMode('grouped')}
@@ -95,7 +67,7 @@ export const RevenueExpensesChart = ({ data }: RevenueExpensesChartProps) => {
             {t('dashboard.charts.modeStacked', 'Stacked')}
           </button>
         </div>
-      </div>
+      </ChartHeader>
 
       {safeData.length === 0 ? (
         <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-border rounded-xl bg-surface">

@@ -4,6 +4,8 @@ import {
   ResponsiveContainer, Legend, Cell
 } from 'recharts';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { ChartHeader } from '../ui/ChartHeader';
+import { getMetricByAliases } from '../../lib/format.utils';
 
 interface TrendAnalysisChartProps {
   data: ChartDataPoint[];
@@ -40,21 +42,10 @@ export const TrendAnalysisChart = ({ data }: TrendAnalysisChartProps) => {
   const { t } = useTranslation();
   const safeData = data || [];
 
-  const getMetricValue = (point: ChartDataPoint, keys: string[]): number => {
-    for (const key of keys) {
-      const val = point[key as keyof ChartDataPoint];
-      if (typeof val === 'number') return val;
-      if (typeof val === 'string') {
-        const parsed = Number(val);
-        if (!Number.isNaN(parsed)) return parsed;
-      }
-    }
-    return 0;
-  };
 
   const chartData = safeData.map((d) => {
-    const rev = getMetricValue(d, ['Gross_Revenue', 'Revenue']);
-    const exp = getMetricValue(d, ['Operating_Expenses_Total', 'Expenses']);
+    const rev = getMetricByAliases(d as Record<string, unknown>, ['Gross_Revenue', 'Revenue']);
+    const exp = getMetricByAliases(d as Record<string, unknown>, ['Operating_Expenses_Total', 'Expenses']);
     const margin = rev > 0 ? ((rev - exp) / rev) * 100 : 0;
     
     return {
@@ -66,17 +57,10 @@ export const TrendAnalysisChart = ({ data }: TrendAnalysisChartProps) => {
 
   return (
     <div className="chart-container">
-      <div className="mb-5 space-y-1 text-left">
-        <h3
-          className="text-lg font-bold text-text-primary tracking-tight"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
-          {t('dashboard.charts.trendAnalysisTitle', 'Revenue & Margin Trends')}
-        </h3>
-        <p className="text-xs font-medium text-text-muted">
-          {t('dashboard.charts.trendAnalysisSubtitle', 'Gross volume vs relative profit margin evolution')}
-        </p>
-      </div>
+      <ChartHeader
+        title={t('dashboard.charts.trendAnalysisTitle', 'Revenue & Margin Trends')}
+        subtitle={t('dashboard.charts.trendAnalysisSubtitle', 'Gross volume vs relative profit margin evolution')}
+      />
 
       {safeData.length === 0 ? (
         <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-border rounded-xl bg-surface">

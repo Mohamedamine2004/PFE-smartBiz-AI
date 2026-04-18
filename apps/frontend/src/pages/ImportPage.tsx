@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import { Upload, FileSpreadsheet, AlertCircle, Info, CheckCircle2 } from 'lucide-react';
 import { financialApi } from '../lib/financial.service';
 import { useAuthStore } from '../store/authStore';
@@ -55,9 +56,10 @@ export const ImportPage = () => {
 
       toast.success(t('import.success', 'Data imported successfully! Redirecting to dashboard...'));
       navigate('/dashboard');
-    } catch (err: any) {
-      console.error('Upload failed:', err);
-      const errorMessage = err.response?.data?.message || t('import.errors.uploadFailed', 'An error occurred during import. Please check your data format.');
+    } catch (err: unknown) {
+      const errorMessage = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : t('import.errors.uploadFailed', 'An error occurred during import. Please check your data format.');
       const msg = Array.isArray(errorMessage) ? errorMessage[0] : errorMessage;
       setError(msg);
       toast.error(msg);

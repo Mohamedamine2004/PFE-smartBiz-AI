@@ -65,16 +65,18 @@ export const financialApi = {
   /**
    * Fetches the latest ML prediction result.
    */
-  getPrediction: async () => {
-    const response = await api.get('/prediction/latest');
+  getPrediction: async (batchId?: string) => {
+    const response = await api.get('/prediction/latest', {
+      params: batchId ? { batchId } : undefined,
+    });
     return response.data;
   },
 
   /**
    * Triggers a new ML prediction (POST /prediction/run).
    */
-  runPrediction: async () => {
-    const response = await api.post('/prediction/run');
+  runPrediction: async (batchId?: string) => {
+    const response = await api.post('/prediction/run', batchId ? { batchId } : {});
     return response.data;
   },
 };

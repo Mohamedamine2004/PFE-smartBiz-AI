@@ -63,7 +63,7 @@ echo ========================================
 echo.
 echo Services running:
 echo   Frontend:    http://localhost:5173
-echo   Backend API: http://localhost:3000/api/v1
+echo   Backend API: http://localhost:3001/api/v1
 echo   ML Engine:   http://localhost:8000/docs
 echo   PostgreSQL:  localhost:5432
 echo.

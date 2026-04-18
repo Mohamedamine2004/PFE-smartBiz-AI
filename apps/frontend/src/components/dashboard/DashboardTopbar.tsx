@@ -17,6 +17,8 @@ interface DashboardTopbarProps {
   onExportPDF: () => void;
   period: 'all' | '12m' | '6m';
   onPeriodChange: (period: 'all' | '12m' | '6m') => void;
+  activeBatchId?: string | null;
+  onClearBatchId?: () => void;
 }
 
 const getGreetingKey = (): string => {
@@ -45,11 +47,31 @@ export const DashboardTopbar = ({
   onExportPDF,
   period,
   onPeriodChange,
+  activeBatchId,
+  onClearBatchId,
 }: DashboardTopbarProps) => {
   const { t } = useTranslation();
 
   return (
     <div className="space-y-4">
+      {activeBatchId && (
+        <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 p-2.5 rounded-lg flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+            </span>
+            <span className="text-sm font-medium">{t('dashboard.banner.historicalSnapshot')}</span>
+          </div>
+          <button
+            onClick={onClearBatchId}
+            className="text-xs font-bold uppercase tracking-wider bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 px-3 py-1.5 rounded-md transition-colors"
+          >
+            {t('dashboard.banner.returnLatestData')}
+          </button>
+        </div>
+      )}
+
       {/* Row 1: Greeting + Actions */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -63,8 +85,8 @@ export const DashboardTopbar = ({
           <div className="flex flex-wrap items-center gap-1 bg-surface border border-border p-1 rounded-md sm:mr-4 shadow-sm">
             {[
               { id: 'all', label: t('dashboard.filters.all', 'Tout') },
-              { id: '12m', label: '12 Mois' },
-              { id: '6m', label: '6 Mois' }
+              { id: '12m', label: t('dashboard.filters.month12') },
+              { id: '6m', label: t('dashboard.filters.month6') }
             ].map((p) => (
               <button
                 key={p.id}
@@ -86,14 +108,14 @@ export const DashboardTopbar = ({
             onClick={onExportPDF}
             icon={<FileText className="w-4 h-4" />}
           >
-            <span className="hidden sm:inline">Export PDF</span>
+            <span className="hidden sm:inline">{t('dashboard.export.pdf')}</span>
           </Button>
 
           {/* Import History Button */}
-          <button onClick={onToggleHistory} className="action-btn">
+          <button onClick={onToggleHistory} className="action-btn relative">
             <ClipboardList className="w-4 h-4" />
-            <span className="hidden sm:inline">{t('dashboard.historyBtn')}</span>
-            {importCount > 0 && (
+            <span className="hidden sm:inline">{t('dashboard.historyBtn', 'History')}</span>
+            {importCount > 0 && typeof importCount === 'number' && (
               <span className="badge-count animate-in zoom-in duration-300">
                 {importCount}
               </span>

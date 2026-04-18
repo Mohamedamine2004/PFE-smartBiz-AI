@@ -1,36 +1,14 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Users, Target, Globe, PieChart, TrendingUp, AlertTriangle, TrendingDown } from 'lucide-react';
 import api from '../../lib/axios';
 import type { StrategicKpis } from '../../types/dashboard';
+import { useAnimatedValue } from '../../hooks/useAnimatedValue';
+import { formatWithSymbol } from '../../lib/format.utils';
 
 interface StrategicKpisGridProps {
   data?: StrategicKpis;
 }
-
-/* ── Animated counter hook ── */
-const useAnimatedValue = (target: number, duration = 1200) => {
-  const [value, setValue] = useState(0);
-  const frameRef = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    const start = performance.now();
-    const animate = (now: number) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(target * eased);
-      if (progress < 1) {
-        frameRef.current = requestAnimationFrame(animate);
-      }
-    };
-    frameRef.current = requestAnimationFrame(animate);
-    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); };
-  }, [target, duration]);
-
-  return value;
-};
 
 /* ── Individual KPI Card ── */
 const KpiCard = ({ kpi, index }: { kpi: KpiItem; index: number }) => {
@@ -126,12 +104,7 @@ export const StrategicKpisGrid = ({ data }: StrategicKpisGridProps) => {
       .catch(() => {});
   }, []);
 
-  const formatWithCurrency = (value: number) => {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M ${currencySymbol}`;
-    }
-    return `${value.toLocaleString('fr-FR')} ${currencySymbol}`;
-  };
+  const formatWithCurrency = (value: number) => formatWithSymbol(value, currencySymbol);
 
   const cacVal = data?.cac || 0;
   const ltvVal = data?.ltv || 0;
@@ -148,7 +121,7 @@ export const StrategicKpisGrid = ({ data }: StrategicKpisGridProps) => {
       iconColor: 'text-cyan-400',
       iconBg: 'bg-cyan-500/10 border border-cyan-500/20',
       alert: cacVal > 500
-        ? { type: 'warning', text: 'CAC Élevé', icon: AlertTriangle }
+        ? { type: 'warning', text: t('dashboard.kpis.highCac'), icon: AlertTriangle }
         : undefined,
     },
     {
@@ -177,7 +150,7 @@ export const StrategicKpisGrid = ({ data }: StrategicKpisGridProps) => {
       color: 'from-indigo-500/20 to-blue-500/0',
       iconColor: 'text-indigo-400',
       iconBg: 'bg-indigo-500/10 border border-indigo-500/20',
-      alert: { type: 'neutral', text: 'Croissance Stable', icon: TrendingUp },
+      alert: { type: 'neutral', text: t('dashboard.kpis.stableGrowth'), icon: TrendingUp },
     },
     {
       label: t('dashboard.kpis.marketShare', 'Part de marché'),
@@ -189,8 +162,8 @@ export const StrategicKpisGrid = ({ data }: StrategicKpisGridProps) => {
       iconColor: 'text-emerald-400',
       iconBg: 'bg-emerald-500/10 border border-emerald-500/20',
       alert: data?.marketShare && data.marketShare < 5
-        ? { type: 'warning', text: 'À développer', icon: TrendingDown }
-        : { type: 'success', text: 'Position Forte', icon: TrendingUp },
+        ? { type: 'warning', text: t('dashboard.kpis.toDevelop'), icon: TrendingDown }
+        : { type: 'success', text: t('dashboard.kpis.strongPosition'), icon: TrendingUp },
     },
   ];
 

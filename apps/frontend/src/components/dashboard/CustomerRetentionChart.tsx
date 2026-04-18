@@ -4,6 +4,8 @@ import {
   ResponsiveContainer, Legend
 } from 'recharts';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { ChartHeader } from '../ui/ChartHeader';
+import { getMetricByAliases } from '../../lib/format.utils';
 
 interface CustomerRetentionChartProps {
   data: ChartDataPoint[];
@@ -35,35 +37,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const CustomerRetentionChart = ({ data }: CustomerRetentionChartProps) => {
   const { t } = useTranslation();
   const safeData = data || [];
-
-  const normalizeKey = (key: string) => key.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const getMetricValue = (point: ChartDataPoint, candidateKeys: string[]): number | null => {
-    const entries = Object.entries(point);
-    for (const candidate of candidateKeys) {
-      const exact = point[candidate];
-      if (typeof exact === 'number') return exact;
-      if (typeof exact === 'string' && exact.trim() !== '') {
-        const parsed = Number(exact);
-        if (!Number.isNaN(parsed)) return parsed;
-      }
-      const normalizedCandidate = normalizeKey(candidate);
-      const matched = entries.find(([key]) => normalizeKey(key) === normalizedCandidate)?.[1];
-      if (typeof matched === 'number') return matched;
-      if (typeof matched === 'string' && matched.trim() !== '') {
-        const parsed = Number(matched);
-        if (!Number.isNaN(parsed)) return parsed;
-      }
-    }
-    return null;
-  };
-
   const chartData = safeData.map((d) => ({
     period: String(d.period || ''),
-    newCustomers: getMetricValue(d, [
+    newCustomers: getMetricByAliases(d as Record<string, unknown>, [
       'New_Customers_Acquired', 'New_Customers', 'newCustomers', 'customers',
     ]),
-    totalRetention: getMetricValue(d, [
+    totalRetention: getMetricByAliases(d as Record<string, unknown>, [
       'Customers_Churned', 'Retention_Rate', 'Total_Retention',
       'totalRetention', 'retentionRate', 'Retention',
     ]),
@@ -71,17 +50,10 @@ export const CustomerRetentionChart = ({ data }: CustomerRetentionChartProps) =>
 
   return (
     <div className="chart-container">
-      <div className="mb-5 space-y-1 text-left">
-        <h3
-          className="text-lg font-bold text-text-primary tracking-tight"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
-          {t('dashboard.charts.retentionTitle', 'Acquisition & Retention')}
-        </h3>
-        <p className="text-xs font-medium text-text-muted">
-          {t('dashboard.charts.retentionSubtitle', 'Historical cohort performance drawn from the live database')}
-        </p>
-      </div>
+      <ChartHeader
+        title={t('dashboard.charts.retentionTitle', 'Acquisition & Retention')}
+        subtitle={t('dashboard.charts.retentionSubtitle', 'Historical cohort performance drawn from the live database')}
+      />
 
       {safeData.length === 0 ? (
         <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-border rounded-xl bg-surface">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import axios from 'axios';
 import api from '../lib/axios';
 import { Logo } from '../components/ui/Logo';
 import { Button, Alert } from '../components/ui';
@@ -29,8 +30,8 @@ export const AcceptInvite = () => {
       await api.post('/auth/accept-invite', { token, password, firstName, lastName });
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('auth.acceptInvite.error'));
+    } catch (err: unknown) {
+      setError(axios.isAxiosError(err) ? err.response?.data?.message : t('auth.acceptInvite.error'));
     } finally {
       setIsLoading(false);
     }

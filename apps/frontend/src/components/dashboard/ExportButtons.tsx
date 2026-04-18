@@ -1,4 +1,4 @@
-import { Download, FileText, Table } from 'lucide-react';
+import { FileText, Table } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { downloadPDFReport, exportToExcel } from '../../lib/report.generator';
@@ -43,7 +43,7 @@ export const ExportButtons = ({ metrics, companyName, period }: ExportButtonsPro
         title={t('dashboard.exportPDF.tooltip', 'Export as PDF')}
       >
         <FileText className="w-4 h-4" />
-        <span className="hidden sm:inline">PDF</span>
+        <span className="hidden sm:inline">{t('dashboard.exportPDF.short', 'PDF')}</span>
       </button>
       
       <button
@@ -52,7 +52,7 @@ export const ExportButtons = ({ metrics, companyName, period }: ExportButtonsPro
         title={t('dashboard.exportExcel.tooltip', 'Export as Excel')}
       >
         <Table className="w-4 h-4" />
-        <span className="hidden sm:inline">Excel</span>
+        <span className="hidden sm:inline">{t('dashboard.exportExcel.short', 'Excel')}</span>
       </button>
     </div>
   );

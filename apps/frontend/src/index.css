@@ -43,13 +43,13 @@
 @layer base {
   :root {
     /* --- LIGHT MODE --- (High contrast minimal) */
-    --bg-base: #F5F7FA;
-    --bg-surface: #FFFFFF;
+    --bg-base: #FFFFFF;
+    --bg-surface: #FAFAFA;
     --bg-elevated: #FFFFFF;
-    --border-color: rgba(60, 73, 78, 0.15); /* Ghost border fallbacks */
+    --border-color: rgba(0, 0, 0, 0.06); /* Extremely subtle border */
 
-    --text-primary: #121212;
-    --text-secondary: #50616F;
+    --text-primary: #0A0A0A;
+    --text-secondary: #525252;
 
     --brand: #00D1FF;
     --secondary: #6366F1;
@@ -57,10 +57,10 @@
     --warning: #F59E0B;
     --error: #FFB4AB;
 
-    /* Ombres Light Mode */
-    --shadow-card: 0px 4px 12px rgba(0, 0, 0, 0.05);
-    --shadow-card-hover: 0px 8px 24px rgba(0, 0, 0, 0.1);
-    --shadow-focus: 0 0 0 3px rgba(0, 209, 255, 0.25);
+    /* Ombres Light Mode (Premium diffused) */
+    --shadow-card: 0px 4px 20px rgba(0, 0, 0, 0.03);
+    --shadow-card-hover: 0px 12px 32px rgba(0, 0, 0, 0.06);
+    --shadow-focus: 0 0 0 4px rgba(0, 209, 255, 0.2);
 
     /* Input Variables Light Mode */
     --input-bg: #FFFFFF;
@@ -69,27 +69,27 @@
   }
 
   .dark {
-    /* --- DARK MODE --- (The Financial Architect) */
-    --bg-base: #121212;
-    --bg-surface: #1C1B1B;
-    --bg-elevated: #2A2A2A;
-    --border-color: rgba(60, 73, 78, 0.15);
+    /* --- DARK MODE --- (Cockpit Navy) */
+    --bg-base: #020617; /* Slate 950 */
+    --bg-surface: #0F172A; /* Slate 900 */
+    --bg-elevated: #1E293B; /* Slate 800 */
+    --border-color: rgba(148, 163, 184, 0.1);
 
-    --text-primary: #FFFFFF;
-    --text-secondary: #8A969B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
 
     --brand: #00D1FF;
-    --secondary: #3E8EFF;
-    --success: #23D463;
-    --warning: #FBBF24;
-    --error: #FFB4AB;
+    --secondary: #10B981; /* Emerald neon accent */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --error: #EF4444;
 
     /* Ombres et Effets Dark Mode (Ambient Depth) */
-    --shadow-card: 0px 24px 48px rgba(0, 0, 0, 0.4);
-    --shadow-card-hover: 0px 32px 64px rgba(0, 0, 0, 0.5), 0px 0px 0px 1px rgba(0, 209, 255, 0.08);
-    --shadow-focus: 0 0 0 3px rgba(0, 209, 255, 0.25);
-    --accent-glow: 0 0 20px rgba(0, 209, 255, 0.4);
-    --accent-glow-lg: linear-gradient(135deg, rgba(0, 209, 255, 0.1) 0%, transparent 60%);
+    --shadow-card: 0px 24px 48px rgba(0, 0, 0, 0.3);
+    --shadow-card-hover: 0px 32px 64px rgba(0, 0, 0, 0.4), 0px 0px 0px 1px rgba(0, 209, 255, 0.05);
+    --shadow-focus: 0 0 0 4px rgba(0, 209, 255, 0.2);
+    --accent-glow: 0 0 30px rgba(0, 209, 255, 0.25);
+    --accent-glow-lg: linear-gradient(135deg, rgba(0, 209, 255, 0.08) 0%, transparent 60%);
 
     /* Input Variables Dark Mode (filled style active) */
     --input-bg: #353534;
@@ -104,7 +104,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Effet de texture (Bruit SVG) appliqué uniquement en Dark Mode */
+  /* Effet de texture (Cockpit Grid) appliqué uniquement en Dark Mode */
   .dark body::before {
     content: "";
     position: fixed;
@@ -114,8 +114,13 @@
     height: 100vh;
     pointer-events: none;
     z-index: 9999;
-    opacity: 0.018;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
   }
 }
 
@@ -133,19 +138,23 @@
 
 /* Bouton Primaire (Avec animation de survol et Glow) */
 .btn-primary {
-  @apply flex items-center justify-center bg-brand text-white font-medium rounded-md px-4 transition-all duration-200 outline-none;
-  height: 40px;
-  /* Taille MD par défaut */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  @apply flex items-center justify-center bg-brand text-text-main font-semibold rounded-lg px-6 transition-all duration-300 outline-none;
+  height: 48px;
+  /* Premium size */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 209, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  filter: brightness(1.1);
 }
 
+.dark .btn-primary {
+  @apply text-background;
+}
 .dark .btn-primary:hover {
-  box-shadow: var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--accent-glow), inset 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .btn-primary:focus-visible {
@@ -199,20 +208,27 @@
   border-color: var(--brand) !important;
 }
 
-/* Cartes Standards (No-Line Rule Implementation) */
+/* Cartes Standards (Premium) */
 .card {
-  @apply bg-surface border border-border rounded-xl p-5 transition-colors duration-200;
+  @apply bg-surface ring-1 ring-border/50 rounded-2xl p-6 md:p-8 transition-all duration-300;
   box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* Glow Cards */
 .glow-card {
-  @apply bg-surface rounded-xl p-8 transition-colors duration-200 relative overflow-hidden transition-all duration-300;
+  @apply bg-surface rounded-2xl p-8 transition-all duration-500 relative overflow-hidden;
   box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
 }
 
-.dark .glow-card:hover {
-  border-color: rgba(56, 189, 248, 0.3);
+.glow-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(0, 209, 255, 0.2);
 }
 
 .dark .glow-card:hover::after {

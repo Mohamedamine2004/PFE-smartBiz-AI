@@ -25,6 +25,7 @@ model Company {
   batches            ImportBatch[]
   predictions        Prediction[]
   valuations         SavedValuation[]
+  reports            Report[]
   createdAt          DateTime         @default(now())
   deletedAt          DateTime?
 }
@@ -39,6 +40,7 @@ model User {
   role         UserRole  @default(USER)
   companyId    String
   company      Company   @relation(fields: [companyId], references: [id])
+  reports      Report[]
   createdAt    DateTime  @default(now())
   deletedAt    DateTime?
 
@@ -142,4 +144,60 @@ enum NotificationType {
   ANOMALY_DETECTED
   TEAM_INVITE
   SYSTEM_ALERT
+}
+
+// --- REPORT GENERATION ---
+
+model Report {
+  id             String       @id @default(uuid())
+  companyId       String
+  company         Company      @relation(fields: [companyId], references: [id])
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  status          ReportStatus @default(QUEUED)
+  language        String       @default("FR")
+  lengthProfile   String       @default("MEDIUM")
+  reportTypes     String[]
+  problemStatement String?
+  batchId         String?
+  snapshot        Json?
+  content         Json?
+  artifactPath    String?
+  pageCount       Int?
+  error           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  generatedAt     DateTime?
+
+  @@index([companyId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+enum ReportStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// --- LANDING PAGE INVITATIONS ---
+
+model InvitationRequest {
+  id          String                  @id @default(uuid())
+  fullName    String
+  email       String                  @unique
+  companyName String?
+  role        String?
+  message     String?
+  status      InvitationRequestStatus @default(PENDING)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+enum InvitationRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

@@ -64,11 +64,11 @@ services:
       - JWT_EXPIRES_IN=15m
       - JWT_REFRESH_SECRET=your-super-secret-jwt-refresh-key-change-this-in-production
       - JWT_REFRESH_EXPIRES_IN=7d
-      - MAIL_HOST=sandbox.smtp.mailtrap.io
+      - MAIL_HOST=smtp.gmail.com
       - MAIL_PORT=587
-      - MAIL_USER=4afea0fd82c6e4
-      - MAIL_PASSWORD=3a9689bdee1eff
-      - MAIL_FROM=noreply@smartbiz.ai
+      - MAIL_USER=saidanemohamedamine72@gmail.com
+      - MAIL_PASSWORD=dazmphdftlxffsnh
+      - MAIL_FROM=saidanemohamedamine72@gmail.com
       - FRONTEND_URL=http://localhost:5173
       - API_URL=http://localhost:3000/api/v1
       - ML_ENGINE_URL=http://ml-engine:8000
@@ -86,7 +86,7 @@ services:
         condition: service_healthy
     networks:
       - smartbiz-network
-    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+    command: sh -c "npx prisma migrate deploy && npx prisma generate && npm run start:dev"
     restart: unless-stopped
 
   # ==================== Frontend (React) ====================
@@ -118,7 +118,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://smartbiz_user:smartbiz_password@postgres:5432/smartbiz_db
-      - ML_API_KEY=dev-secret-key-123
+      - ML_API_KEY=dev-secret-key
     ports:
       - "8000:8000"
     volumes:

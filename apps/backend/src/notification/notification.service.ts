@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoggerService } from 'nestjs-pino';
 
 export type NotificationType = 
   | 'IMPORT_SUCCESS'
@@ -12,9 +11,10 @@ export type NotificationType =
 
 @Injectable()
 export class NotificationService {
+  private readonly logger = new Logger(NotificationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
-    private readonly logger: LoggerService,
   ) {}
 
   async createNotification(
@@ -24,11 +24,7 @@ export class NotificationService {
     message: string,
     link?: string,
   ) {
-    this.logger.info({
-      msg: 'Creating notification',
-      userId,
-      type,
-    });
+    this.logger.log(`Creating notification for user ${userId} (${type})`);
 
     return this.prisma.notification.create({
       data: {

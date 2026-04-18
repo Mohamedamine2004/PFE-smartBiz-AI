@@ -197,6 +197,7 @@ export class FinancialService {
         marketShare: batch.marketShare,
         employeeCount: batch.employeeCount,
       },
+      macroFeatures: batch.macroFeatures,
       chartData: Array.from(chartDataMap.values()),
     };
   }

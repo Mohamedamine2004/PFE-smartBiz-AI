@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import api from '../../lib/axios';
 import { useAuthStore } from '../../store/authStore';
 import { FormInput } from '../FormInput';
@@ -85,8 +86,8 @@ export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
       if (isOnboarding) {
         setTimeout(() => navigate('/dashboard', { replace: true }), 800);
       }
-    } catch (err: any) {
-      setError(err?.response?.data?.message || t('settings.company.saveError'));
+    } catch (err: unknown) {
+      setError(axios.isAxiosError(err) ? err.response?.data?.message : t('settings.company.saveError'));
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import api from '../lib/axios';
 import { useAuthStore } from '../store/authStore';
 import { TeamTable } from '../components/team/TeamTable';
@@ -9,6 +10,7 @@ import type { TeamMember } from '../components/team/TeamTable';
 import { InviteForm } from '../components/team/InviteForm';
 import { DeleteUserModal } from '../components/team/DeleteUserModal';
 import { PageHeader, Alert } from '../components/ui';
+import { InvitationInbox } from '../components/team/InvitationInbox';
 
 export const Team = () => {
   const { t } = useTranslation();
@@ -18,9 +20,24 @@ export const Team = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Feedback state (replaces raw alert())
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [feedbackType, setFeedbackType] = useState<'success' | 'error'>('success');
+
+  // Tabs state synced with URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'members' | 'inbox'>(
+    tabParam === 'inbox' ? 'inbox' : 'members'
+  );
+
+  useEffect(() => {
+    setActiveTab(tabParam === 'inbox' ? 'inbox' : 'members');
+  }, [tabParam]);
+
+  const handleTabChange = (tab: 'members' | 'inbox') => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
   // Delete Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -39,8 +56,9 @@ export const Team = () => {
       setLoading(true);
       const response = await api.get('/auth/team');
       setMembers(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('team.fetchError', 'Failed to fetch team members'));
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : null;
+      setError(msg || t('team.fetchError', 'Failed to fetch team members'));
     } finally {
       setLoading(false);
     }
@@ -56,11 +74,12 @@ export const Team = () => {
       toast.success(t('team.table.resendSuccess', 'Invitation resent successfully.'));
       setFeedbackType('success');
       setFeedbackMessage(t('team.table.resendSuccess'));
-    } catch (err: any) {
-      const msg = err.response?.data?.message || t('team.inviteError', 'Failed to resend invitation.');
-      toast.error(msg);
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : null;
+      const message = msg || t('team.inviteError', 'Failed to resend invitation.');
+      toast.error(message);
       setFeedbackType('error');
-      setFeedbackMessage(msg);
+      setFeedbackMessage(message);
     }
   };
 
@@ -82,11 +101,12 @@ export const Team = () => {
       setFeedbackType('success');
       setFeedbackMessage(msg);
       fetchTeam(); // Refresh the list
-    } catch (err: any) {
-      const msg = err.response?.data?.message || t('team.deleteError', 'Failed to delete user');
-      toast.error(msg);
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message : null;
+      const message = msg || t('team.deleteError', 'Failed to delete user');
+      toast.error(message);
       setFeedbackType('error');
-      setFeedbackMessage(msg);
+      setFeedbackMessage(message);
     } finally {
       setIsDeleting(false);
     }
@@ -107,9 +127,26 @@ export const Team = () => {
         />
       )}
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Left Side: Team Table (2/3) */}
-        <div className="w-full lg:w-2/3">
+      {/* Tabs */}
+      <div className="flex border-b border-border mb-6">
+        <button
+          className={`tab-underline ${activeTab === 'members' ? 'active' : ''}`}
+          onClick={() => handleTabChange('members')}
+        >
+          {t('team.tabs.members')}
+        </button>
+        <button
+          className={`tab-underline ${activeTab === 'inbox' ? 'active' : ''}`}
+          onClick={() => handleTabChange('inbox')}
+        >
+          {t('team.tabs.inbox')}
+        </button>
+      </div>
+
+      {activeTab === 'members' ? (
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          {/* Left Side: Team Table (2/3) */}
+          <div className="w-full lg:w-2/3">
           <TeamTable 
             members={members}
             loading={loading}
@@ -124,6 +161,9 @@ export const Team = () => {
           <InviteForm onInviteSuccess={fetchTeam} />
         </div>
       </div>
+      ) : (
+        <InvitationInbox />
+      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteUserModal

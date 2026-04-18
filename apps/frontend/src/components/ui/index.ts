@@ -8,6 +8,7 @@ export { ReadOnlyField } from './ReadOnlyField';
 export { Tooltip } from './Tooltip';
 export { ToasterProvider } from './ToasterProvider';
 export { EmptyState } from './EmptyState';
+export { Input } from './Input';
 export { ShortcutsHelpModal } from './ShortcutsHelpModal';
 export { SkeletonText } from './SkeletonText';
 export { SkeletonCard } from './SkeletonCard';

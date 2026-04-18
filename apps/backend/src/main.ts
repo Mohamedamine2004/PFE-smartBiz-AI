@@ -31,8 +31,17 @@ async function bootstrap() {
   // Configuration du préfixe global pour l'API (ex: http://localhost:3000/api/v1/...)
   app.setGlobalPrefix('api/v1');
 
+  const envOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  const frontendOrigins = Array.from(
+    new Set(['http://localhost:5173', 'http://localhost:5174', ...envOrigins]),
+  );
+
   app.enableCors({
-    origin: 'http://localhost:5173', // Remplacez par le port de votre frontend React si différent
+    origin: frontendOrigins,
     credentials: true, // LIGNE CRITIQUE : Autorise l'envoi de cookies cross-origin
   });
 

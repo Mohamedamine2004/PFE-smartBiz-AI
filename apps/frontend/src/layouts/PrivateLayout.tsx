@@ -33,21 +33,28 @@ export const PrivateLayout = () => {
   }
 
   return (
-    <div className="relative flex h-screen w-full bg-background overflow-hidden selection:bg-brand/30 selection:text-brand">
-      {/* Barre Latérale (Fixe : 220px) */}
+    <div className="relative flex min-h-screen w-full bg-background overflow-hidden selection:bg-brand/30 selection:text-brand font-sans">
+      {/* Floating Glassmorphic Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
       />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Barre Supérieure (Fixe : 58px) */}
-        <Topbar />
+      <div 
+        className={`flex flex-col w-full min-h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          isSidebarOpen ? 'lg:pl-[292px]' : 'lg:pl-[116px]'
+        }`}
+      >
+        {/* Dynamic Island Topbar */}
+        <Topbar onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)} />
 
-        {/* Zone Principale avec défilement indépendant */}
-        <main className="flex-1 overflow-y-auto">
-          {/* Conteneur de contenu strict : max 1080px, paddings spécifiques */}
-          <div className="mx-auto w-full max-w-[1440px] px-6 pt-6 pb-16">
+        {/* Zone Principale */}
+        <main className="flex-1 w-full pt-4 lg:pt-28 pb-12 px-4 sm:px-8 relative z-0 overflow-y-auto scroll-smooth">
+          {/* Subtle Ambient Studio Lights */}
+          <div className="fixed top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand/5 blur-[120px] pointer-events-none -z-10" />
+          <div className="fixed bottom-[-20%] left-[10%] w-[40vw] h-[40vw] rounded-full bg-blue-500/5 blur-[120px] pointer-events-none -z-10" />
+          
+          <div className="mx-auto w-full max-w-[1440px]">
             <Outlet />
           </div>
         </main>

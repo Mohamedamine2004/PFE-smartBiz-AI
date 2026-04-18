@@ -1,15 +1,22 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, AlertTriangle, Sparkles, Upload } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { RevenueProjectionChart } from './RevenueProjectionChart';
 import { FeatureImportanceChart } from './FeatureImportanceChart';
-import type { PredictionResult } from '../../types/dashboard';
+import { PredictionConfidenceGrid } from './PredictionConfidenceGrid';
+import { buildManualProjection } from './predictionStates.utils';
+import type {
+  PredictionResult,
+  DashboardMetrics,
+} from '../../types/dashboard';
 
 interface PredictionStatesCardProps {
   prediction: PredictionResult | null;
   loading: boolean;
   onRunPrediction: () => void;
   onNavigateImport: () => void;
+  historicalMetrics: DashboardMetrics | null;
 }
 
 export const PredictionStatesCard = ({
@@ -17,8 +24,11 @@ export const PredictionStatesCard = ({
   loading,
   onRunPrediction,
   onNavigateImport,
+  historicalMetrics,
 }: PredictionStatesCardProps) => {
   const { t } = useTranslation();
+
+  const manualProjection = useMemo(() => buildManualProjection(historicalMetrics), [historicalMetrics]);
 
   /* ─── State: Loading (running prediction) ─── */
   if (loading) {
@@ -33,7 +43,7 @@ export const PredictionStatesCard = ({
             {t('dashboard.mlZone.pendingTitle', 'Prediction in progress')}
           </p>
           <p className="text-xs text-text-muted">
-            {t('dashboard.mlZone.pendingHint', 'Please wait a few seconds and refresh this tab.')}
+            {t('dashboard.mlZone.pendingHint', 'Analyzing your data and computing projections. Please wait.')}
           </p>
         </div>
       </div>
@@ -42,6 +52,36 @@ export const PredictionStatesCard = ({
 
   /* ─── State: No prediction at all ─── */
   if (!prediction || (!prediction.hasPrediction && !prediction.status)) {
+    if (manualProjection) {
+      return (
+        <div className="space-y-4">
+          <div className="dashboard-card p-4 border border-brand/20 bg-brand/5">
+            <p className="text-sm font-semibold text-text-main">
+              {t('dashboard.mlZone.manualModeTitle', 'Manual projection mode active')}
+            </p>
+            <p className="text-xs text-text-muted mt-1">
+              {t('dashboard.mlZone.manualModeHint', 'No ML result found. You can still simulate company and equity value in real time using the controls below.')}
+            </p>
+          </div>
+
+          <RevenueProjectionChart
+            scenarios={manualProjection.scenarios}
+            valuation={manualProjection.valuation}
+            historicalMetrics={historicalMetrics}
+          />
+
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={onNavigateImport} icon={<Upload className="w-4 h-4" />}>
+              {t('dashboard.importBtn', 'Import')}
+            </Button>
+            <Button onClick={onRunPrediction} icon={<Sparkles className="w-4 h-4" />}>
+              {t('dashboard.mlZone.runPrediction', 'Run AI Prediction')}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="dashboard-card flex flex-col items-center justify-center gap-5 py-16">
         <div className="relative flex items-center justify-center w-16 h-16">
@@ -78,7 +118,7 @@ export const PredictionStatesCard = ({
             {t('dashboard.mlZone.pendingTitle', 'Prediction in progress')}
           </p>
           <p className="text-xs text-text-muted">
-            {t('dashboard.mlZone.pendingHint', 'Please wait a few seconds and refresh this tab.')}
+            {t('dashboard.mlZone.pendingHint', 'Analyzing your data and computing projections. Please wait.')}
           </p>
         </div>
       </div>
@@ -135,44 +175,14 @@ export const PredictionStatesCard = ({
       </div>
 
       {/* Revenue Projection Chart */}
-      <RevenueProjectionChart scenarios={scenarios} valuation={valuation} />
+      <RevenueProjectionChart scenarios={scenarios} valuation={valuation} historicalMetrics={historicalMetrics} />
 
       {/* Feature Importance Chart */}
       {featureImportance && (
         <FeatureImportanceChart featureImportance={featureImportance} />
       )}
 
-      {/* Confidence summary cards */}
-      {prediction.confidence && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {(['Y1', 'Y2', 'Y3'] as const).map((horizon) => {
-            const band = prediction.confidence![horizon];
-            if (!band) return null;
-            return (
-              <div key={horizon} className="dashboard-card p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-widest text-text-muted">
-                    {horizon} Confidence
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/10 text-brand">
-                    {(band.directional_accuracy * 100).toFixed(0)}% acc.
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-text-main tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
-                    ±{(band.mae * 100).toFixed(1)}%
-                  </span>
-                  <span className="text-[10px] text-text-muted uppercase">MAE</span>
-                </div>
-                <div className="flex justify-between text-[11px] text-text-muted">
-                  <span>Low: {(band.band_low * 100).toFixed(1)}%</span>
-                  <span>High: {(band.band_high * 100).toFixed(1)}%</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {prediction.confidence && <PredictionConfidenceGrid confidence={prediction.confidence} />}
     </div>
   );
 };

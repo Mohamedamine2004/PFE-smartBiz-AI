@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { Building2, UserCog, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { PageHeader } from '../components/ui';
@@ -26,7 +27,23 @@ export const Settings = () => {
   const isAdmin = user?.role === 'ADMIN';
   const isOnboarding = !onboardingComplete;
 
-  const [activeTab, setActiveTab] = useState<TabKey>(isAdmin ? 'company' : 'account');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab') as TabKey;
+
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    tabParam === 'account' ? 'account' : (tabParam === 'company' && isAdmin) ? 'company' : (isAdmin ? 'company' : 'account')
+  );
+
+  useEffect(() => {
+    if (tabParam === 'company' || tabParam === 'account') {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  const handleTabChange = (key: TabKey) => {
+    setActiveTab(key);
+    setSearchParams({ tab: key });
+  };
 
   const tabs: { key: TabKey; icon: React.ElementType; labelKey: string }[] = isOnboarding
     ? [{ key: 'company', icon: Building2, labelKey: 'settings.tabs.company' }]
@@ -57,7 +74,7 @@ export const Settings = () => {
         {tabs.map(({ key, icon: Icon, labelKey }) => (
           <button
             key={key}
-            onClick={() => setActiveTab(key)}
+            onClick={() => handleTabChange(key)}
             className={`tab-underline ${activeTab === key ? 'active' : ''}`}
           >
             <Icon className="w-4 h-4" />

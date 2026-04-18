@@ -21,6 +21,7 @@ import { CashRunwayChart } from '../components/dashboard/CashRunwayChart';
 import { TrendAnalysisChart } from '../components/dashboard/TrendAnalysisChart';
 import { PredictionStatesCard } from '../components/dashboard/PredictionStatesCard';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ImportHistorySidebar } from '../components/dashboard/ImportHistorySidebar';
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -44,6 +45,13 @@ export const Dashboard = () => {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [predictionLoading, setPredictionLoading] = useState(false);
 
+  // History State
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [importCount, setImportCount] = useState(0);
+
+  // Params
+  const batchIdParam = searchParams.get('batchId');
+
   // Tab navigation from URL query param
   const tabParam = searchParams.get('tab');
   const activeTab: DashboardTab =
@@ -54,34 +62,47 @@ export const Dashboard = () => {
   // Filters State
   const [period, setPeriod] = useState<'all' | '12m' | '6m'>('12m');
 
+  // Fetch count
+  const fetchImportCount = useCallback(async () => {
+    try {
+      const history = await financialApi.getImportHistory();
+      setImportCount(history.length);
+    } catch {
+      // fail silently
+    }
+  }, []);
+
   // Fetch metrics from backend
   const fetchDashboard = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await financialApi.getDashboardMetrics();
+      const data = batchIdParam 
+        ? await financialApi.getDashboardMetricsByBatchId(batchIdParam)
+        : await financialApi.getDashboardMetrics();
       setMetrics(data);
     } catch {
       setError(t('dashboard.fetchError', 'Failed to load dashboard data.'));
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, batchIdParam]);
 
-  // Fetch latest prediction
+  // Fetch latest or historical prediction
   const fetchPrediction = useCallback(async () => {
     try {
-      const data = await financialApi.getPrediction();
+      const data = await financialApi.getPrediction(batchIdParam || undefined);
       setPrediction(data);
     } catch {
       // Silently fail — prediction is optional
     }
-  }, []);
+  }, [batchIdParam]);
 
   useEffect(() => {
     fetchDashboard();
     fetchPrediction();
-  }, [fetchDashboard, fetchPrediction]);
+    fetchImportCount();
+  }, [fetchDashboard, fetchPrediction, fetchImportCount]);
 
   // Normalize invalid/missing tab in URL
   useEffect(() => {
@@ -103,7 +124,7 @@ export const Dashboard = () => {
   const handleRunPrediction = async () => {
     try {
       setPredictionLoading(true);
-      await financialApi.runPrediction();
+      await financialApi.runPrediction(batchIdParam || undefined);
       toast.success(t('dashboard.mlZone.predictionStarted', 'ML prediction started. This may take a moment...'));
 
       // Poll for completion (up to 30s)
@@ -113,7 +134,7 @@ export const Dashboard = () => {
 
       const poll = async () => {
         attempts++;
-        const result = await financialApi.getPrediction();
+        const result = await financialApi.getPrediction(batchIdParam || undefined);
         setPrediction(result);
 
         if (result.status === 'COMPLETED') {
@@ -141,6 +162,27 @@ export const Dashboard = () => {
           ? { ...prev, status: 'FAILED', error: t('dashboard.mlZone.error') }
           : { hasPrediction: false, status: 'FAILED', error: t('dashboard.mlZone.error') }
       );
+    }
+  };
+
+  const handleClearBatchId = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('batchId');
+    setSearchParams(next);
+  };
+
+  const handleSelectBatch = (id: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('batchId', id);
+    setSearchParams(next);
+  };
+
+  const handleBatchDeleted = (deletedId: string) => {
+    fetchImportCount();
+    if (batchIdParam === deletedId) {
+      handleClearBatchId();
+    } else {
+      fetchDashboard();
     }
   };
 
@@ -200,14 +242,16 @@ export const Dashboard = () => {
           userName={user?.firstName || ''}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          importCount={0}
-          onToggleHistory={() => {}}
+          importCount={importCount}
+          onToggleHistory={() => setIsHistoryOpen(true)}
           onNavigateImport={() => navigate('/import')}
           onRunPrediction={handleRunPrediction}
           predictionLoading={predictionLoading}
           onExportPDF={handleExportPDF}
           period={period}
           onPeriodChange={setPeriod}
+          activeBatchId={batchIdParam}
+          onClearBatchId={handleClearBatchId}
         />
         <EmptyState
           icon={TrendingUp}
@@ -223,19 +267,20 @@ export const Dashboard = () => {
   /* Full dashboard — Tab-based Layout */
   return (
     <div id="dashboard-root-export" className="space-y-5 page-animate">
-      {/* Topbar: Tabs + Actions */}
       <DashboardTopbar
         userName={user?.firstName || ''}
         activeTab={activeTab}
         onTabChange={handleTabChange}
-        importCount={0}
-        onToggleHistory={() => {}}
+        importCount={importCount}
+        onToggleHistory={() => setIsHistoryOpen(true)}
         onNavigateImport={() => navigate('/import')}
         onRunPrediction={handleRunPrediction}
         predictionLoading={predictionLoading}
         onExportPDF={handleExportPDF}
         period={period}
         onPeriodChange={setPeriod}
+        activeBatchId={batchIdParam}
+        onClearBatchId={handleClearBatchId}
       />
       
       {/* Zone 1: Strategic KPIs */}
@@ -282,12 +327,21 @@ export const Dashboard = () => {
         {activeTab === 'ml-projection' && (
           <PredictionStatesCard
             prediction={prediction}
+            historicalMetrics={metrics}
             loading={predictionLoading}
             onRunPrediction={handleRunPrediction}
             onNavigateImport={() => navigate('/import')}
           />
         )}
       </div>
+
+      <ImportHistorySidebar
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        activeBatchId={batchIdParam}
+        onSelectBatch={handleSelectBatch}
+        onBatchDeleted={handleBatchDeleted}
+      />
     </div>
   );
 };

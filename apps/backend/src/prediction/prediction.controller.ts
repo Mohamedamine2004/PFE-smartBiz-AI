@@ -3,6 +3,8 @@ import {
   Post,
   Get,
   UseGuards,
+  Body,
+  Query,
 } from '@nestjs/common';
 import { PredictionService } from './prediction.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,8 +25,11 @@ export class PredictionController {
    */
   @Roles(UserRole.ADMIN, UserRole.USER)
   @Post('run')
-  async runPrediction(@CurrentUser() user: JwtPayload) {
-    return await this.predictionService.runPrediction(user.companyId);
+  async runPrediction(
+    @CurrentUser() user: JwtPayload,
+    @Body('batchId') batchId?: string,
+  ) {
+    return await this.predictionService.runPrediction(user.companyId, batchId);
   }
 
   /**
@@ -33,7 +38,10 @@ export class PredictionController {
    */
   @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
   @Get('latest')
-  async getLatest(@CurrentUser() user: JwtPayload) {
-    return await this.predictionService.getLatestPrediction(user.companyId);
+  async getLatest(
+    @CurrentUser() user: JwtPayload,
+    @Query('batchId') batchId?: string,
+  ) {
+    return await this.predictionService.getLatestPrediction(user.companyId, batchId);
   }
 }

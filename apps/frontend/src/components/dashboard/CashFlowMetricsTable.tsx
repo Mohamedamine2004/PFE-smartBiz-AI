@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { parseMetricValue } from '../../lib/format.utils';
 
 interface CashFlowMetricsTableProps {
   data: ChartDataPoint[];
@@ -17,25 +18,6 @@ const METRICS = [
 ] as const;
 
 
-
-const formatMetricValue = (value: string | number | undefined): { text: string; isNegative: boolean } => {
-  if (typeof value === 'number') {
-    return {
-      text: value.toLocaleString('en-US', { maximumFractionDigits: 2 }),
-      isNegative: value < 0,
-    };
-  }
-  if (typeof value === 'string') {
-    const parsed = Number(value);
-    if (!Number.isNaN(parsed)) {
-      return {
-        text: parsed.toLocaleString('en-US', { maximumFractionDigits: 2 }),
-        isNegative: parsed < 0,
-      };
-    }
-  }
-  return { text: 'N/A', isNegative: false };
-};
 
 export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
   const { t } = useTranslation();
@@ -54,7 +36,7 @@ export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
   const filteredData = useMemo(() => {
     if (!searchQuery) return safeData;
     const lowerQuery = searchQuery.toLowerCase();
-    
+
     return safeData.filter(row => {
       // Search in period
       if (String(row.period || '').toLowerCase().includes(lowerQuery)) return true;
@@ -75,7 +57,7 @@ export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
         const strB = String(b.period || '');
         return sortConfig.direction === 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
       }
-      
+
       const valA = Number(a[sortConfig.key]) || 0;
       const valB = Number(b[sortConfig.key]) || 0;
       return sortConfig.direction === 'asc' ? valA - valB : valB - valA;
@@ -142,8 +124,8 @@ export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
             <table className="table-pro">
               <thead>
                 <tr>
-                  <th 
-                    className="sticky left-0 z-20 cursor-pointer hover:text-brand transition-colors" 
+                  <th
+                    className="sticky left-0 z-20 cursor-pointer hover:text-brand transition-colors"
                     onClick={() => handleSort('period')}
                     style={{ minWidth: 120 }}
                   >
@@ -155,8 +137,8 @@ export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
                     </div>
                   </th>
                   {METRICS.map((metric) => (
-                    <th 
-                      key={metric.key} 
+                    <th
+                      key={metric.key}
                       className="cursor-pointer hover:text-brand transition-colors"
                       onClick={() => handleSort(metric.key)}
                       style={{ minWidth: 140 }}
@@ -181,7 +163,7 @@ export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
                         {period}
                       </td>
                       {METRICS.map((metric) => {
-                        const { text, isNegative } = formatMetricValue(row[metric.key]);
+                        const { text, isNegative } = parseMetricValue(row[metric.key]);
                         return (
                           <td
                             key={`${period}-${metric.key}`}
@@ -229,13 +211,13 @@ export const CashFlowMetricsTable = ({ data }: CashFlowMetricsTableProps) => {
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              
+
               {/* Page Indicators */}
               <div className="flex gap-1 px-2 font-medium text-text-muted">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)).map((p, i, arr) => (
                   <React.Fragment key={p}>
-                    {i > 0 && p - arr[i-1] > 1 && <span className="px-1">...</span>}
-                    <button 
+                    {i > 0 && p - arr[i - 1] > 1 && <span className="px-1">...</span>}
+                    <button
                       onClick={() => setCurrentPage(p)}
                       className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${currentPage === p ? 'bg-brand text-black font-bold' : 'hover:bg-elevated hover:text-text-main'}`}
                     >

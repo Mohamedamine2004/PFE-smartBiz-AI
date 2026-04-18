@@ -11,6 +11,7 @@
     "dashboard": "Tableau de bord",
     "team": "Équipe",
     "valuation": "Évaluation",
+    "reports": "Rapports",
     "settings": "Paramètres"
   },
   "validation": {
@@ -412,6 +413,135 @@
     },
     "save": "Enregistrer",
     "saved": "Enregistré ✓"
+  },
+  "reports": {
+    "title": "Generateur de rapports IA",
+    "subtitle": "Generez des rapports complets (10-25 pages) a partir des donnees importees et des predictions ML.",
+    "configuration": "Configuration du rapport",
+    "generated": "Rapports generes",
+    "batch": "Lot de donnees",
+    "latestBatch": "Dernier lot importe",
+    "records": "lignes",
+    "language": "Langue",
+    "length": "Longueur",
+    "depth": "Profondeur d'analyse",
+    "types": "Types de rapport",
+    "includeCharts": "Inclure les graphiques et resumes visuels",
+    "deepDive": "Probleme a analyser",
+    "deepDivePlaceholder": "Decrivez le probleme principal a analyser en profondeur...",
+    "generate": "Generer le rapport",
+    "refresh": "Actualiser",
+    "noJobs": "Aucun job de rapport pour le moment.",
+    "jobPrefix": "Job",
+    "created": "Cree",
+    "download": "Telecharger",
+    "languages": {
+      "fr": "Francais",
+      "en": "Anglais",
+      "ar": "Arabe"
+    },
+    "lengthValues": {
+      "short": "Court (10-12 pages)",
+      "medium": "Moyen (13-18 pages)",
+      "long": "Long (19-25 pages)"
+    },
+    "depthValues": {
+      "light": "Legere",
+      "standard": "Standard",
+      "deep": "Approfondie"
+    },
+    "typeValues": {
+      "FINANCIAL": "Financier",
+      "BUSINESS_DESCRIPTION": "Description business",
+      "RISK_ANALYSIS": "Analyse des risques",
+      "ACTION_PLAN": "Plan d'action"
+    },
+    "status": {
+      "QUEUED": "EN ATTENTE",
+      "PROCESSING": "EN COURS",
+      "COMPLETED": "TERMINE",
+      "FAILED": "ECHEC"
+    },
+    "toasts": {
+      "loadError": "Echec du chargement des jobs de rapport.",
+      "batchLoadError": "Echec du chargement des lots d'import.",
+      "startSuccess": "Generation du rapport demarree.",
+      "startError": "Impossible de demarrer la generation du rapport."
+    }
+  },
+  "wizard": {
+    "title": "Generateur de Rapport",
+    "subtitle": "Creez un rapport personnalise adapte a vos besoins commerciaux",
+    "step": "Etape {{current}} sur {{total}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "generateButton": "Generer le rapport",
+    "generating": "Generation...",
+    "characters": "caracteres",
+    "success": "Generation du rapport commencee!",
+    "error": "Echec de la generation du rapport",
+    "errors": {
+      "selectReportType": "Veuillez selectionner un type de rapport",
+      "selectLanguage": "Veuillez selectionner une langue",
+      "selectPageCount": "Veuillez selectionner la longueur du rapport",
+      "problemStatementMinLength": "Veuillez decrire votre probleme en au moins 10 caracteres",
+      "problemStatementMaxLength": "L'enonce du probleme est trop long",
+      "selectAtLeastOneSection": "Veuillez selectionner au moins une section",
+      "selectTone": "Veuillez selectionner un ton"
+    },
+    "step1": {
+      "title": "Type de rapport",
+      "description": "Selectionnez le type de rapport qui convient le mieux a vos besoins"
+    },
+    "step2": {
+      "title": "Langue",
+      "description": "Choisissez la langue de votre rapport"
+    },
+    "step3": {
+      "title": "Longueur du rapport",
+      "description": "Selectionnez la longueur preferee de votre rapport"
+    },
+    "step4": {
+      "title": "Probleme commercial",
+      "description": "Decrivez le probleme commercial principal ou la zone de focus pour ce rapport",
+      "label": "Probleme / Zone de focus",
+      "placeholder": "Ex: Nous devons optimiser nos couts d'acquisition de clients tout en maintenant la qualite...",
+      "tip": "Conseil:",
+      "tipText": "Plus votre description du defi commercial est precise, plus votre rapport sera personalise et pertinent."
+    },
+    "step5": {
+      "title": "Sections du rapport",
+      "description": "Selectionnez les sections a inclure dans votre rapport",
+      "selected": "Sections selectionnees"
+    },
+    "step6": {
+      "title": "Ton du rapport",
+      "description": "Selectionnez le ton et le style de votre rapport"
+    },
+    "step7": {
+      "title": "Confirmer et generer",
+      "description": "Verifiez les parametres de votre rapport et cliquez pour demarrer",
+      "summary": "Configuration du rapport",
+      "info": "La generation de votre rapport prend generalement 2-5 minutes. Vous recevrez une notification par email a l'issue."
+    }
+  },
+  "report": {
+    "title": "Generation de rapport",
+    "loading": "Chargement...",
+    "notFound": "Rapport non trouve",
+    "downloading": "Telechargement...",
+    "download": "Telecharger PDF",
+    "downloadSuccess": "Rapport telecharge avec succes",
+    "downloadError": "Echec du telechargement du rapport",
+    "newReport": "Creer un nouveau rapport",
+    "statusCompleted": "Votre rapport est pret",
+    "statusFailed": "Echec de la generation du rapport",
+    "statusProcessing": "Generation de votre rapport...",
+    "statusQueued": "Le rapport est en file d'attente",
+    "completedInfo": "{{pages}} pages generees le {{date}}",
+    "progress": "Progression",
+    "generationError": "Echec de la generation du rapport",
+    "generationFailed": "Echec de la generation du rapport"
   },
   "waitingSetup": {
     "title": "Configuration en cours",

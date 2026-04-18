@@ -13,6 +13,8 @@ import { FinancialModule } from './financial/financial.module';
 import { PredictionModule } from './prediction/prediction.module';
 import { CommonModule } from './common/common.module';
 import { NotificationModule } from './notification/notification.module';
+import { ReportModule } from './report/report.module';
+import { InvitationRequestModule } from './invitation-request/invitation-request.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { NotificationModule } from './notification/notification.module';
     FinancialModule,
     PredictionModule,
     NotificationModule,
+    ReportModule,
+    InvitationRequestModule,
   ],
   controllers: [AppController],
   providers: [

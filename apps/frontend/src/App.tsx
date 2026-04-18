@@ -1,15 +1,16 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { AuthInitializer } from './components/AuthInitializer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToasterProvider } from './components/ui/ToasterProvider';
-import { SkeletonPage } from './components/ui/SkeletonPage';
 
 // Layouts (small — always loaded)
 import { PrivateLayout } from './layouts/PrivateLayout';
 import { PublicLayout } from './layouts/PublicLayout';
 
 // Lazy-loaded pages (code splitting)
+const LandingPage = lazy(() => import('./pages/LandingPage').then((m) => ({ default: m.LandingPage })));
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/Register').then((m) => ({ default: m.Register })));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then((m) => ({ default: m.ForgotPassword })));
@@ -20,6 +21,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default:
 const Settings = lazy(() => import('./pages/Settings').then((m) => ({ default: m.Settings })));
 const Team = lazy(() => import('./pages/Team').then((m) => ({ default: m.Team })));
 const Valuation = lazy(() => import('./pages/Valuation').then((m) => ({ default: m.Valuation })));
+const Reports = lazy(() => import('./pages/Reports').then((m) => ({ default: m.Reports })));
 const ImportPage = lazy(() => import('./pages/ImportPage').then((m) => ({ default: m.ImportPage })));
 const WaitingSetup = lazy(() => import('./pages/WaitingSetup').then((m) => ({ default: m.WaitingSetup })));
 
@@ -55,14 +57,15 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/valuation" element={<Valuation />} />
+                <Route path="/reports" element={<Reports />} />
               </Route>
 
               {/* Standalone (no sidebar/topbar) */}
               <Route path="/waiting-setup" element={<WaitingSetup />} />
+              <Route path="/" element={<LandingPage />} />
 
               {/* Fallbacks */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </AuthInitializer>

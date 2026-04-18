@@ -56,8 +56,8 @@ import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
         customSuccessMessage: (req, res, responseTime) => {
           return `${req.method} ${req.url} ${res.statusCode} - ${responseTime.toFixed(0)}ms`;
         },
-        customErrorMessage: (req, res, err, responseTime) => {
-          return `${req.method} ${req.url} ${res.statusCode} - ${responseTime.toFixed(0)}ms - ${err.message}`;
+        customErrorMessage: (req, res, err) => {
+          return `${req.method} ${req.url} ${res.statusCode} - ${err.message}`;
         },
         
         // Add request ID for tracing

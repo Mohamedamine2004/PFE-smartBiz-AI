@@ -4,6 +4,8 @@ import {
   ResponsiveContainer, Legend
 } from 'recharts';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { ChartHeader } from '../ui/ChartHeader';
+import { getMetricNumber } from '../../lib/format.utils';
 
 interface ProfitMarginChartProps {
   data: ChartDataPoint[];
@@ -35,35 +37,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const ProfitMarginChart = ({ data }: ProfitMarginChartProps) => {
   const { t } = useTranslation();
   const safeData = data || [];
-
-  const getMetricValue = (point: ChartDataPoint, candidateKey: string): number => {
-    const val = point[candidateKey];
-    if (typeof val === 'number') return val;
-    if (typeof val === 'string') {
-      const parsed = Number(val);
-      if (!Number.isNaN(parsed)) return parsed;
-    }
-    return 0;
-  };
-
   const chartData = safeData.map((d) => ({
     period: String(d.period || ''),
-    netCashBurn: getMetricValue(d, 'Net_Cash_Burn'),
+    netCashBurn: getMetricNumber(d as Record<string, unknown>, 'Net_Cash_Burn'),
   }));
 
   return (
     <div className="chart-container">
-      <div className="mb-5 space-y-1 text-left">
-        <h3
-          className="text-lg font-bold text-text-primary tracking-tight"
-          style={{ fontFamily: 'var(--font-display)' }}
-        >
-          {t('dashboard.charts.netCashBurn', 'Net Cash Burn')}
-        </h3>
-        <p className="text-xs font-medium text-text-muted">
-          {t('dashboard.charts.netCashBurnSubtitle', 'Monthly net cash burn trend')}
-        </p>
-      </div>
+      <ChartHeader
+        title={t('dashboard.charts.netCashBurn', 'Net Cash Burn')}
+        subtitle={t('dashboard.charts.netCashBurnSubtitle', 'Monthly net cash burn trend')}
+      />
 
       {safeData.length === 0 ? (
         <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-border rounded-xl bg-surface">

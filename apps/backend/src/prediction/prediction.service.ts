@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import type { Prediction } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -22,8 +23,8 @@ const SECTOR_TO_SIC: Record<string, string> = {
 @Injectable()
 export class PredictionService implements OnModuleInit {
   private readonly logger = new Logger(PredictionService.name);
-  private mlEngineUrl: string;
-  private mlApiKey: string;
+  private mlEngineUrl!: string;
+  private mlApiKey!: string;
 
   constructor(
     private readonly httpService: HttpService,
@@ -43,11 +44,13 @@ export class PredictionService implements OnModuleInit {
    * 3. Calling the ML engine
    * 4. Saving the result in the Prediction table
    */
-  async runPrediction(companyId: string) {
+  async runPrediction(companyId: string, customBatchId?: string) {
     // 1. Create a PENDING prediction record
     const prediction = await this.prisma.prediction.create({
       data: { companyId, status: 'PENDING' },
     });
+
+    let sourceBatchId: string | null = null;
 
     try {
       // 2. Mark as PROCESSING
@@ -56,15 +59,29 @@ export class PredictionService implements OnModuleInit {
         data: { status: 'PROCESSING' },
       });
 
-      // 3. Fetch the latest import batch with macroFeatures
-      const batch = await this.prisma.importBatch.findFirst({
-        where: { companyId },
-        orderBy: { createdAt: 'desc' },
-      });
+      // 3. Fetch the specific or latest import batch with macroFeatures
+      const batch = customBatchId
+        ? await this.prisma.importBatch.findFirst({
+            where: { id: customBatchId, companyId },
+          })
+        : await this.prisma.importBatch.findFirst({
+            where: { companyId },
+            orderBy: { createdAt: 'desc' },
+          });
 
       if (!batch || !batch.macroFeatures) {
         throw new Error('No financial data found. Please import data first.');
       }
+
+      sourceBatchId = batch.id;
+
+      // Persist batch context early so historical lookups can also resolve PENDING/PROCESSING states.
+      await this.prisma.prediction.update({
+        where: { id: prediction.id },
+        data: {
+          result: { sourceBatchId },
+        },
+      });
 
       // 4. Fetch the company sector for SIC code mapping
       const company = await this.prisma.company.findUniqueOrThrow({
@@ -105,12 +122,14 @@ export class PredictionService implements OnModuleInit {
         }),
       );
 
-      // 7. Save the COMPLETED prediction
+      // 7. Save the COMPLETED prediction, embedding batchId inside the result
+      const mlResultWithContext = { ...mlResult, sourceBatchId };
+
       const updated = await this.prisma.prediction.update({
         where: { id: prediction.id },
         data: {
           status: 'COMPLETED',
-          result: mlResult,
+          result: mlResultWithContext,
         },
       });
 
@@ -118,13 +137,17 @@ export class PredictionService implements OnModuleInit {
       return updated;
 
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       // Mark as FAILED with error details
-      this.logger.error(`Prediction ${prediction.id} failed: ${error.message}`);
+      this.logger.error(`Prediction ${prediction.id} failed: ${errorMessage}`);
       const failed = await this.prisma.prediction.update({
         where: { id: prediction.id },
         data: {
           status: 'FAILED',
-          result: { error: error.message ?? 'Unknown error' },
+          result: {
+            sourceBatchId,
+            error: errorMessage,
+          },
         },
       });
       return failed;
@@ -132,15 +155,38 @@ export class PredictionService implements OnModuleInit {
   }
 
   /**
-   * Returns the latest COMPLETED prediction for a company.
+   * Returns the latest COMPLETED prediction for a company, 
+   * optionally filtering by a specific historical batch.
    */
-  async getLatestPrediction(companyId: string) {
-    const prediction = await this.prisma.prediction.findFirst({
-      where: { companyId, status: 'COMPLETED' },
-      orderBy: { createdAt: 'desc' },
-    });
+  async getLatestPrediction(companyId: string, customBatchId?: string) {
+    let prediction: Prediction | null = null;
+    const hasMatchingBatch = (p: Prediction) =>
+      p.result &&
+      typeof p.result === 'object' &&
+      (p.result as any).sourceBatchId === customBatchId;
+    
+    // Fallback: If customBatchId is provided, we fetch all COMPLETED predictions
+    // and find the one whose result.sourceBatchId matches customBatchId.
+    if (customBatchId) {
+      const allByCompany = await this.prisma.prediction.findMany({
+        where: { companyId },
+        orderBy: { createdAt: 'desc' },
+      });
+      // JSON filtering inside Prisma requires raw queries, so we filter in-memory (usually small list).
+      // Priority: latest COMPLETED for this batch; fallback to latest state for this same batch.
+      prediction = allByCompany.find(
+        (p) => p.status === 'COMPLETED' && hasMatchingBatch(p),
+      ) ?? allByCompany.find(
+        (p) => hasMatchingBatch(p),
+      ) ?? null;
+    } else {
+      prediction = await this.prisma.prediction.findFirst({
+        where: { companyId, status: 'COMPLETED' },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
 
-    if (prediction) {
+    if (prediction?.status === 'COMPLETED') {
       return {
         hasPrediction: true,
         predictionId: prediction.id,
@@ -152,10 +198,12 @@ export class PredictionService implements OnModuleInit {
 
     // If there is no completed prediction, surface the latest state so the
     // frontend can show a meaningful message (FAILED/PENDING/PROCESSING).
-    const latest = await this.prisma.prediction.findFirst({
-      where: { companyId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const latest = customBatchId
+      ? prediction
+      : await this.prisma.prediction.findFirst({
+          where: { companyId },
+          orderBy: { createdAt: 'desc' },
+        });
 
     if (!latest) {
       return { hasPrediction: false, data: null };

@@ -6,12 +6,14 @@ import {
 } from 'recharts';
 import { Activity, Clock } from 'lucide-react';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { getMetricNumber } from '../../lib/format.utils';
+import { ChartHeader } from '../ui/ChartHeader';
 
 interface CashRunwayChartProps {
   data: ChartDataPoint[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, infiniteText, monthsText }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="chart-tooltip min-w-[200px]">
@@ -20,9 +22,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         // Handle special display for the runway months
         const isRunway = entry.dataKey === 'runwayMonths';
         const displayValue = isRunway
-          ? entry.value >= 999 
-            ? 'Infinite (+ Cash Flow)' 
-            : `${entry.value.toFixed(1)} Months`
+          ? entry.value >= 999
+            ? infiniteText
+            : `${entry.value.toFixed(1)} ${monthsText}`
           : typeof entry.value === 'number'
             ? entry.value.toLocaleString('en-US', { maximumFractionDigits: 0 })
             : entry.value;
@@ -47,20 +49,11 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
   const { t } = useTranslation();
   const safeData = data || [];
 
-  const getMetricValue = (point: ChartDataPoint, key: string): number => {
-    const val = point[key as keyof ChartDataPoint];
-    if (typeof val === 'number') return val;
-    if (typeof val === 'string') {
-      const parsed = Number(val);
-      if (!Number.isNaN(parsed)) return parsed;
-    }
-    return 0;
-  };
 
   const chartData = useMemo(() => {
     return safeData.map((d) => {
-      const balance = getMetricValue(d, 'Ending_Cash_Balance');
-      const burn = getMetricValue(d, 'Net_Cash_Burn');
+      const balance = getMetricNumber(d as Record<string, unknown>, 'Ending_Cash_Balance');
+      const burn = getMetricNumber(d as Record<string, unknown>, 'Net_Cash_Burn');
       // If burn is positive (generating cash), runway is infinite (we'll cap at 999 for graphing)
       // If burn is 0, also infinite
       const runwayMonths = (burn >= 0) ? 999 : Math.abs(balance / burn);
@@ -77,7 +70,7 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
   // Extract latest metrics for embedded KPI cards
   const latestData = chartData.length > 0 ? chartData[chartData.length - 1] : null;
   const currentRunway = latestData?.runwayMonths ?? 0;
-  
+
   const getRunwayStatusColor = (months: number) => {
     if (months >= 999) return 'text-emerald-400';
     if (months > 12) return 'text-emerald-400';
@@ -88,18 +81,10 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
   return (
     <div className="chart-container">
       {/* Header with embedded KPI */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-        <div className="space-y-1 text-left">
-          <h3
-            className="text-lg font-bold text-text-primary tracking-tight"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            {t('dashboard.charts.cashRunwayTitle', 'Cash Runway Analysis')}
-          </h3>
-          <p className="text-xs font-medium text-text-muted">
-            {t('dashboard.charts.cashRunwaySubtitle', 'Survival metric based on cash balance vs burn rate')}
-          </p>
-        </div>
+      <ChartHeader
+        title={t('dashboard.charts.cashRunwayTitle', 'Cash Runway Analysis')}
+        subtitle={t('dashboard.charts.cashRunwaySubtitle', 'Survival metric based on cash balance vs burn rate')}
+      >
 
         {/* Embedded KPI Badge */}
         {latestData && (
@@ -113,8 +98,8 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
                   {t('dashboard.charts.currentRunway', 'Current Runway')}
                 </p>
                 <p className={`text-xl font-bold tabular-nums tracking-tight ${getRunwayStatusColor(currentRunway)}`}>
-                  {currentRunway >= 999 
-                    ? t('dashboard.charts.infinite', 'Infinite') 
+                  {currentRunway >= 999
+                    ? t('dashboard.charts.infinite', 'Infinite')
                     : `${currentRunway.toFixed(1)} ${t('dashboard.charts.months', 'Mo.')}`}
                 </p>
               </div>
@@ -137,7 +122,7 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
             </div>
           </div>
         )}
-      </div>
+      </ChartHeader>
 
       {safeData.length === 0 ? (
         <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-border rounded-xl bg-surface">
@@ -182,15 +167,23 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
               tickLine={false}
               tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}
             />
-            
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--border-color)', strokeWidth: 1, strokeDasharray: '5 5' }} />
-            
+
+            <Tooltip
+              content={
+                <CustomTooltip
+                  infiniteText={t('dashboard.charts.infiniteCashFlow')}
+                  monthsText={t('dashboard.charts.months', 'Months')}
+                />
+              }
+              cursor={{ stroke: 'var(--border-color)', strokeWidth: 1, strokeDasharray: '5 5' }}
+            />
+
             <Legend
               wrapperStyle={{ fontSize: '12px', fontFamily: 'var(--font-sans)', paddingTop: '20px' }}
               iconType="circle"
               iconSize={8}
             />
-            
+
             {/* Zero Reference Line for Burn */}
             <ReferenceLine y={0} yAxisId="right" stroke="var(--border-color)" strokeWidth={1} strokeDasharray="3 3" />
 
@@ -205,7 +198,7 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
               activeDot={{ r: 6, fill: '#6366F1', stroke: '#fff', strokeWidth: 2 }}
               animationDuration={1500}
             />
-            
+
             <Line
               yAxisId="right"
               type="monotone"
@@ -235,4 +228,5 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
       )}
     </div>
   );
+};
 };

@@ -61,10 +61,9 @@ export const PredictiveForecast = ({ data, historicalData, confidence }: Predict
             {t('dashboard.prediction.subtitle', 'AI-powered prediction with confidence intervals')}
           </p>
         </div>
-        
-        <div className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-medium ${
-          isPositive ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'
-        }`}>
+
+        <div className={`px-2 lg:px-3 py-1 rounded-full text-xs lg:text-sm font-medium ${isPositive ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'
+          }`}>
           {isPositive ? <TrendingUp className="w-3 h-3 lg:w-4 lg:h-4 inline mr-1" /> : <TrendingDown className="w-3 h-3 lg:w-4 lg:h-4 inline mr-1" />}
           {growthRate}%
         </div>
@@ -86,18 +85,18 @@ export const PredictiveForecast = ({ data, historicalData, confidence }: Predict
           <AreaChart data={chartData}>
             <defs>
               <linearGradient id="colorForecast" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis 
-              dataKey="period" 
+            <XAxis
+              dataKey="period"
               className="text-text-muted"
               tick={{ fontSize: 11 }}
             />
             <YAxis className="text-text-muted" tick={{ fontSize: 11 }} />
-            <Tooltip 
+            <Tooltip
               contentStyle={{
                 backgroundColor: 'var(--color-surface)',
                 border: '1px solid var(--color-border)',
@@ -105,10 +104,10 @@ export const PredictiveForecast = ({ data, historicalData, confidence }: Predict
               }}
             />
             {historicalData.length > 0 && (
-              <ReferenceLine 
-                x={historicalData[historicalData.length - 1]?.period} 
-                stroke="var(--color-brand)" 
-                strokeDasharray="3 3" 
+              <ReferenceLine
+                x={historicalData[historicalData.length - 1]?.period}
+                stroke="var(--color-brand)"
+                strokeDasharray="3 3"
               />
             )}
             <Area
@@ -117,14 +116,14 @@ export const PredictiveForecast = ({ data, historicalData, confidence }: Predict
               stroke="#8884d8"
               fillOpacity={1}
               fill="url(#colorForecast)"
-              name="Forecast"
+              name={t('dashboard.prediction.seriesForecast')}
             />
             <Area
               type="monotone"
               dataKey="actualRevenue"
               stroke="#10b981"
               fill="none"
-              name="Actual"
+              name={t('dashboard.prediction.seriesActual')}
             />
           </AreaChart>
         </ResponsiveContainer>

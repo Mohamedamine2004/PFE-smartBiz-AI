@@ -93,7 +93,7 @@ export const AiStrategicInsight = ({ data }: AiStrategicInsightProps) => {
     return { score: finalScore, insights: insights.slice(0, 3) };
   }, [safeData, t]);
 
-  const chartData = [{ name: 'Health', value: healthData.score, fill: healthData.score >= 70 ? '#10B981' : healthData.score >= 40 ? '#F59E0B' : '#F43F5E' }];
+  const chartData = [{ name: t('dashboard.kpis.health'), value: healthData.score, fill: healthData.score >= 70 ? '#10B981' : healthData.score >= 40 ? '#F59E0B' : '#F43F5E' }];
 
   return (
     <div className="dashboard-card relative overflow-hidden flex flex-col md:flex-row items-center gap-6 p-6 md:p-8 bg-gradient-to-br from-surface to-elevated">
@@ -128,7 +128,7 @@ export const AiStrategicInsight = ({ data }: AiStrategicInsightProps) => {
             {healthData.score.toFixed(0)}
           </span>
           <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">
-            Health
+            {t('dashboard.kpis.health')}
           </span>
         </div>
       </div>

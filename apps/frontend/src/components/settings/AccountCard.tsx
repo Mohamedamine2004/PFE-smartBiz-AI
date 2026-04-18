@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
+import axios from 'axios';
 import api from '../../lib/axios';
 import { useAuthStore } from '../../store/authStore';
 import { FormInput } from '../FormInput';
@@ -36,8 +37,8 @@ export const AccountCard = () => {
       });
       setSuccess(t('settings.account.passwordChanged'));
       form.reset();
-    } catch (err: any) {
-      setError(err?.response?.data?.message || t('settings.account.passwordError'));
+    } catch (err: unknown) {
+      setError(axios.isAxiosError(err) ? err.response?.data?.message : t('settings.account.passwordError'));
     } finally {
       setLoading(false);
     }

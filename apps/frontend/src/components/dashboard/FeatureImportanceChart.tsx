@@ -39,14 +39,14 @@ const BAR_COLORS = [
 ];
 
 /* Custom Tooltip */
-const ImportanceTooltip = ({ active, payload }: any) => {
+const ImportanceTooltip = ({ active, payload, labelText }: any) => {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload;
   return (
     <div className="chart-tooltip">
       <p className="tooltip-label">{data.label}</p>
       <div className="tooltip-row">
-        <span className="tooltip-name">Importance</span>
+        <span className="tooltip-name">{labelText}</span>
         <span className="tooltip-value">{data.importance.toFixed(2)}%</span>
       </div>
     </div>
@@ -143,7 +143,10 @@ export const FeatureImportanceChart = ({ featureImportance }: FeatureImportanceC
               tickLine={false}
               width={140}
             />
-            <Tooltip content={<ImportanceTooltip />} cursor={{ fill: 'var(--border-color)', opacity: 0.1 }} />
+            <Tooltip
+              content={<ImportanceTooltip labelText={t('dashboard.mlZone.importance')} />}
+              cursor={{ fill: 'var(--border-color)', opacity: 0.1 }}
+            />
             <Bar
               dataKey="importance"
               name={t('dashboard.mlZone.impact', 'Impact')}
