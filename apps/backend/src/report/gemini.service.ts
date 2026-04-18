@@ -42,7 +42,9 @@ type GenerateInput = {
   targetPages?: number;
 };
 
-export type ReportContentSource = 'openrouter' | 'fallback' | 'mixed';
+export type ReportContentSource = 'xai' | 'openrouter' | 'fallback' | 'mixed';
+
+type ActiveLlmProvider = 'xai' | 'openrouter';
 
 export type GeneratedReportText = {
   content: Record<string, string>;
@@ -54,55 +56,82 @@ export type GeneratedReportText = {
 @Injectable()
 export class GeminiService {
   private readonly logger = new Logger(GeminiService.name);
-  private openRouterApiKey: string | null = null;
-  private openRouterModel = 'mistralai/mistral-7b-instruct';
+  /** Grok / xAI takes priority over OpenRouter when configured. */
+  private activeLlm: ActiveLlmProvider | null = null;
+  private activeApiKey: string | null = null;
+  private activeModel = '';
+  /** Normalized base URL without trailing slash (xAI only). */
+  private xaiBaseUrl = 'https://api.x.ai/v1';
   private generationQueue: Promise<void> = Promise.resolve();
   private readonly requestTimeoutMs = 90000;
 
   constructor(private readonly configService: ConfigService) {
-    const apiKey = this.configService.get<string>('OPENROUTER_API_KEY');
-    const configuredModel = this.configService.get<string>('OPENROUTER_MODEL');
+    const xaiKey =
+      this.configService.get<string>('XAI_API_KEY')?.trim() ||
+      this.configService.get<string>('GROK_API_KEY')?.trim() ||
+      null;
+    const xaiModelConfigured = this.configService.get<string>('XAI_MODEL')?.trim();
+    const xaiBaseConfigured = this.configService.get<string>('XAI_BASE_URL')?.trim();
 
-    if (configuredModel && configuredModel.trim()) {
-      this.openRouterModel = configuredModel.trim();
-    }
+    const openRouterKey = this.configService.get<string>('OPENROUTER_API_KEY')?.trim();
+    const openRouterModelConfigured = this.configService.get<string>('OPENROUTER_MODEL')?.trim();
 
-    if (!apiKey) {
-      this.logger.warn('OPENROUTER_API_KEY is not set — will use data-driven fallback content');
+    if (xaiKey) {
+      this.activeLlm = 'xai';
+      this.activeApiKey = xaiKey;
+      this.activeModel = xaiModelConfigured || 'grok-4-1-fast-non-reasoning';
+      if (xaiBaseConfigured) {
+        this.xaiBaseUrl = xaiBaseConfigured.replace(/\/+$/, '');
+      }
+      this.logger.log(
+        `Initializing xAI Grok (priority): ${xaiKey.slice(0, 8)}...${xaiKey.slice(-4)} | model=${this.activeModel} | base=${this.xaiBaseUrl}`,
+      );
       return;
     }
 
-    this.openRouterApiKey = apiKey;
-    this.logger.log(
-      `Initializing OpenRouter with API key: ${apiKey.slice(0, 8)}...${apiKey.slice(-4)} | model=${this.openRouterModel}`,
+    if (openRouterKey) {
+      this.activeLlm = 'openrouter';
+      this.activeApiKey = openRouterKey;
+      this.activeModel = openRouterModelConfigured || 'mistralai/mistral-7b-instruct';
+      this.logger.log(
+        `Initializing OpenRouter: ${openRouterKey.slice(0, 8)}...${openRouterKey.slice(-4)} | model=${this.activeModel}`,
+      );
+      return;
+    }
+
+    this.logger.warn(
+      'No LLM API key — set XAI_API_KEY (or GROK_API_KEY) or OPENROUTER_API_KEY. Using data-driven fallback for reports.',
     );
   }
 
   getHealthStatus() {
     return {
-      provider: 'openrouter',
-      configured: Boolean(this.openRouterApiKey),
-      model: this.openRouterModel,
-      keyPresent: Boolean(this.openRouterApiKey),
+      provider: (this.activeLlm ?? 'none') as 'xai' | 'openrouter' | 'none',
+      configured: Boolean(this.activeApiKey),
+      model: this.activeModel || 'none',
+      keyPresent: Boolean(this.activeApiKey),
     };
   }
 
   /**
-   * Test if Gemini API is reachable and working.
-   * Useful for diagnostics.
+   * Test if the configured LLM API (xAI Grok or OpenRouter) is reachable.
    */
   async testConnection(): Promise<{ ok: boolean; model: string; error?: string }> {
-    if (!this.openRouterApiKey) {
-      return { ok: false, model: 'none', error: 'OPENROUTER_API_KEY not set' };
+    if (!this.activeApiKey || !this.activeLlm) {
+      return {
+        ok: false,
+        model: 'none',
+        error: 'No LLM key (set XAI_API_KEY / GROK_API_KEY or OPENROUTER_API_KEY)',
+      };
     }
     try {
-      const text = await this.enqueueGeminiRequest('Reply with only the word OK');
-      this.logger.log(`OpenRouter test response: "${text.trim()}"`);
-      return { ok: true, model: this.openRouterModel };
+      const text = await this.enqueueChatCompletion('Reply with only the word OK');
+      this.logger.log(`LLM (${this.activeLlm}) test response: "${text.trim()}"`);
+      return { ok: true, model: this.activeModel };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      this.logger.error(`OpenRouter test failed: ${msg}`);
-      return { ok: false, model: this.openRouterModel, error: msg };
+      this.logger.error(`LLM (${this.activeLlm}) test failed: ${msg}`);
+      return { ok: false, model: this.activeModel, error: msg };
     }
   }
 
@@ -124,10 +153,10 @@ export class GeminiService {
     const annual = this.extractAnnualNumbers(annualData ?? {});
     const metrics = this.extractLatestMetrics(financialData);
 
-    if (!this.openRouterApiKey) {
+    if (!this.activeApiKey || !this.activeLlm) {
       this.logger.warn('╔══════════════════════════════════════════════════════╗');
-      this.logger.warn('║  ⚠️  OPENROUTER AI NOT AVAILABLE — USING FALLBACK  ║');
-      this.logger.warn('║  Reason: Missing OPENROUTER_API_KEY                 ║');
+      this.logger.warn('║  ⚠️  LLM NOT CONFIGURED — USING TEMPLATE FALLBACK   ║');
+      this.logger.warn('║  Set XAI_API_KEY (Grok) or OPENROUTER_API_KEY       ║');
       this.logger.warn('╚══════════════════════════════════════════════════════╝');
       const content = this.generateComprehensiveFallback({
         reportTypes,
@@ -148,9 +177,10 @@ export class GeminiService {
       };
     }
 
+    const providerLabel = this.activeLlm === 'xai' ? 'xAI Grok' : 'OpenRouter';
     this.logger.log('╔══════════════════════════════════════════════════════╗');
-    this.logger.log('║  🤖 OPENROUTER AI AVAILABLE — Starting generation   ║');
-    this.logger.log(`║  Model: ${this.openRouterModel}`);
+    this.logger.log(`║  🤖 ${providerLabel} — Starting generation`);
+    this.logger.log(`║  Model: ${this.activeModel}`);
     this.logger.log(`║  Sections: ${reportTypes.length} report types + ${requestedSections.length} extra sections`);
     this.logger.log('╚══════════════════════════════════════════════════════╝');
 
@@ -243,16 +273,18 @@ export class GeminiService {
     this.logger.log('╚══════════════════════════════════════════════════════╝');
 
     const fallbackSections = Object.values(sectionSources).filter((value) => value === 'FALLBACK').length;
+    const primarySource: ReportContentSource =
+      this.activeLlm === 'xai' ? 'xai' : 'openrouter';
     const source: ReportContentSource =
       fallbackSections === 0
-        ? 'openrouter'
+        ? primarySource
         : fallbackSections === Object.keys(sectionSources).length
           ? 'fallback'
           : 'mixed';
 
     return {
       content: sectionContent,
-      aiUsed: source === 'openrouter',
+      aiUsed: source === 'openrouter' || source === 'xai',
       source,
       fallbackSections,
     };
@@ -272,27 +304,28 @@ export class GeminiService {
       requestedSections: ReportSection[];
     },
   ): Promise<string> {
-    if (!this.openRouterApiKey) {
-      this.logger.warn(`No OpenRouter API key available for ${sectionKey} — using data-driven fallback`);
+    if (!this.activeApiKey || !this.activeLlm) {
+      this.logger.warn(`No LLM API key for ${sectionKey} — using data-driven fallback`);
       return this.buildFallbackForKey(sectionKey, fallbackContext);
     }
 
     let lastError: string | null = null;
     const delays = [2000, 5000, 12000];
+    const providerTag = this.activeLlm === 'xai' ? 'xAI' : 'OpenRouter';
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        this.logger.log(`[${sectionKey}] OpenRouter attempt ${attempt + 1}/3 (model: ${this.openRouterModel})`);
-        const text = await this.enqueueGeminiRequest(prompt);
+        this.logger.log(`[${sectionKey}] ${providerTag} attempt ${attempt + 1}/3 (model: ${this.activeModel})`);
+        const text = await this.enqueueChatCompletion(prompt);
         if (text.length > 0) {
-          this.logger.log(`[${sectionKey}] OpenRouter returned ${text.length} chars successfully`);
+          this.logger.log(`[${sectionKey}] ${providerTag} returned ${text.length} chars successfully`);
           return text;
         }
-        lastError = 'empty response from OpenRouter';
-        this.logger.warn(`[${sectionKey}] OpenRouter returned empty response on attempt ${attempt + 1}`);
+        lastError = `empty response from ${providerTag}`;
+        this.logger.warn(`[${sectionKey}] ${providerTag} returned empty response on attempt ${attempt + 1}`);
       } catch (error) {
-        lastError = this.describeOpenRouterError(error);
-        this.logger.warn(`[${sectionKey}] OpenRouter attempt ${attempt + 1} failed: ${lastError}`);
+        lastError = this.describeLlmHttpError(error);
+        this.logger.warn(`[${sectionKey}] ${providerTag} attempt ${attempt + 1} failed: ${lastError}`);
 
         // Auth error — no point in retrying
         if (lastError.includes('401') || lastError.includes('403') || lastError.includes('API_KEY') || lastError.includes('PERMISSION_DENIED')) {
@@ -315,22 +348,80 @@ export class GeminiService {
       }
     }
 
-    this.logger.error(`[${sectionKey}] All OpenRouter attempts failed. Last error: ${lastError}. Using fallback content.`);
+    this.logger.error(`[${sectionKey}] All ${providerTag} attempts failed. Last error: ${lastError}. Using fallback content.`);
     return this.buildFallbackForKey(sectionKey, fallbackContext);
   }
 
-  private enqueueGeminiRequest(prompt: string): Promise<string> {
-    if (!this.openRouterApiKey) {
-      return Promise.reject(new Error('No OpenRouter API key available'));
+  /**
+   * OpenAI-compatible APIs may return `message.content` as a string or as an array of parts
+   * (e.g. `{ type: 'text', text: '...' }`). Treating non-strings as "empty" caused LLM
+   * calls to succeed on the wire but fall back to template content for every section.
+   */
+  private extractChatCompletionText(data: unknown): string {
+    const content = (data as { choices?: Array<{ message?: { content?: unknown } }> })?.choices?.[0]
+      ?.message?.content;
+
+    if (typeof content === 'string') {
+      return content;
     }
 
+    if (Array.isArray(content)) {
+      return content
+        .map((part) => {
+          if (typeof part === 'string') {
+            return part;
+          }
+          if (part && typeof part === 'object') {
+            const p = part as Record<string, unknown>;
+            if (typeof p.text === 'string') {
+              return p.text;
+            }
+            if (typeof p.content === 'string') {
+              return p.content;
+            }
+          }
+          return '';
+        })
+        .join('');
+    }
+
+    return '';
+  }
+
+  private enqueueChatCompletion(prompt: string): Promise<string> {
+    if (!this.activeApiKey || !this.activeLlm) {
+      return Promise.reject(new Error('No LLM API key configured'));
+    }
+
+    const url =
+      this.activeLlm === 'xai'
+        ? `${this.xaiBaseUrl}/chat/completions`
+        : 'https://openrouter.ai/api/v1/chat/completions';
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${this.activeApiKey}`,
+      'Content-Type': 'application/json',
+    };
+
+    if (this.activeLlm === 'openrouter') {
+      const referer =
+        this.configService.get<string>('OPENROUTER_HTTP_REFERER')?.trim() ||
+        this.configService.get<string>('FRONTEND_URL')?.split(',')[0]?.trim() ||
+        'http://localhost:5173';
+      headers['HTTP-Referer'] = referer;
+      headers['X-Title'] = 'SmartBiz AI — Report generation';
+    }
+
+    const runLabel =
+      this.activeLlm === 'xai' ? 'xAI Grok chat completion' : 'OpenRouter chat completion';
+
     const run = this.generationQueue.then(async () => {
-      this.logger.debug(`Sending prompt (${prompt.length} chars) to OpenRouter...`);
+      this.logger.debug(`Sending prompt (${prompt.length} chars) to ${this.activeLlm}...`);
       const response = await this.runWithTimeout(
         axios.post(
-          'https://openrouter.ai/api/v1/chat/completions',
+          url,
           {
-            model: this.openRouterModel,
+            model: this.activeModel,
             messages: [
               {
                 role: 'user',
@@ -341,24 +432,21 @@ export class GeminiService {
             max_tokens: 4096,
           },
           {
-            headers: {
-              Authorization: `Bearer ${this.openRouterApiKey}`,
-              'Content-Type': 'application/json',
-            },
+            headers,
             timeout: this.requestTimeoutMs,
           },
         ),
         this.requestTimeoutMs,
-        'OpenRouter chat completion',
+        runLabel,
       );
 
-      const text = response.data?.choices?.[0]?.message?.content;
-      if (typeof text !== 'string' || text.trim().length === 0) {
-        const apiError = response.data?.error?.message;
-        throw new Error(apiError || 'OpenRouter returned an empty response');
+      const text = this.extractChatCompletionText(response.data);
+      if (text.trim().length === 0) {
+        const apiError = (response.data as { error?: { message?: string } })?.error?.message;
+        throw new Error(apiError || 'LLM returned an empty response');
       }
 
-      this.logger.debug(`OpenRouter raw response: ${text.length} chars`);
+      this.logger.debug(`LLM (${this.activeLlm}) raw response: ${text.length} chars`);
       return this.normalizeResponseText(text);
     });
 
@@ -370,7 +458,7 @@ export class GeminiService {
     return run;
   }
 
-  private describeOpenRouterError(error: unknown): string {
+  private describeLlmHttpError(error: unknown): string {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       const data = error.response?.data as
@@ -388,7 +476,7 @@ export class GeminiService {
         error.message,
       ].filter((value): value is string => Boolean(value && value.trim()));
 
-      return parts.length > 0 ? parts.join(' | ') : 'Unknown Axios/OpenRouter error';
+      return parts.length > 0 ? parts.join(' | ') : 'Unknown Axios/LLM error';
     }
 
     return error instanceof Error ? error.message : 'unknown error';

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
+import type { ReportContentSource } from './gemini.service';
 
 type FinancialRow = {
   metric: string;
@@ -29,7 +30,7 @@ type GeneratePdfInput = {
   annualRevenueSeries?: Array<{ label: string; value: number }>;
   prediction: PredictionSummary;
   aiContent: Record<string, string>;
-  aiSource?: 'openrouter' | 'fallback' | 'mixed';
+  aiSource?: ReportContentSource;
 };
 
 // ─── Theme constants ───
@@ -840,7 +841,7 @@ export class ReportPdfService {
     totalPages: number,
     pageW: number,
     pageH: number,
-    aiSource?: 'openrouter' | 'fallback' | 'mixed',
+    aiSource?: ReportContentSource,
   ) {
     const footerY = pageH - 45;
 
@@ -877,14 +878,20 @@ export class ReportPdfService {
     }
   }
 
-  private getPoweredByLabel(aiSource?: 'openrouter' | 'fallback' | 'mixed'): string {
+  private getPoweredByLabel(aiSource?: ReportContentSource): string {
     if (aiSource === 'fallback') {
       return 'Powered by SmartBiz Engine (Fallback Mode)';
     }
     if (aiSource === 'mixed') {
-      return 'Powered by OpenRouter AI + SmartBiz Fallback';
+      return 'Powered by AI + SmartBiz Fallback';
     }
-    return 'Powered by OpenRouter AI';
+    if (aiSource === 'xai') {
+      return 'Powered by xAI Grok';
+    }
+    if (aiSource === 'openrouter') {
+      return 'Powered by OpenRouter AI';
+    }
+    return 'Powered by SmartBiz AI';
   }
 
   private getLabels(language: string) {
