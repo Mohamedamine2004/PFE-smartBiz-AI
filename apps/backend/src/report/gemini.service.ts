@@ -68,6 +68,7 @@ export class GeminiService {
   private readonly maxLlmPromptChars = 100_000;
   /** Cap on the embedded monthly trend block inside the base prompt. */
   private readonly maxMonthlyTableChars = 45_000;
+  private readonly maxLlmTokens = 128_000;
 
   constructor(private readonly configService: ConfigService) {
     const xaiKey =
@@ -316,11 +317,12 @@ export class GeminiService {
     let lastError: string | null = null;
     const delays = [2000, 5000, 12000];
     const providerTag = this.activeLlm === 'xai' ? 'xAI' : 'OpenRouter';
+    let adaptiveOpenRouterMaxTokens: number | undefined;
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         this.logger.log(`[${sectionKey}] ${providerTag} attempt ${attempt + 1}/3 (model: ${this.activeModel})`);
-        const text = await this.enqueueChatCompletion(prompt);
+        const text = await this.enqueueChatCompletion(prompt, adaptiveOpenRouterMaxTokens);
         if (text.length > 0) {
           this.logger.log(`[${sectionKey}] ${providerTag} returned ${text.length} chars successfully`);
           return text;
@@ -343,6 +345,19 @@ export class GeminiService {
           this.logger.warn(`[${sectionKey}] Rate limited — waiting ${rateLimitDelay}ms before retry`);
           await this.sleep(rateLimitDelay);
           continue;
+        }
+
+        // OpenRouter budget error: downgrade max_tokens using provider hint ("can only afford X").
+        if (this.activeLlm === 'openrouter' && lastError.includes('402')) {
+          const affordable = this.extractAffordableTokenCap(lastError);
+          if (affordable !== null) {
+            const safeCap = Math.max(512, affordable - 128);
+            adaptiveOpenRouterMaxTokens = safeCap;
+            this.logger.warn(
+              `[${sectionKey}] OpenRouter credit cap detected. Retrying with reduced max_tokens=${safeCap} (affordable=${affordable}).`,
+            );
+            continue;
+          }
         }
       }
 
@@ -408,7 +423,10 @@ export class GeminiService {
     return '';
   }
 
-  private enqueueChatCompletion(prompt: string): Promise<string> {
+  private enqueueChatCompletion(
+    prompt: string,
+    openRouterMaxTokensOverride?: number,
+  ): Promise<string> {
     if (!this.activeApiKey || !this.activeLlm) {
       return Promise.reject(new Error('No LLM API key configured'));
     }
@@ -429,7 +447,7 @@ export class GeminiService {
         this.configService.get<string>('FRONTEND_URL')?.split(',')[0]?.trim() ||
         'http://localhost:5173';
       headers['HTTP-Referer'] = referer;
-      headers['X-Title'] = 'SmartBiz AI — Report generation';
+      headers['X-Title'] = 'SmartBiz AI - Report generation';
     }
 
     const runLabel =
@@ -439,15 +457,17 @@ export class GeminiService {
 
     const parseCap = (raw: string | undefined, fallback: number) => {
       const n = Number.parseInt(raw ?? '', 10);
-      return Number.isFinite(n) && n > 0 ? Math.min(n, 128_000) : fallback;
+      return Number.isFinite(n) && n > 0 ? Math.min(n, this.maxLlmTokens) : fallback;
     };
-    const xaiMaxCompletion = parseCap(
-      this.configService.get<string>('XAI_MAX_COMPLETION_TOKENS'),
-      4096,
+    const xaiMaxCompletion = this.getTokenCapForProvider(
+      'xai',
+      this.activeModel,
+      parseCap(this.configService.get<string>('XAI_MAX_COMPLETION_TOKENS'), 4096),
     );
-    const openRouterMaxTokens = parseCap(
-      this.configService.get<string>('OPENROUTER_MAX_TOKENS'),
-      4096,
+    const openRouterMaxTokens = this.getTokenCapForProvider(
+      'openrouter',
+      this.activeModel,
+      parseCap(this.configService.get<string>('OPENROUTER_MAX_TOKENS'), 4096),
     );
 
     const requestBody =
@@ -463,7 +483,7 @@ export class GeminiService {
             model: this.activeModel,
             messages: [{ role: 'user', content: cappedPrompt }],
             temperature: 0.7,
-            max_tokens: openRouterMaxTokens,
+            max_tokens: openRouterMaxTokensOverride ?? openRouterMaxTokens,
           };
 
     const run = this.generationQueue.then(async () => {
@@ -497,6 +517,15 @@ export class GeminiService {
     return run;
   }
 
+  private extractAffordableTokenCap(errorText: string): number | null {
+    const match = errorText.match(/can only afford\s+(\d+)/i);
+    if (!match?.[1]) {
+      return null;
+    }
+    const value = Number.parseInt(match[1], 10);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
   private describeLlmHttpError(error: unknown): string {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
@@ -519,6 +548,20 @@ export class GeminiService {
         (typeof data?.message === 'string' ? data.message : undefined) ??
         undefined;
 
+      if (status === 400) {
+        this.logger.error(
+          `[LLM 400 Bad Request] provider=${this.activeLlm ?? 'unknown'} model=${this.activeModel || 'unknown'} | Verify API key, model name, and request format | message=${apiMessage ?? 'Unknown'}`,
+        );
+      } else if (status === 402) {
+        this.logger.error(
+          `[LLM 402 Payment Required] provider=${this.activeLlm ?? 'unknown'} model=${this.activeModel || 'unknown'} message=${apiMessage ?? 'Unknown'} body=${typeof rawData === 'string' ? rawData : JSON.stringify(rawData)}`,
+        );
+      } else if (status === 429) {
+        this.logger.warn(
+          `[LLM 429 Rate Limit] provider=${this.activeLlm ?? 'unknown'} model=${this.activeModel || 'unknown'} message=${apiMessage ?? 'Unknown'}`,
+        );
+      }
+
       const parts = [
         status ? `HTTP ${status}` : undefined,
         apiMessage,
@@ -529,6 +572,39 @@ export class GeminiService {
     }
 
     return error instanceof Error ? error.message : 'unknown error';
+  }
+
+  private getTokenCapForProvider(
+    provider: ActiveLlmProvider,
+    modelName: string,
+    fallbackCap: number,
+  ): number {
+    const envKey = provider === 'xai' ? 'XAI_MAX_COMPLETION_TOKENS' : 'OPENROUTER_MAX_TOKENS';
+    const envCap = this.configService.get<string>(envKey)?.trim();
+
+    if (envCap) {
+      const parsed = Number.parseInt(envCap, 10);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return Math.min(parsed, this.maxLlmTokens);
+      }
+    }
+
+    const normalizedModel = modelName.toLowerCase();
+    const modelCaps: Record<string, number> = {
+      'mistralai/mistral-large': 4000,
+      'mistralai/mistral-7b-instruct': 3000,
+      'grok-beta': 3000,
+      'grok-4-1-fast-non-reasoning': 4096,
+      'google/gemini-2.5-flash': 2500,
+    };
+
+    for (const [modelKey, cap] of Object.entries(modelCaps)) {
+      if (normalizedModel.includes(modelKey)) {
+        return cap;
+      }
+    }
+
+    return fallbackCap;
   }
 
   private async runWithTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
