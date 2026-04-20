@@ -202,27 +202,27 @@
   "dashboard": {
     "greeting": {
       "morning": "Bonjour, {{name}}",
-      "afternoon": "Bon apr\u00e8s-midi, {{name}}",
+      "afternoon": "Bon après-midi, {{name}}",
       "evening": "Bonsoir, {{name}}"
     },
     "subtitle": "Voici vos indicateurs financiers.",
     "importBtn": "Importer",
     "historyBtn": "Historique",
     "empty": {
-      "title": "Aucune donn\u00e9e financi\u00e8re",
-      "description": "Importez vos donn\u00e9es financi\u00e8res pour d\u00e9bloquer les tableaux de bord, pr\u00e9dictions et analyses IA.",
-      "importBtn": "Importer des donn\u00e9es",
-      "settingsBtn": "Param\u00e8tres entreprise"
+      "title": "Aucune donnée financière",
+      "description": "Importez vos données financières pour débloquer les tableaux de bord, prédictions et analyses IA.",
+      "importBtn": "Importer des données",
+      "settingsBtn": "Paramètres entreprise"
     },
     "kpis": {
-      "cac": "Co\u00fbt d'Acquisition Client",
+      "cac": "Coût d'Acquisition Client",
       "ltv": "Valeur Vie Client",
-      "tam": "March\u00e9 Total Adressable",
-      "marketShare": "Part de March\u00e9",
+      "tam": "Marché Total Adressable",
+      "marketShare": "Part de Marché",
       "employees": "Effectifs",
       "ltvCacRatio": "Ratio LTV:CAC",
       "ltvCacHealthy": "Sain",
-      "ltvCacWarning": "\u00c0 surveiller",
+      "ltvCacWarning": "À surveiller",
       "ltvCacCritical": "Critique",
       "avgBurnRate": "Burn Rate Moyen",
       "perMonth": "par mois",
@@ -234,41 +234,41 @@
       "evTitle": "VALEUR D'ENTREPRISE PRÉDITE (EV)"
     },
     "charts": {
-      "revenue": "Revenus & B\u00e9n\u00e9fices",
-      "expenses": "D\u00e9penses & Co\u00fbts",
-      "overview": "Vue Flux de Tr\u00e9sorerie",
-      "cashFlowTableTitle": "Tableau des Indicateurs de Tr\u00e9sorerie",
-      "cashFlowTableSubtitle": "Valeurs en direct r\u00e9cup\u00e9r\u00e9es depuis les donn\u00e9es import\u00e9es du backend",
+      "revenue": "Revenus & Bénéfices",
+      "expenses": "Dépenses & Coûts",
+      "overview": "Vue Flux de Trésorerie",
+      "cashFlowTableTitle": "Tableau des Indicateurs de Trésorerie",
+      "cashFlowTableSubtitle": "Valeurs en direct récupérées depuis les données importées du backend",
       "selectMetrics": "Choisir les indicateurs",
-      "selectAll": "Tout s\u00e9lectionner",
+      "selectAll": "Tout sélectionner",
       "clear": "Effacer",
       "showRows": "Afficher les lignes",
-      "last6": "6 derni\u00e8res",
-      "last12": "12 derni\u00e8res",
-      "allPeriods": "Toutes les p\u00e9riodes",
-      "period": "P\u00e9riode",
-      "noMetricSelected": "S\u00e9lectionnez au moins un indicateur pour afficher le tableau.",
+      "last6": "6 dernières",
+      "last12": "12 dernières",
+      "allPeriods": "Toutes les périodes",
+      "period": "Période",
+      "noMetricSelected": "Sélectionnez au moins un indicateur pour afficher le tableau.",
       "customerGrowth": "Analyse Croissance Clients",
-      "costStructure": "Structure des Co\u00fbts",
-      "payroll": "D\u00e9penses Salariales",
-      "otherExpenses": "Autres D\u00e9penses Op\u00e9rationnelles",
+      "costStructure": "Structure des Coûts",
+      "payroll": "Dépenses Salariales",
+      "otherExpenses": "Autres Dépenses Opérationnelles",
       "payrollShare": "Part Salariale",
       "annualFundamentals": "Fondamentaux Annuels",
       "metric": "Indicateur",
-      "currentYear": "Ann\u00e9e Courante",
+      "currentYear": "Année Courante",
       "yoyChange": "Variation Annuelle",
       "assets": "Actifs",
       "liabilities": "Passifs",
       "revenues": "Revenus",
-      "operatingIncome": "R\u00e9sultat Op\u00e9rationnel",
-      "operatingCashFlow": "Flux de Tr\u00e9sorerie Op\u00e9rationnel",
+      "operatingIncome": "Résultat Opérationnel",
+      "operatingCashFlow": "Flux de Trésorerie Opérationnel",
       "metrics": {
         "grossRevenue": "Revenus bruts",
-        "operatingExpensesTotal": "D\u00e9penses op\u00e9rationnelles totales",
-        "payrollExpenses": "D\u00e9penses de paie",
-        "marketingSpend": "D\u00e9penses marketing",
-        "netCashBurn": "Burn net de tr\u00e9sorerie",
-        "endingCashBalance": "Tr\u00e9sorerie finale"
+        "operatingExpensesTotal": "Dépenses opérationnelles totales",
+        "payrollExpenses": "Dépenses de paie",
+        "marketingSpend": "Dépenses marketing",
+        "netCashBurn": "Burn net de trésorerie",
+        "endingCashBalance": "Trésorerie finale"
       }
     },
     "tabs": {
@@ -278,21 +278,21 @@
       "mlProjection": "Projection ML"
     },
     "mlZone": {
-      "title": "Centre Moteur Pr\u00e9dictif",
-      "runPrediction": "Lancer la Pr\u00e9diction IA",
-      "running": "Ex\u00e9cution...",
-      "success": "Pr\u00e9diction ex\u00e9cut\u00e9e avec succ\u00e8s.",
-      "error": "\u00c9chec de la pr\u00e9diction. Veuillez r\u00e9essayer.",
-      "noData": "Aucune donn\u00e9e de pr\u00e9diction disponible.",
-      "noDataHint": "Veuillez lancer le mod\u00e8le pour g\u00e9n\u00e9rer une projection.",
-      "failedTitle": "\u00c9chec de la pr\u00e9diction",
-      "failedHint": "Le mod\u00e8le n'a pas renvoy\u00e9 de donn\u00e9es exploitables. V\u00e9rifiez le moteur ML et les donn\u00e9es import\u00e9es.",
-      "pendingTitle": "Pr\u00e9diction en cours",
+      "title": "Centre Moteur Prédictif",
+      "runPrediction": "Lancer la Prédiction IA",
+      "running": "Exécution...",
+      "success": "Prédiction exécutée avec succès.",
+      "error": "Échec de la prédiction. Veuillez réessayer.",
+      "noData": "Aucune donnée de prédiction disponible.",
+      "noDataHint": "Veuillez lancer le modèle pour générer une projection.",
+      "failedTitle": "Échec de la prédiction",
+      "failedHint": "Le modèle n'a pas renvoyé de données exploitables. Vérifiez le moteur ML et les données importées.",
+      "pendingTitle": "Prédiction en cours",
       "pendingHint": "Veuillez patienter quelques secondes puis actualiser cet onglet.",
       "revenueProjection": "Projection des Revenus",
-      "maeDisclaimer": "L'incertitude de projection est affich\u00e9e avec une MAE estim\u00e9e entre 12 et 16%.",
+      "maeDisclaimer": "L'incertitude de projection est affichée avec une MAE estimée entre 12 et 16%.",
       "featureImportance": "Facteurs d'Influence",
-      "projectionRangeHint": "La zone pointill\u00e9e indique la fourchette probable (min-max).",
+      "projectionRangeHint": "La zone pointillée indique la fourchette probable (min-max).",
       "featureHint": "Les facteurs ci-dessous montrent ce qui influence le plus la projection.",
       "impact": "Impact",
       "projectedValuations": "Évaluations Projetées",
@@ -310,18 +310,18 @@
       "confirmDelete": "Confirmer ?",
       "yes": "Oui",
       "no": "Non",
-      "deleteError": "\u00c9chec de la suppression.",
-      "fetchError": "\u00c9chec du chargement de l'historique.",
+      "deleteError": "Échec de la suppression.",
+      "fetchError": "Échec du chargement de l'historique.",
       "active": "Affichage actif",
       "today": "Aujourd'hui",
       "yesterday": "Hier",
       "daysAgo": "Il y a {{count}} jours"
     },
-    "fetchError": "\u00c9chec du chargement des donn\u00e9es.",
-    "lastImport": "Derni\u00e8re importation",
-    "downloadTemplate": "T\u00e9l\u00e9charger le mod\u00e8le",
-    "downloading": "T\u00e9l\u00e9chargement en cours...",
-    "downloadError": "\u00c9chec du t\u00e9l\u00e9chargement du mod\u00e8le. Veuillez r\u00e9essayer."
+    "fetchError": "Échec du chargement des données.",
+    "lastImport": "Dernière importation",
+    "downloadTemplate": "Télécharger le modèle",
+    "downloading": "Téléchargement en cours...",
+    "downloadError": "Échec du téléchargement du modèle. Veuillez réessayer."
   },
   "valuation": {
     "title": "Évaluation d'entreprise",
@@ -383,14 +383,14 @@
       "wacc": "ex. 0,10"
     },
     "sensitivity": {
-      "title": "Analyse de sensibilit\u00e9",
-      "adjustSliders": "Ajustez les param\u00e8tres pour voir l\u2019impact en temps r\u00e9el sur la valorisation.",
+      "title": "Analyse de sensibilité",
+      "adjustSliders": "Ajustez les paramètres pour voir l’impact en temps réel sur la valorisation.",
       "multiple": "Multiple",
       "peRatio": "Ratio P/E",
       "wacc": "CMPC",
       "growthRate": "Taux de croissance",
-      "adjustedEV": "VE ajust\u00e9e",
-      "adjustedEquity": "Capitaux propres ajust\u00e9s"
+      "adjustedEV": "VE ajustée",
+      "adjustedEquity": "Capitaux propres ajustés"
     },
     "history": {
       "title": "Historique",
@@ -436,7 +436,7 @@
     "created": "Cree",
     "download": "Telecharger",
     "languages": {
-      "fr": "Francais",
+      "fr": "Français",
       "en": "Anglais",
       "ar": "Arabe"
     },
@@ -547,5 +547,36 @@
     "title": "Configuration en cours",
     "description": "Votre administrateur configure l'espace de travail. Vous serez redirigé automatiquement une fois la configuration terminée.",
     "refresh": "Vérifier à nouveau"
+  },
+  "invitation": {
+    "title": "Demander une invitation",
+    "form": {
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Jean Dupont",
+      "email": "Email professionnel",
+      "emailPlaceholder": "jean@entreprise.com",
+      "company": "Entreprise",
+      "companyPlaceholder": "Votre entreprise...",
+      "role": "Profil / Rôle",
+      "rolePlaceholder": "Sélectionnez un rôle",
+      "message": "Message pour l'admin",
+      "messagePlaceholder": "Parlez-nous de vos besoins...",
+      "submitting": "Envoi en cours...",
+      "submit": "Envoyer la demande"
+    },
+    "toasts": {
+      "error": "Échec de l'envoi. Réessayez.",
+      "success": "Votre demande a été envoyée avec succès."
+    },
+    "success": {
+      "title": "Demande envoyée",
+      "message": "Nous avons reçu votre demande d'invitation. L'équipe l'examinera sous peu.",
+      "close": "Fermer"
+    }
+  },
+  "roles": {
+    "admin": "Admin",
+    "collaborator": "Collaborateur",
+    "reader": "Lecteur"
   }
 }

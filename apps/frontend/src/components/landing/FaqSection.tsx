@@ -7,6 +7,7 @@ export const FaqSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const faqs = t('landing.faq.items', { returnObjects: true }) as Array<{ q: string; a: string }>;
+  const safeFaqs = Array.isArray(faqs) ? faqs : [];
 
   return (
     <section id="faq" className="py-24 bg-surface/50 border-t border-b border-border">
@@ -18,7 +19,7 @@ export const FaqSection = () => {
         </div>
 
         <div className="space-y-4">
-          {faqs.map((faq, index) => (
+          {safeFaqs.map((faq, index) => (
             <div 
               key={index} 
               className={`card cursor-pointer transition-all ${openIndex === index ? 'border-brand/50 shadow-[0_4px_20px_rgba(0,209,255,0.1)]' : ''}`}

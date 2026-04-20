@@ -17,10 +17,14 @@ import {
 import { CalculateValuationDto } from './dto/calculate-valuation.dto';
 import { SaveValuationDto } from './dto/save-valuation.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('valuation')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
 export class ValuationController {
   constructor(private readonly valuationService: ValuationService) {}
 

@@ -229,4 +229,3 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
     </div>
   );
 };
-};

@@ -870,5 +870,36 @@
       "subtitle": "Join teams already using AI to move faster and decide better.",
       "button": "Get access"
     }
+  },
+  "invitation": {
+    "title": "Request an Invitation",
+    "form": {
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "email": "Work Email",
+      "emailPlaceholder": "john@company.com",
+      "company": "Company",
+      "companyPlaceholder": "Your company...",
+      "role": "Profile / Role",
+      "rolePlaceholder": "Select a role",
+      "message": "Message to Admin",
+      "messagePlaceholder": "Tell us a bit about your needs...",
+      "submitting": "Sending request...",
+      "submit": "Send Request"
+    },
+    "toasts": {
+      "error": "Failed to send request. Try again.",
+      "success": "Your request has been submitted successfully."
+    },
+    "success": {
+      "title": "Request Sent",
+      "message": "We have received your invitation request. The team will review it shortly.",
+      "close": "Close"
+    }
+  },
+  "roles": {
+    "admin": "Admin",
+    "collaborator": "Collaborator",
+    "reader": "Reader"
   }
 }

@@ -23,7 +23,7 @@ export class PredictionController {
    * POST /api/v1/prediction/run
    * Triggers a new ML prediction for the authenticated user's company.
    */
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB)
   @Post('run')
   async runPrediction(
     @CurrentUser() user: JwtPayload,
@@ -36,7 +36,7 @@ export class PredictionController {
    * GET /api/v1/prediction/latest
    * Returns the most recent completed prediction for the company.
    */
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('latest')
   async getLatest(
     @CurrentUser() user: JwtPayload,

@@ -6,6 +6,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('invitations')
 export class InvitationRequestController {
@@ -29,7 +31,8 @@ export class InvitationRequestController {
   updateStatus(
     @Param('id') id: string,
     @Body() updateDto: UpdateInvitationRequestStatusDto,
+    @CurrentUser() admin: JwtPayload,
   ) {
-    return this.invitationRequestService.updateStatus(id, updateDto);
+    return this.invitationRequestService.updateStatus(id, updateDto, admin.userId);
   }
 }

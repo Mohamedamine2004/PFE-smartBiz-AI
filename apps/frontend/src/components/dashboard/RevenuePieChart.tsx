@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { ChartDataPoint } from '../../types/dashboard';
 
 interface RevenuePieChartProps {
@@ -53,28 +53,29 @@ export const RevenuePieChart = ({ data }: RevenuePieChartProps) => {
         </div>
       ) : (
         <div className="h-[300px] w-full flex items-center justify-center">
-          <PieChart
-            series={[
-              {
-                data: seriesData,
-                innerRadius: 60,
-                outerRadius: 120,
-                paddingAngle: 2,
-                cornerRadius: 4,
-              },
-            ]}
-            height={380}
-            margin={{ top: 20, bottom: 20 }}
-            sx={{
-              [`& .${pieArcLabelClasses.root}`]: {
-                fill: 'white',
-                fontWeight: 'bold',
-              },
-            }}
-          />
+          <ResponsiveContainer width="100%" height={300}>
+            <RechartsPieChart>
+              <Pie
+                data={seriesData}
+                dataKey="value"
+                nameKey="label"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={110}
+                paddingAngle={2}
+                stroke="transparent"
+              >
+                {seriesData.map((entry) => (
+                  <Cell key={entry.id} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend verticalAlign="bottom" height={36} />
+            </RechartsPieChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>
   );
-};
 };

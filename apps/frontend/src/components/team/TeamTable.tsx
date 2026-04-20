@@ -9,7 +9,7 @@ export interface TeamMember {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'USER' | 'READER';
+  role: 'ADMIN' | 'COLLAB' | 'READER';
   isEmailVerified: boolean;
   createdAt: string;
 }
@@ -94,11 +94,11 @@ export const TeamTable: React.FC<TeamTableProps> = ({
                         : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
                     }`}>
                       {member.role === 'ADMIN' && <Shield className="w-3.5 h-3.5" />}
-                      {member.role === 'USER' && <User className="w-3.5 h-3.5" />}
+                      {member.role === 'COLLAB' && <User className="w-3.5 h-3.5" />}
                       {member.role === 'READER' && <Eye className="w-3.5 h-3.5" />}
                       
                       {member.role === 'ADMIN' && t('team.roleAdmin')}
-                      {member.role === 'USER' && t('team.roleUser')}
+                      {member.role === 'COLLAB' && t('team.roleUser')}
                       {member.role === 'READER' && t('team.roleReader')}
                     </span>
                   </td>

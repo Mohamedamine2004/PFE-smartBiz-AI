@@ -29,13 +29,13 @@ import { ReportService } from './report.service';
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB)
   @Post('generate')
   async generate(@CurrentUser() user: JwtPayload, @Body() dto: GenerateReportDto) {
     return this.reportService.createReportJob(user.companyId, user.userId, dto);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('jobs')
   async list(
     @CurrentUser() user: JwtPayload,
@@ -44,19 +44,19 @@ export class ReportController {
     return this.reportService.listReports(user.companyId, limit ?? 20);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('ai/health')
   async aiHealth() {
     return this.reportService.getAiHealth();
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('jobs/:id')
   async status(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
     return this.reportService.getReportStatus(user.companyId, id);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('jobs/:id/download')
   async download(
     @CurrentUser() user: JwtPayload,
@@ -74,7 +74,7 @@ export class ReportController {
     return new StreamableFile(stream);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB)
   @Delete('jobs/:id')
   async deleteReport(
     @CurrentUser() user: JwtPayload,
@@ -83,7 +83,7 @@ export class ReportController {
     return this.reportService.deleteReport(user.companyId, id);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Sse('jobs/:id/progress')
   async progressStream(
     @CurrentUser() user: JwtPayload,

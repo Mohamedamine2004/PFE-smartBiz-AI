@@ -8,27 +8,28 @@ interface PricingSectionProps {
 
 export const PricingSection = ({ onOpenInvite }: PricingSectionProps) => {
   const { t } = useTranslation();
+  const asStringArray = (value: unknown) => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
 
   const plans = [
     {
       name: t('landing.pricing.starter.name'),
       desc: t('landing.pricing.starter.desc'),
       price: t('landing.pricing.starter.price'),
-      features: t('landing.pricing.starter.features', { returnObjects: true }) as string[],
+      features: asStringArray(t('landing.pricing.starter.features', { returnObjects: true })),
       isPopular: false
     },
     {
       name: t('landing.pricing.expert.name'),
       desc: t('landing.pricing.expert.desc'),
       price: t('landing.pricing.expert.price'),
-      features: t('landing.pricing.expert.features', { returnObjects: true }) as string[],
+      features: asStringArray(t('landing.pricing.expert.features', { returnObjects: true })),
       isPopular: true
     },
     {
       name: t('landing.pricing.enterprise.name'),
       desc: t('landing.pricing.enterprise.desc'),
       price: t('landing.pricing.enterprise.price'),
-      features: t('landing.pricing.enterprise.features', { returnObjects: true }) as string[],
+      features: asStringArray(t('landing.pricing.enterprise.features', { returnObjects: true })),
       isPopular: false
     }
   ];

@@ -12,7 +12,7 @@ interface InviteFormProps {
 export const InviteForm: React.FC<InviteFormProps> = ({ onInviteSuccess }) => {
   const { t } = useTranslation();
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'ADMIN' | 'USER' | 'READER'>('USER');
+  const [inviteRole, setInviteRole] = useState<'ADMIN' | 'COLLAB' | 'READER'>('COLLAB');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState('');
   const [inviteError, setInviteError] = useState('');
@@ -71,10 +71,10 @@ export const InviteForm: React.FC<InviteFormProps> = ({ onInviteSuccess }) => {
           <label className="form-label mb-1.5">{t('team.roleLabel')}</label>
           <select
             value={inviteRole}
-            onChange={(e) => setInviteRole(e.target.value as 'ADMIN' | 'USER' | 'READER')}
+            onChange={(e) => setInviteRole(e.target.value as 'ADMIN' | 'COLLAB' | 'READER')}
             className="input w-full"
           >
-            <option value="USER">{t('team.roleUser')}</option>
+            <option value="COLLAB">{t('team.roleUser')}</option>
             <option value="ADMIN">{t('team.roleAdmin')}</option>
             <option value="READER">{t('team.roleReader')}</option>
           </select>

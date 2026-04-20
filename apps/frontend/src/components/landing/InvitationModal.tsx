@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Send, Loader2, User, Mail, Building2, Briefcase } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Check, ChevronDown, X, Send, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -15,6 +15,8 @@ export const InvitationModal = ({ isOpen, onClose }: InvitationModalProps) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [roleOpen, setRoleOpen] = useState(false);
+  const roleMenuRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -22,6 +24,33 @@ export const InvitationModal = ({ isOpen, onClose }: InvitationModalProps) => {
     role: '',
     message: ''
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      setRoleOpen(false);
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (roleMenuRef.current && !roleMenuRef.current.contains(event.target as Node)) {
+        setRoleOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setRoleOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -46,6 +75,14 @@ export const InvitationModal = ({ isOpen, onClose }: InvitationModalProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const roleOptions = [
+    { value: 'ADMIN', label: t('roles.admin', 'Admin') },
+    { value: 'COLLAB', label: t('roles.collaborator', 'Collaborateur') },
+    { value: 'READER', label: t('roles.reader', 'Lecteur') },
+  ];
+
+  const selectedRoleLabel = roleOptions.find((option) => option.value === formData.role)?.label;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -96,7 +133,6 @@ export const InvitationModal = ({ isOpen, onClose }: InvitationModalProps) => {
               value={formData.fullName}
               onChange={handleChange}
               placeholder={t('invitation.form.fullNamePlaceholder')}
-              icon={<User className="w-4 h-4" />}
             />
 
             <Input
@@ -107,7 +143,6 @@ export const InvitationModal = ({ isOpen, onClose }: InvitationModalProps) => {
               value={formData.email}
               onChange={handleChange}
               placeholder={t('invitation.form.emailPlaceholder')}
-              icon={<Mail className="w-4 h-4" />}
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -117,16 +152,51 @@ export const InvitationModal = ({ isOpen, onClose }: InvitationModalProps) => {
                 value={formData.companyName}
                 onChange={handleChange}
                 placeholder={t('invitation.form.companyPlaceholder')}
-                icon={<Building2 className="w-4 h-4" />}
               />
-              <Input
-                label={t('invitation.form.role')}
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                placeholder={t('invitation.form.rolePlaceholder')}
-                icon={<Briefcase className="w-4 h-4" />}
-              />
+              <div className="relative space-y-1.5 w-full" ref={roleMenuRef}>
+                <label className="block text-sm font-semibold text-text-main/90 mb-1.5">
+                  {t('invitation.form.role')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setRoleOpen((open) => !open)}
+                  className="input w-full px-4 flex items-center justify-between gap-3 text-left cursor-pointer"
+                  aria-haspopup="listbox"
+                  aria-expanded={roleOpen}
+                >
+                  <span className={formData.role ? 'text-text-main' : 'text-text-muted'}>
+                    {selectedRoleLabel ?? t('invitation.form.rolePlaceholder')}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${roleOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {roleOpen && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-2 rounded-xl border border-border bg-surface shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                    <div className="max-h-56 overflow-auto py-1" role="listbox">
+                      {roleOptions.map((option) => {
+                        const isSelected = formData.role === option.value;
+
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            role="option"
+                            aria-selected={isSelected}
+                            onClick={() => {
+                              setFormData({ ...formData, role: option.value });
+                              setRoleOpen(false);
+                            }}
+                            className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors ${isSelected ? 'bg-brand/10 text-brand' : 'text-text-main hover:bg-elevated'}`}
+                          >
+                            <span>{option.label}</span>
+                            {isSelected && <Check className="w-4 h-4" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>

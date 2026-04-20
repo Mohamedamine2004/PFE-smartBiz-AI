@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Clock, Save, GitCompareArrows, Calculator } from 'lucide-react';
 import { useValuationStore } from '../store/valuationStore';
@@ -18,7 +18,6 @@ import { ValuationMethod } from '../types/valuation';
 
 export const Valuation = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {

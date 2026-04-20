@@ -867,5 +867,36 @@
       "subtitle": "انضم الى الفرق التي تستخدم الذكاء الاصطناعي لاتخاذ قرارات افضل.",
       "button": "احصل على الوصول"
     }
+  },
+  "invitation": {
+    "title": "طلب دعوة",
+    "form": {
+      "fullName": "الاسم الكامل",
+      "fullNamePlaceholder": "جون دو",
+      "email": "البريد الإلكتروني للعمل",
+      "emailPlaceholder": "john@company.com",
+      "company": "الشركة",
+      "companyPlaceholder": "شركتك...",
+      "role": "الدور",
+      "rolePlaceholder": "اختر دوراً",
+      "message": "رسالة للمسؤول",
+      "messagePlaceholder": "أخبرنا عن احتياجاتك...",
+      "submitting": "جاري الإرسال...",
+      "submit": "إرسال الطلب"
+    },
+    "toasts": {
+      "error": "فشل الإرسال. حاول مرة أخرى.",
+      "success": "تم إرسال طلبك بنجاح."
+    },
+    "success": {
+      "title": "تم إرسال الطلب",
+      "message": "لقد تلقينا طلب الدعوة الخاص بك. سيقوم الفريق بمراجعته قريباً.",
+      "close": "إغلاق"
+    }
+  },
+  "roles": {
+    "admin": "Admin",
+    "collaborator": "متعاون",
+    "reader": "قارئ"
   }
 }

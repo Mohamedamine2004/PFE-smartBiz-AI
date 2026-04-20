@@ -30,7 +30,7 @@ import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 export class FinancialController {
   constructor(private readonly financialService: FinancialService) {}
 
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB)
   @Post('import')
   @UseInterceptors(FileInterceptor('file'))
   async importBimodalData(
@@ -48,7 +48,7 @@ export class FinancialController {
   }
 
   // --- DOWNLOAD TEMPLATE ROUTE ---
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB)
   @Get('template')
   @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   @Header('Content-Disposition', 'attachment; filename="SmartBiz_Financial_Template.xlsx"')
@@ -61,14 +61,14 @@ export class FinancialController {
   }
 
   // --- FETCH DASHBOARD DATA ROUTE ---
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('dashboard-metrics')
   async getMetrics(@CurrentUser() user: JwtPayload) {
     return await this.financialService.getDashboardMetrics(user.companyId);
   }
 
   // --- FETCH SPECIFIC BATCH DASHBOARD DATA ROUTE (for historical batches) ---
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN)
   @Get('dashboard-metrics/:batchId')
   async getMetricsByBatchId(
     @Param('batchId') batchId: string,
@@ -78,14 +78,14 @@ export class FinancialController {
   }
 
   // --- LIST IMPORT HISTORY ROUTE ---
-  @Roles(UserRole.ADMIN, UserRole.USER, UserRole.READER)
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Get('imports')
   async getImportHistory(@CurrentUser() user: JwtPayload) {
     return await this.financialService.getImportHistory(user.companyId);
   }
 
   // --- DELETE AN IMPORT BATCH ROUTE ---
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN)
   @Delete('imports/:batchId')
   async deleteImportBatch(
     @Param('batchId') batchId: string,

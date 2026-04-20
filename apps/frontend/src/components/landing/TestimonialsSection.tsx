@@ -8,6 +8,7 @@ export const TestimonialsSection = () => {
     role: string;
     content: string;
   }>;
+  const safeItems = Array.isArray(translated) ? translated : [];
 
   const avatars = [
     'https://randomuser.me/api/portraits/men/32.jpg',
@@ -15,7 +16,7 @@ export const TestimonialsSection = () => {
     'https://randomuser.me/api/portraits/men/46.jpg',
   ];
 
-  const testimonials = translated.map((item, index) => ({
+  const testimonials = safeItems.map((item, index) => ({
     ...item,
     avatar: avatars[index] || avatars[0],
   }));

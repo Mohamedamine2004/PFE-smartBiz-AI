@@ -8,10 +8,32 @@ interface AuthInitializerProps {
   children: React.ReactNode;
 }
 
+const decodeJwtPayload = (token: string): { exp?: number } | null => {
+  try {
+    const payloadPart = token.split('.')[1];
+    if (!payloadPart) {
+      return null;
+    }
+
+    const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=');
+    return JSON.parse(window.atob(padded)) as { exp?: number };
+  } catch {
+    return null;
+  }
+};
+
+const isExpiredOrInvalidToken = (token: string) => {
+  const payload = decodeJwtPayload(token);
+  if (!payload || typeof payload.exp !== 'number') {
+    return true;
+  }
+  return payload.exp * 1000 <= Date.now();
+};
+
 export const AuthInitializer = ({ children }: AuthInitializerProps) => {
   const { t } = useTranslation();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const logout = useAuthStore((state) => state.logout);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -23,20 +45,40 @@ export const AuthInitializer = ({ children }: AuthInitializerProps) => {
         return;
       }
 
+      if (isExpiredOrInvalidToken(token)) {
+        localStorage.removeItem('access_token');
+        useAuthStore.setState({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          onboardingComplete: true,
+          hasFinancialData: false,
+        });
+        setIsInitializing(false);
+        return;
+      }
+
       try {
         const response = await api.get('/auth/me');
         const userData = response.data.user || response.data;
         const { onboardingComplete, hasFinancialData } = response.data;
         setAuth(userData, token, onboardingComplete ?? true, hasFinancialData ?? false);
       } catch {
-        logout();
+        localStorage.removeItem('access_token');
+        useAuthStore.setState({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          onboardingComplete: true,
+          hasFinancialData: false,
+        });
       } finally {
         setIsInitializing(false);
       }
     };
 
     initAuth();
-  }, [setAuth, logout]);
+  }, [setAuth]);
 
   if (isInitializing) {
     return (
