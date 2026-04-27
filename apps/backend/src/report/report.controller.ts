@@ -31,7 +31,10 @@ export class ReportController {
 
   @Roles(UserRole.ADMIN, UserRole.COLLAB)
   @Post('generate')
-  async generate(@CurrentUser() user: JwtPayload, @Body() dto: GenerateReportDto) {
+  async generate(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: GenerateReportDto,
+  ) {
     return this.reportService.createReportJob(user.companyId, user.userId, dto);
   }
 
@@ -74,21 +77,36 @@ export class ReportController {
     return new StreamableFile(stream);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.COLLAB)
-  @Delete('jobs/:id')
-  async deleteReport(
+  @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
+  @Get('jobs/:id/preview')
+  async preview(
     @CurrentUser() user: JwtPayload,
     @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
   ) {
+    const info = await this.reportService.getDownloadInfo(user.companyId, id);
+    const stream = createReadStream(info.path);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${info.filename}"`,
+    });
+
+    return new StreamableFile(stream);
+  }
+
+  @Roles(UserRole.ADMIN, UserRole.COLLAB)
+  @Delete('jobs/:id')
+  async deleteReport(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
     return this.reportService.deleteReport(user.companyId, id);
   }
 
   @Roles(UserRole.ADMIN, UserRole.COLLAB, UserRole.READER)
   @Sse('jobs/:id/progress')
-  async progressStream(
+  progressStream(
     @CurrentUser() user: JwtPayload,
     @Param('id') reportId: string,
-  ): Promise<Observable<MessageEvent>> {
-    return this.reportService.streamReportProgress(user.companyId, reportId);
+  ): Observable<MessageEvent> {
+    return this.reportService.streamReportProgress(user.companyId, reportId) as Observable<MessageEvent>;
   }
 }

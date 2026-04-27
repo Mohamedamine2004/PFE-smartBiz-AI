@@ -50,18 +50,16 @@ export const Step5Sections = ({ state, setState, errors, setErrors }: WizardStep
           <button
             key={section.value}
             onClick={() => toggleSection(section.value)}
-            className={`w-full p-4 rounded-lg border-2 transition-all text-left flex items-start gap-3 ${
-              state.sections.includes(section.value)
+            className={`w-full p-4 rounded-lg border-2 transition-all text-left flex items-start gap-3 ${state.sections.includes(section.value)
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-slate-200 bg-white hover:border-slate-300'
-            }`}
+              }`}
           >
             <div
-              className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                state.sections.includes(section.value)
+              className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${state.sections.includes(section.value)
                   ? 'border-blue-500 bg-blue-500'
                   : 'border-slate-300 bg-white'
-              }`}
+                }`}
             >
               {state.sections.includes(section.value) && <Check className="w-3 h-3 text-white" />}
             </div>

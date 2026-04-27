@@ -5,21 +5,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ReportStatus } from '@prisma/client';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { Observable, interval, Subject } from 'rxjs';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { PrismaService } from '../prisma/prisma.service';
-import { PredictionService } from '../prediction/prediction.service';
-import { ReportPdfService } from './report-pdf.service';
-import { GeminiService } from './gemini.service';
+import { ReportCoordinatorService } from './report-coordinator.service';
+import { LlmStrategyService } from './providers/llm-strategy.service';
 import {
   GenerateReportDto,
   ReportAnalysisDepth,
-  ReportLengthProfile,
-  ReportSection,
   ReportTone,
-  ReportType,
 } from './dto/generate-report.dto';
 
 @Injectable()
@@ -28,12 +22,15 @@ export class ReportService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly predictionService: PredictionService,
-    private readonly reportPdfService: ReportPdfService,
-    private readonly geminiService: GeminiService,
+    private readonly coordinator: ReportCoordinatorService,
+    private readonly llmStrategy: LlmStrategyService,
   ) {}
 
-  async createReportJob(companyId: string, userId: string, dto: GenerateReportDto) {
+  async createReportJob(
+    companyId: string,
+    userId: string,
+    dto: GenerateReportDto,
+  ) {
     const report = await this.prisma.report.create({
       data: {
         companyId,
@@ -50,6 +47,9 @@ export class ReportService {
           tone: dto.tone ?? ReportTone.PROFESSIONAL,
           sections: dto.sections ?? [],
           requestedAt: new Date().toISOString(),
+          primaryColor: dto.primaryColor,
+          secondaryColor: dto.secondaryColor,
+          logoBase64: dto.logoBase64,
         },
       },
       select: {
@@ -63,8 +63,11 @@ export class ReportService {
     });
 
     void this.processReport(report.id).catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : 'Unknown background error';
-      this.logger.error(`Report ${report.id} background generation failed: ${message}`);
+      const message =
+        error instanceof Error ? error.message : 'Unknown background error';
+      this.logger.error(
+        `Report ${report.id} background generation failed: ${message}`,
+      );
     });
 
     return report;
@@ -116,7 +119,8 @@ export class ReportService {
 
     return {
       ...report,
-      downloadable: report.status === ReportStatus.COMPLETED && !!report.artifactPath,
+      downloadable:
+        report.status === ReportStatus.COMPLETED && !!report.artifactPath,
     };
   }
 
@@ -168,17 +172,22 @@ export class ReportService {
   }
 
   async getAiHealth() {
-    const status = this.geminiService.getHealthStatus();
-    const connection = await this.geminiService.testConnection();
+    const status = this.llmStrategy.getHealth();
+    const connection = await this.llmStrategy.testConnection();
 
     return {
       ...status,
       test: connection,
-      fallbackReason: connection.ok ? null : connection.error ?? 'Unknown AI provider error',
+      fallbackReason: connection.ok
+        ? null
+        : (connection.error ?? 'Unknown AI provider error'),
     };
   }
 
-  streamReportProgress(companyId: string, reportId: string): Observable<MessageEvent> {
+  streamReportProgress(
+    companyId: string,
+    reportId: string,
+  ): Observable<MessageEvent> {
     return new Observable((subscriber) => {
       // Verify report belongs to user's company
       this.prisma.report
@@ -188,12 +197,14 @@ export class ReportService {
         })
         .then((report) => {
           if (!report || report.companyId !== companyId) {
-            subscriber.error(new ForbiddenException('Access denied for this report'));
+            subscriber.error(
+              new ForbiddenException('Access denied for this report'),
+            );
             return;
           }
 
           const subject = new Subject<void>();
-          const pollingInterval$ = interval(1000)
+          interval(1000)
             .pipe(
               switchMap(async () => {
                 const latest = await this.prisma.report.findUnique({
@@ -217,7 +228,9 @@ export class ReportService {
                 } else if (report?.status === ReportStatus.FAILED) {
                   subscriber.next(
                     new MessageEvent('error', {
-                      data: JSON.stringify({ error: report?.error || 'Report generation failed' }),
+                      data: JSON.stringify({
+                        error: report?.error || 'Report generation failed',
+                      }),
                     }),
                   );
                   subject.next();
@@ -245,226 +258,7 @@ export class ReportService {
     });
   }
 
-  private getTargetPageCount(lengthProfile: ReportLengthProfile, analysisDepth: ReportAnalysisDepth) {
-    const base = (() => {
-      switch (lengthProfile) {
-        case ReportLengthProfile.SHORT:
-          return 11;
-        case ReportLengthProfile.LONG:
-          return 22;
-        default:
-          return 16;
-      }
-    })();
-
-    if (analysisDepth === ReportAnalysisDepth.DEEP) {
-      return base + 2;
-    }
-    if (analysisDepth === ReportAnalysisDepth.LIGHT) {
-      return Math.max(10, base - 1);
-    }
-
-    return base;
-  }
-
-  private parseSnapshot(snapshot: unknown) {
-    const raw = (snapshot && typeof snapshot === 'object' ? snapshot : {}) as {
-      includeCharts?: boolean;
-      analysisDepth?: string;
-      tone?: string;
-      sections?: string[];
-    };
-
-    const depth =
-      raw.analysisDepth && Object.values(ReportAnalysisDepth).includes(raw.analysisDepth as ReportAnalysisDepth)
-        ? (raw.analysisDepth as ReportAnalysisDepth)
-        : ReportAnalysisDepth.STANDARD;
-
-    const tone =
-      raw.tone && Object.values(ReportTone).includes(raw.tone as ReportTone)
-        ? (raw.tone as ReportTone)
-        : ReportTone.PROFESSIONAL;
-
-    const sections = Array.isArray(raw.sections)
-      ? raw.sections.filter((value): value is ReportSection =>
-          Object.values(ReportSection).includes(value as ReportSection),
-        )
-      : [];
-
-    return {
-      includeCharts: raw.includeCharts !== false,
-      analysisDepth: depth,
-      tone,
-      sections,
-    };
-  }
-
-  private getReadableReportType(type: ReportType) {
-    switch (type) {
-      case ReportType.FINANCIAL:
-        return 'Financial Analysis';
-      case ReportType.BUSINESS_DESCRIPTION:
-        return 'Business Description';
-      case ReportType.RISK_ANALYSIS:
-        return 'Risk Analysis';
-      case ReportType.ACTION_PLAN:
-        return 'Action Plan';
-      default:
-        return 'Section';
-    }
-  }
-
   private async processReport(reportId: string) {
-    await this.prisma.report.update({
-      where: { id: reportId },
-      data: { status: ReportStatus.PROCESSING, error: null },
-    });
-
-    const report = await this.prisma.report.findUnique({
-      where: { id: reportId },
-    });
-
-    if (!report) {
-      throw new NotFoundException('Report not found after queueing');
-    }
-
-    try {
-      const batch = report.batchId
-        ? await this.prisma.importBatch.findFirst({
-            where: { id: report.batchId, companyId: report.companyId },
-          })
-        : await this.prisma.importBatch.findFirst({
-            where: { companyId: report.companyId },
-            orderBy: { createdAt: 'desc' },
-          });
-
-      if (!batch) {
-        throw new Error('No imported data found for report generation');
-      }
-
-      const prediction = await this.predictionService.getLatestPrediction(
-        report.companyId,
-        batch.id,
-      );
-
-      const financialRows = await this.prisma.financialData.findMany({
-        where: { batchId: batch.id },
-        orderBy: { period: 'asc' },
-      });
-
-      const snapshot = this.parseSnapshot(report.snapshot);
-      const targetPages = this.getTargetPageCount(
-        report.lengthProfile as ReportLengthProfile,
-        snapshot.analysisDepth,
-      );
-      const generatedAtIso = new Date().toISOString();
-
-      // Generate AI Content
-      const generationResult = await this.geminiService.generateReportText({
-        reportTypes: report.reportTypes as ReportType[],
-        language: report.language,
-        financialData: financialRows,
-        annualData: (batch.macroFeatures ?? {}) as Record<string, unknown>,
-        kpis: {
-          cac: Number(batch.cac ?? 0),
-          ltv: Number(batch.ltv ?? 0),
-          tam: Number(batch.tam ?? 0),
-          marketShare: Number(batch.marketShare ?? 0),
-          employeeCount: Number(batch.employeeCount ?? 0),
-        },
-        prediction: prediction,
-        analysisDepth: snapshot.analysisDepth,
-        problemStatement: report.problemStatement ?? undefined,
-        tone: snapshot.tone,
-        sections: snapshot.sections,
-        targetPages,
-      });
-
-      const aiContent = generationResult.content;
-
-      const macroFeatures = (batch.macroFeatures ?? {}) as Record<string, unknown>;
-      const annualRevenueSeries = [
-        { label: 'N-2', value: this.parseNumeric(macroFeatures.Revenues_N_2) },
-        { label: 'N-1', value: this.parseNumeric(macroFeatures.Revenues_N_1) },
-        { label: 'N', value: this.parseNumeric(macroFeatures.Revenues_N) },
-      ];
-
-      const { buffer, pageCount } = await this.reportPdfService.generateReportPdf({
-        reportId: report.id,
-        companyId: report.companyId,
-        language: report.language,
-        lengthProfile: report.lengthProfile,
-        reportTypes: report.reportTypes,
-        targetPages,
-        analysisDepth: snapshot.analysisDepth,
-        includeCharts: snapshot.includeCharts,
-        problemStatement: report.problemStatement ?? '',
-        batchId: batch.id,
-        generatedAtIso,
-        financialRows,
-        annualRevenueSeries,
-        prediction: {
-          hasPrediction: prediction?.hasPrediction ?? false,
-          status: prediction?.status,
-          createdAt: prediction?.createdAt,
-        },
-        aiContent,
-        aiSource: generationResult.source,
-      });
-
-      const dir = join(process.cwd(), 'reports', 'generated', report.companyId);
-      await mkdir(dir, { recursive: true });
-      const filePath = join(dir, `${report.id}.pdf`);
-      await writeFile(filePath, buffer);
-
-      await this.prisma.report.update({
-        where: { id: report.id },
-        data: {
-          status: ReportStatus.COMPLETED,
-          pageCount,
-          artifactPath: filePath,
-          generatedAt: new Date(),
-          content: {
-            batchId: batch.id,
-            hasPrediction: prediction?.hasPrediction ?? false,
-            predictionStatus: prediction?.status ?? null,
-            generatedFile: filePath,
-            generatedFormat: 'pdf',
-            requestedPages: targetPages,
-            generatedPages: pageCount,
-            includeCharts: snapshot.includeCharts,
-            analysisDepth: snapshot.analysisDepth,
-            aiUsed: generationResult.aiUsed,
-            aiSource: generationResult.source,
-            fallbackSections: generationResult.fallbackSections,
-            sections: (report.reportTypes as ReportType[]).map((type) => this.getReadableReportType(type)),
-          },
-        },
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown generation error';
-
-      await this.prisma.report.update({
-        where: { id: report.id },
-        data: {
-          status: ReportStatus.FAILED,
-          error: message,
-        },
-      });
-
-      throw error;
-    }
-  }
-
-  private parseNumeric(value: unknown): number {
-    if (typeof value === 'number') {
-      return Number.isFinite(value) ? value : 0;
-    }
-    if (typeof value === 'string') {
-      const normalized = value.replace(/[^0-9.-]/g, '');
-      const parsed = Number(normalized);
-      return Number.isFinite(parsed) ? parsed : 0;
-    }
-    return 0;
+    await this.coordinator.processReport(reportId);
   }
 }

@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsDate, IsNotEmpty, IsPositive, Min } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsDate,
+  IsNotEmpty,
+  IsPositive,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 // Sheet 2: Monthly Cashflow

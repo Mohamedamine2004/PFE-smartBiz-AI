@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  UseGuards,
-  Body,
-  Query,
-} from '@nestjs/common';
+import { Controller, Post, Get, UseGuards, Body, Query } from '@nestjs/common';
 import { PredictionService } from './prediction.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -42,6 +35,9 @@ export class PredictionController {
     @CurrentUser() user: JwtPayload,
     @Query('batchId') batchId?: string,
   ) {
-    return await this.predictionService.getLatestPrediction(user.companyId, batchId);
+    return await this.predictionService.getLatestPrediction(
+      user.companyId,
+      batchId,
+    );
   }
 }

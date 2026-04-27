@@ -33,7 +33,9 @@ export class AuthService {
    */
   async register(dto: RegisterDto) {
     try {
-      const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
       const existingCompany = await this.prisma.company.findUnique({
         where: { registrationNumber: dto.registrationNumber },
       });
@@ -70,7 +72,12 @@ export class AuthService {
       // Skip email sending - auto-verify
       // await this.mailService.sendUserConfirmation(dto.email, verifyToken);
 
-      const { password, refreshToken, verifyEmailToken, ...adminWithoutSecrets } = company.users[0];
+      const {
+        password,
+        refreshToken,
+        verifyEmailToken,
+        ...adminWithoutSecrets
+      } = company.users[0];
 
       return {
         message: 'Entreprise créée avec succès.',
@@ -83,7 +90,9 @@ export class AuthService {
       };
     } catch (error) {
       if (error instanceof ConflictException) throw error;
-      throw new InternalServerErrorException("Une erreur est survenue lors de l'inscription.");
+      throw new InternalServerErrorException(
+        "Une erreur est survenue lors de l'inscription.",
+      );
     }
   }
 
@@ -96,7 +105,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Jeton de vérification invalide ou expiré.');
+      throw new BadRequestException(
+        'Jeton de vérification invalide ou expiré.',
+      );
     }
 
     await this.prisma.user.update({
@@ -133,13 +144,29 @@ export class AuthService {
       //   throw new ForbiddenException('Veuillez vérifier votre adresse email avant de vous connecter.');
       // }
 
-      const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId);
+      const tokens = await this.getTokens(
+        user.id,
+        user.email,
+        user.role,
+        user.companyId,
+      );
       await this.updateRefreshToken(user.id, tokens.refreshToken);
 
       // Déterminer la destination post-login
-      const postLoginInfo = await this.postLoginService.getRedirectInfo(user.companyId);
+      const postLoginInfo = await this.postLoginService.getRedirectInfo(
+        user.companyId,
+      );
 
-      const { password, refreshToken, verifyEmailToken, resetPasswordToken, resetPasswordExpires, inviteToken, inviteTokenExpires, ...userWithoutSecrets } = user;
+      const {
+        password,
+        refreshToken,
+        verifyEmailToken,
+        resetPasswordToken,
+        resetPasswordExpires,
+        inviteToken,
+        inviteTokenExpires,
+        ...userWithoutSecrets
+      } = user;
 
       return {
         ...tokens,
@@ -149,8 +176,14 @@ export class AuthService {
         hasFinancialData: postLoginInfo.hasFinancialData,
       };
     } catch (error) {
-      if (error instanceof UnauthorizedException || error instanceof ForbiddenException) throw error;
-      throw new InternalServerErrorException('Une erreur est survenue lors de la connexion.');
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof ForbiddenException
+      )
+        throw error;
+      throw new InternalServerErrorException(
+        'Une erreur est survenue lors de la connexion.',
+      );
     }
   }
 
@@ -161,11 +194,17 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return { message: 'Si cet email correspond à un compte, un lien de réinitialisation a été envoyé.' };
+      return {
+        message:
+          'Si cet email correspond à un compte, un lien de réinitialisation a été envoyé.',
+      };
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const hashedResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     await this.prisma.user.update({
@@ -178,7 +217,10 @@ export class AuthService {
 
     await this.mailService.sendPasswordReset(user.email, resetToken);
 
-    return { message: 'Si cet email correspond à un compte, un lien de réinitialisation a été envoyé.' };
+    return {
+      message:
+        'Si cet email correspond à un compte, un lien de réinitialisation a été envoyé.',
+    };
   }
 
   /**
@@ -191,8 +233,14 @@ export class AuthService {
       where: { resetPasswordToken: hashedToken },
     });
 
-    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
-      throw new BadRequestException('Jeton de réinitialisation invalide ou expiré.');
+    if (
+      !user ||
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires < new Date()
+    ) {
+      throw new BadRequestException(
+        'Jeton de réinitialisation invalide ou expiré.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -217,7 +265,7 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       });
-      
+
       const userId = payload.sub;
 
       const user = await this.prisma.user.findUnique({
@@ -225,17 +273,27 @@ export class AuthService {
       });
 
       if (!user || !user.refreshToken) {
-        throw new ForbiddenException('Accès refusé : Session expirée ou invalide.');
+        throw new ForbiddenException(
+          'Accès refusé : Session expirée ou invalide.',
+        );
       }
 
-      const refreshTokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+      const refreshTokenMatches = await bcrypt.compare(
+        refreshToken,
+        user.refreshToken,
+      );
       if (!refreshTokenMatches) {
         throw new ForbiddenException('Accès refusé : Token non reconnu.');
       }
 
-      const tokens = await this.getTokens(user.id, user.email, user.role, user.companyId);
+      const tokens = await this.getTokens(
+        user.id,
+        user.email,
+        user.role,
+        user.companyId,
+      );
       await this.updateRefreshToken(user.id, tokens.refreshToken);
-      
+
       return tokens;
     } catch (error) {
       if (error instanceof ForbiddenException) throw error;
@@ -246,7 +304,12 @@ export class AuthService {
   /**
    * Utilitaire : Génération des tokens Access et Refresh
    */
-  async getTokens(userId: string, email: string, role: string, companyId: string) {
+  async getTokens(
+    userId: string,
+    email: string,
+    role: string,
+    companyId: string,
+  ) {
     const payload = { sub: userId, email, role, companyId };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -268,10 +331,10 @@ export class AuthService {
    */
   async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    
+
     await this.prisma.user.update({
       where: { id: userId },
-      data: { refreshToken: hashedRefreshToken }, 
+      data: { refreshToken: hashedRefreshToken },
     });
   }
 
@@ -288,20 +351,29 @@ export class AuthService {
   /**
    * Changement de mot de passe (utilisateur connecté)
    */
-  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       throw new NotFoundException('Utilisateur introuvable.');
     }
 
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isCurrentPasswordValid) {
       throw new UnauthorizedException('Le mot de passe actuel est incorrect.');
     }
 
     if (newPassword.length < 8) {
-      throw new BadRequestException('Le nouveau mot de passe doit contenir au moins 8 caractères.');
+      throw new BadRequestException(
+        'Le nouveau mot de passe doit contenir au moins 8 caractères.',
+      );
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
@@ -320,21 +392,31 @@ export class AuthService {
   async inviteMember(adminId: string, email: string, role: UserRole) {
     const admin = await this.prisma.user.findUnique({
       where: { id: adminId },
-      include: { company: true }
+      include: { company: true },
     });
 
     if (!admin || admin.role !== 'ADMIN') {
-      throw new ForbiddenException("Seul un administrateur peut inviter des membres.");
+      throw new ForbiddenException(
+        'Seul un administrateur peut inviter des membres.',
+      );
     }
 
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
     if (existingUser) {
-      throw new BadRequestException("Cet utilisateur existe déjà.");
+      throw new BadRequestException('Cet utilisateur existe déjà.');
     }
 
     const inviteToken = crypto.randomBytes(32).toString('hex');
-    const hashedInviteToken = crypto.createHash('sha256').update(inviteToken).digest('hex');
-    const dummyPassword = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+    const hashedInviteToken = crypto
+      .createHash('sha256')
+      .update(inviteToken)
+      .digest('hex');
+    const dummyPassword = await bcrypt.hash(
+      crypto.randomBytes(16).toString('hex'),
+      10,
+    );
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
 
@@ -349,26 +431,44 @@ export class AuthService {
         isEmailVerified: false,
         inviteToken: hashedInviteToken,
         inviteTokenExpires: expires,
-      }
+      },
     });
 
-    await this.mailService.sendTeamInvite(email, inviteToken, admin.company.name);
+    await this.mailService.sendTeamInvite(
+      email,
+      inviteToken,
+      admin.company.name,
+    );
 
-    return { message: "Invitation envoyée avec succès." };
+    return { message: 'Invitation envoyée avec succès.' };
   }
 
   /**
    * Acceptation d'une invitation
    */
-  async acceptInvite(token: string, newPassword: string, firstName: string, lastName: string) {
-    const hashedInviteToken = crypto.createHash('sha256').update(token).digest('hex');
-    
+  async acceptInvite(
+    token: string,
+    newPassword: string,
+    firstName: string,
+    lastName: string,
+  ) {
+    const hashedInviteToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
     const user = await this.prisma.user.findUnique({
-      where: { inviteToken: hashedInviteToken }
+      where: { inviteToken: hashedInviteToken },
     });
 
-    if (!user || !user.inviteTokenExpires || user.inviteTokenExpires < new Date()) {
-      throw new BadRequestException("Le lien d'invitation est invalide ou a expiré.");
+    if (
+      !user ||
+      !user.inviteTokenExpires ||
+      user.inviteTokenExpires < new Date()
+    ) {
+      throw new BadRequestException(
+        "Le lien d'invitation est invalide ou a expiré.",
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -382,10 +482,13 @@ export class AuthService {
         isEmailVerified: true,
         inviteToken: null,
         inviteTokenExpires: null,
-      }
+      },
     });
 
-    return { message: "Compte activé avec succès. Vous pouvez maintenant vous connecter." };
+    return {
+      message:
+        'Compte activé avec succès. Vous pouvez maintenant vous connecter.',
+    };
   }
 
   /**
@@ -397,13 +500,15 @@ export class AuthService {
     });
 
     if (!admin || admin.role !== 'ADMIN') {
-      throw new ForbiddenException("Seul un administrateur peut voir l'équipe.");
+      throw new ForbiddenException(
+        "Seul un administrateur peut voir l'équipe.",
+      );
     }
 
     const team = await this.prisma.user.findMany({
-      where: { 
+      where: {
         companyId: admin.companyId,
-        deletedAt: null
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -431,11 +536,15 @@ export class AuthService {
     });
 
     if (!admin || admin.role !== 'ADMIN') {
-      throw new ForbiddenException("Seul un administrateur peut supprimer un membre.");
+      throw new ForbiddenException(
+        'Seul un administrateur peut supprimer un membre.',
+      );
     }
 
     if (adminId === userIdToDelete) {
-      throw new BadRequestException("Vous ne pouvez pas supprimer votre propre compte.");
+      throw new BadRequestException(
+        'Vous ne pouvez pas supprimer votre propre compte.',
+      );
     }
 
     const userToDelete = await this.prisma.user.findUnique({
@@ -443,7 +552,9 @@ export class AuthService {
     });
 
     if (!userToDelete || userToDelete.companyId !== admin.companyId) {
-      throw new NotFoundException("Utilisateur introuvable dans votre entreprise.");
+      throw new NotFoundException(
+        'Utilisateur introuvable dans votre entreprise.',
+      );
     }
 
     await this.prisma.user.update({
@@ -451,6 +562,6 @@ export class AuthService {
       data: { deletedAt: new Date() },
     });
 
-    return { message: "Utilisateur supprimé avec succès." };
+    return { message: 'Utilisateur supprimé avec succès.' };
   }
-}                                   
+}

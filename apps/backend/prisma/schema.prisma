@@ -21,6 +21,10 @@ model Company {
   currency           String?
   fiscalYearStart    Int?
   country            String?
+  // --- Branding (Report PDF customization) ---
+  logoUrl            String?
+  primaryColor       String?          @default("#1E3A5F")
+  secondaryColor     String?          @default("#2563EB")
   users              User[]
   batches            ImportBatch[]
   predictions        Prediction[]

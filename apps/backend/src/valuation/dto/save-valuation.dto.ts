@@ -1,4 +1,11 @@
-import { IsEnum, IsNumber, IsOptional, IsPositive, IsString, ValidateIf } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import { ValuationMethod } from './calculate-valuation.dto';
 
 export class SaveValuationDto {

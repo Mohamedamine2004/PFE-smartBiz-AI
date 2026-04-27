@@ -30,11 +30,10 @@ export const Step2Language = ({ state, setState, errors, setErrors }: WizardStep
           <button
             key={lang.value}
             onClick={() => handleSelect(lang.value)}
-            className={`p-6 rounded-lg border-2 transition-all ${
-              state.language === lang.value
+            className={`p-6 rounded-lg border-2 transition-all ${state.language === lang.value
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-slate-200 bg-white hover:border-slate-300'
-            }`}
+              }`}
           >
             <div className="text-3xl mb-2">{lang.icon}</div>
             <h3 className="font-semibold text-slate-900">{lang.label}</h3>

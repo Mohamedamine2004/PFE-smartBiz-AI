@@ -114,7 +114,7 @@ describe('ValuationService', () => {
         method: ValuationMethod.GORDON_GROWTH,
         freeCashFlow: 1000000,
         growthRate: 0.03,
-        wacc: 0.10,
+        wacc: 0.1,
       });
       // 1000000 * 1.03 / 0.07 = 14714285.71
       expect(result.equityValue).toBeCloseTo(14714285.71, 0);
@@ -125,7 +125,7 @@ describe('ValuationService', () => {
         service.calculate({
           method: ValuationMethod.GORDON_GROWTH,
           freeCashFlow: 1000000,
-          growthRate: 0.10,
+          growthRate: 0.1,
           wacc: 0.05,
         }),
       ).toThrow(BadRequestException);
@@ -136,8 +136,8 @@ describe('ValuationService', () => {
         service.calculate({
           method: ValuationMethod.GORDON_GROWTH,
           freeCashFlow: 1000000,
-          growthRate: 0.10,
-          wacc: 0.10,
+          growthRate: 0.1,
+          wacc: 0.1,
         }),
       ).toThrow(BadRequestException);
     });

@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { CreateInvitationRequestDto } from './dto/create-invitation-request.dto';
@@ -61,7 +66,7 @@ export class InvitationRequestService {
           this.notificationService.createNotification(
             admin.id,
             'TEAM_INVITE',
-            'Nouvelle demande d\'invitation',
+            "Nouvelle demande d'invitation",
             `${createDto.fullName} (${createDto.email}) demande l'accès (${requestedRole}) pour ${requestedCompany}.`,
             '/team',
           ),
@@ -94,9 +99,13 @@ export class InvitationRequestService {
     return invitation;
   }
 
-  async updateStatus(id: string, updateDto: UpdateInvitationRequestStatusDto, adminId: string) {
+  async updateStatus(
+    id: string,
+    updateDto: UpdateInvitationRequestStatusDto,
+    adminId: string,
+  ) {
     const invitation = await this.findOne(id);
-    
+
     if (invitation.status !== InvitationRequestStatus.PENDING) {
       throw new BadRequestException('Cette demande a déjà été traitée.');
     }
@@ -105,7 +114,11 @@ export class InvitationRequestService {
       // Reuse the normal team invitation flow so the user receives the same invite email
       // and appears in Team Management after accepting the invite link.
       const normalizedRole = this.mapRequestedRoleToUserRole(invitation.role);
-      await this.authService.inviteMember(adminId, invitation.email, normalizedRole);
+      await this.authService.inviteMember(
+        adminId,
+        invitation.email,
+        normalizedRole,
+      );
     }
 
     const updated = await this.prisma.invitationRequest.update({
@@ -114,7 +127,10 @@ export class InvitationRequestService {
     });
 
     if (updateDto.status === InvitationRequestStatus.REJECTED) {
-      await this.mailService.sendInvitationRejected(updated.email, updated.fullName);
+      await this.mailService.sendInvitationRejected(
+        updated.email,
+        updated.fullName,
+      );
     }
 
     return updated;

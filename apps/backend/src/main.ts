@@ -50,7 +50,7 @@ async function bootstrap() {
     .setTitle('SmartBiz AI API')
     .setDescription(
       'AI-powered business intelligence platform for SMEs. ' +
-      'Features financial data management, company valuation, and ML predictions.',
+        'Features financial data management, company valuation, and ML predictions.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -74,7 +74,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
-  
+
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
@@ -87,7 +87,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  
+
   console.log(`🚀 Application running on port ${port}`);
   console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
 }

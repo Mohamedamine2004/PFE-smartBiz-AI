@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { InvitationRequestService } from './invitation-request.service';
 import { CreateInvitationRequestDto } from './dto/create-invitation-request.dto';
 import { UpdateInvitationRequestStatusDto } from './dto/update-invitation-request.dto';
@@ -11,7 +19,9 @@ import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('invitations')
 export class InvitationRequestController {
-  constructor(private readonly invitationRequestService: InvitationRequestService) {}
+  constructor(
+    private readonly invitationRequestService: InvitationRequestService,
+  ) {}
 
   @Post()
   create(@Body() createDto: CreateInvitationRequestDto) {
@@ -33,6 +43,10 @@ export class InvitationRequestController {
     @Body() updateDto: UpdateInvitationRequestStatusDto,
     @CurrentUser() admin: JwtPayload,
   ) {
-    return this.invitationRequestService.updateStatus(id, updateDto, admin.userId);
+    return this.invitationRequestService.updateStatus(
+      id,
+      updateDto,
+      admin.userId,
+    );
   }
 }
