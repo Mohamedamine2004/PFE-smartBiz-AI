@@ -22,10 +22,11 @@ export class AppService {
     try {
       // Tente de compter les utilisateurs dans la table "User"
       const userCount = await this.prisma.user.count();
-      
+
       return {
         status: 'success',
-        message: 'La connexion à la base de données PostgreSQL est opérationnelle.',
+        message:
+          'La connexion à la base de données PostgreSQL est opérationnelle.',
         userCount: userCount,
       };
     } catch (error) {

@@ -1,9 +1,4 @@
-import {
-  IsEnum,
-  IsNumber,
-  IsPositive,
-  ValidateIf,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsPositive, ValidateIf } from 'class-validator';
 
 export enum ValuationMethod {
   EV_EBITDA = 'EV_EBITDA',

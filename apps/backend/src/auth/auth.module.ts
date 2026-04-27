@@ -15,10 +15,13 @@ import { MailModule } from '../mail/mail.module'; // <-- Import du MailModule
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const jwtSecret = configService.get<string>('JWT_SECRET');
-        const jwtExpiration = configService.get<string>('JWT_EXPIRATION') || '1d';
+        const jwtExpiration =
+          configService.get<string>('JWT_EXPIRATION') || '1d';
 
         if (!jwtSecret) {
-          throw new Error('CRITICAL: JWT_SECRET n\'est pas défini dans le fichier .env');
+          throw new Error(
+            "CRITICAL: JWT_SECRET n'est pas défini dans le fichier .env",
+          );
         }
 
         return {

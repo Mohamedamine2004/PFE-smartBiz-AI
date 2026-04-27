@@ -1,6 +1,16 @@
 FROM node:20-alpine
 
+# Install curl for font download
+RUN apk add --no-cache curl
+
 WORKDIR /usr/src/app
+
+# Download Arabic font (Noto Sans Arabic for PDFKit)
+RUN mkdir -p /usr/src/app/fonts && \
+    curl -L -o /usr/src/app/fonts/NotoSansArabic-Regular.ttf \
+    "https://github.com/google/fonts/raw/main/ofl/notosansarabic/NotoSansArabic%5Bwdth%2Cwght%5D.ttf" && \
+    curl -L -o /usr/src/app/fonts/NotoSansArabic-Bold.ttf \
+    "https://github.com/google/fonts/raw/main/ofl/notosansarabic/NotoSansArabic%5Bwdth%2Cwght%5D.ttf"
 
 # Install dependencies first (better caching)
 COPY package*.json ./

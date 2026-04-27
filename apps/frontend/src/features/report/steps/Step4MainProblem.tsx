@@ -1,58 +1,77 @@
 import { useTranslation } from 'react-i18next';
+import { Lightbulb } from 'lucide-react';
 import type { WizardStepProps } from '../types';
 
-export const Step4MainProblem = ({ state, setState, errors, setErrors }: WizardStepProps) => {
-  const { t } = useTranslation();
+const MAX_CHARS = 2000;
 
-  const handleChange = (value: string) => {
-    setState({ ...state, mainProblem: value });
-    setErrors({ ...errors, mainProblem: '' });
-  };
+const EXAMPLES = [
+  'Our churn rate is high and we need to identify the root causes.',
+  'We are looking to raise a Series A and need an investor-ready analysis.',
+  'Our operational costs increased by 30% this quarter with no revenue growth.',
+];
+
+export const Step4ProblemStatement = ({ state, setState, errors }: WizardStepProps) => {
+  const { t } = useTranslation();
+  const charCount = state.problemStatement.length;
+  const isNearLimit = charCount > MAX_CHARS * 0.85;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('wizard.step4.title')}</h2>
-        <p className="text-slate-600">
-          {t(
-            'wizard.step4.description',
-            'Describe the main business problem or focus area for this report',
-          )}
-        </p>
-      </div>
+    <div>
+      <h2 className="text-2xl font-bold text-slate-900 mb-2">
+        {t('wizard.step4.title', "What's your main business challenge?")}
+      </h2>
+      <p className="text-slate-500 mb-6">
+        {t('wizard.step4.subtitle', 'This context shapes the AI analysis. More detail = better insights. (Optional but recommended)')}
+      </p>
 
-      <div>
-        <label htmlFor="problem-statement" className="block text-sm font-medium text-slate-900 mb-2">
-          {t('wizard.step4.label', 'Business Problem / Focus Area')}
-        </label>
+      <div className="relative mb-3">
         <textarea
-          id="problem-statement"
-          value={state.mainProblem}
-          onChange={(e) => handleChange(e.target.value)}
+          value={state.problemStatement}
+          onChange={(e) =>
+            setState({ ...state, problemStatement: e.target.value.slice(0, MAX_CHARS) })
+          }
           placeholder={t(
             'wizard.step4.placeholder',
-            'E.g., We need to optimize our customer acquisition costs while maintaining quality...',
+            'Describe your main business problem, strategic goal, or key questions you want the report to address...',
           )}
           rows={6}
-          className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-slate-900 placeholder-slate-500"
+          className={`w-full px-4 py-3 text-sm rounded-xl border-2 outline-none resize-none transition-colors bg-white ${errors.problemStatement
+              ? 'border-red-400 focus:border-red-500'
+              : 'border-slate-200 focus:border-blue-400'
+            } text-slate-900 placeholder:text-slate-400`}
         />
-        <div className="mt-2 text-sm text-slate-500">
-          {state.mainProblem.length}/2000 {t('wizard.characters', 'characters')}
+        <div
+          className={`absolute bottom-3 right-3 text-xs font-mono ${isNearLimit ? 'text-orange-500' : 'text-slate-400'
+            }`}
+        >
+          {charCount}/{MAX_CHARS}
         </div>
       </div>
 
-      {errors.mainProblem && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{errors.mainProblem}</div>
+      {errors.problemStatement && (
+        <p className="mb-4 text-sm text-red-600">{errors.problemStatement}</p>
       )}
 
-      <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
-        <p className="font-medium mb-1">{t('wizard.step4.tip', 'Tip:')}</p>
-        <p>
-          {t(
-            'wizard.step4.tipText',
-            'The more specific you are about your business challenge, the more tailored and relevant your report will be.',
-          )}
-        </p>
+      {/* Example prompts */}
+      <div className="mt-4 p-4 rounded-xl bg-blue-50 border border-blue-100">
+        <div className="flex items-center gap-2 mb-3">
+          <Lightbulb className="w-4 h-4 text-blue-500" />
+          <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">
+            {t('wizard.step4.examples.title', 'Example prompts')}
+          </p>
+        </div>
+        <div className="space-y-2">
+          {EXAMPLES.map((example) => (
+            <button
+              key={example}
+              type="button"
+              onClick={() => setState({ ...state, problemStatement: example })}
+              className="w-full text-left text-xs text-blue-600 hover:text-blue-800 bg-white hover:bg-blue-50 px-3 py-2 rounded-lg border border-blue-100 transition-colors"
+            >
+              → {example}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

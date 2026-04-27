@@ -45,7 +45,13 @@ export const Reports = () => {
         </button>
       </div>
 
-      {activeTab === 'wizard' ? <ReportWizard /> : <ReportLibrary />}
+      {/* Both components stay mounted to preserve state */}
+      <div style={{ display: activeTab === 'wizard' ? 'block' : 'none' }}>
+        <ReportWizard />
+      </div>
+      <div style={{ display: activeTab === 'library' ? 'block' : 'none' }}>
+        <ReportLibrary />
+      </div>
     </div>
   );
 };

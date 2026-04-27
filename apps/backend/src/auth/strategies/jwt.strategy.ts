@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     // CORRECTION : On utilise désormais JWT_ACCESS_SECRET
     const jwtAccessSecret = configService.get<string>('JWT_ACCESS_SECRET');
-    
+
     if (!jwtAccessSecret) {
       throw new Error('CRITICAL: JWT_ACCESS_SECRET manquant pour JwtStrategy');
     }
@@ -43,7 +43,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       });
 
       if (!user) {
-        throw new UnauthorizedException('Utilisateur introuvable pour ce token.');
+        throw new UnauthorizedException(
+          'Utilisateur introuvable pour ce token.',
+        );
       }
 
       return {

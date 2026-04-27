@@ -7,17 +7,17 @@ import { firstValueFrom } from 'rxjs';
 
 // Maps frontend sector names to 4-digit SIC codes (same mapping as financial.service.ts)
 const SECTOR_TO_SIC: Record<string, string> = {
-  agriculture:   '0500',
-  mining:        '1200',
-  construction:  '1700',
+  agriculture: '0500',
+  mining: '1200',
+  construction: '1700',
   manufacturing: '3500',
-  transport:     '4200',
-  wholesale:     '5100',
-  retail:        '5500',
-  services:      '7300',
-  technology:    '7370',
-  finance:       '7300',
-  health:        '8500',
+  transport: '4200',
+  wholesale: '5100',
+  retail: '5500',
+  services: '7300',
+  technology: '7370',
+  finance: '7300',
+  health: '8500',
 };
 
 @Injectable()
@@ -33,8 +33,14 @@ export class PredictionService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.mlEngineUrl = this.configService.get<string>('ML_ENGINE_URL', 'http://localhost:8000');
-    this.mlApiKey = this.configService.get<string>('ML_API_KEY', 'dev-secret-key');
+    this.mlEngineUrl = this.configService.get<string>(
+      'ML_ENGINE_URL',
+      'http://localhost:8000',
+    );
+    this.mlApiKey = this.configService.get<string>(
+      'ML_API_KEY',
+      'dev-secret-key',
+    );
   }
 
   /**
@@ -89,27 +95,30 @@ export class PredictionService implements OnModuleInit {
         select: { sector: true },
       });
 
-      const sic = (batch.macroFeatures as any).sic_code?.toString().padStart(4, '0')
-        ?? SECTOR_TO_SIC[company.sector?.toLowerCase() ?? '']
-        ?? '7300';
+      const sic =
+        (batch.macroFeatures as any).sic_code?.toString().padStart(4, '0') ??
+        SECTOR_TO_SIC[company.sector?.toLowerCase() ?? ''] ??
+        '7300';
 
       // 5. Map the Excel macroFeatures JSON to the FastAPI schema
       const macro = batch.macroFeatures as Record<string, any>;
       const payload = {
-        companies: [{
-          sic,
-          Assets:             Number(macro.Assets_N           ?? 0),
-          Liabilities:        Number(macro.Liabilities_N      ?? 0),
-          Revenues:           Number(macro.Revenues_N         ?? 0),
-          OperatingIncome:    Number(macro.OperatingIncome_N  ?? 0),
-          OperatingCashFlow:  Number(macro.OperatingCashFlow_N ?? 0),
-          NetIncomeLoss:      Number(macro.NetIncome_N        ?? 0),
-          Assets_lag1:        Number(macro.Assets_N_1         ?? 0),
-          Liabilities_lag1:   Number(macro.Liabilities_N_1   ?? 0),
-          Revenues_lag1:      Number(macro.Revenues_N_1      ?? 0),
-          Revenues_lag2:      Number(macro.Revenues_N_2      ?? 0),
-          CashAndEquivalents: Number(macro.CashAndEquivalents_N ?? 0),
-        }],
+        companies: [
+          {
+            sic,
+            Assets: Number(macro.Assets_N ?? 0),
+            Liabilities: Number(macro.Liabilities_N ?? 0),
+            Revenues: Number(macro.Revenues_N ?? 0),
+            OperatingIncome: Number(macro.OperatingIncome_N ?? 0),
+            OperatingCashFlow: Number(macro.OperatingCashFlow_N ?? 0),
+            NetIncomeLoss: Number(macro.NetIncome_N ?? 0),
+            Assets_lag1: Number(macro.Assets_N_1 ?? 0),
+            Liabilities_lag1: Number(macro.Liabilities_N_1 ?? 0),
+            Revenues_lag1: Number(macro.Revenues_N_1 ?? 0),
+            Revenues_lag2: Number(macro.Revenues_N_2 ?? 0),
+            CashAndEquivalents: Number(macro.CashAndEquivalents_N ?? 0),
+          },
+        ],
       };
 
       this.logger.log(`Calling ML engine at ${this.mlEngineUrl}/predict`);
@@ -135,9 +144,9 @@ export class PredictionService implements OnModuleInit {
 
       this.logger.log(`Prediction ${prediction.id} completed successfully`);
       return updated;
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       // Mark as FAILED with error details
       this.logger.error(`Prediction ${prediction.id} failed: ${errorMessage}`);
       const failed = await this.prisma.prediction.update({
@@ -155,7 +164,7 @@ export class PredictionService implements OnModuleInit {
   }
 
   /**
-   * Returns the latest COMPLETED prediction for a company, 
+   * Returns the latest COMPLETED prediction for a company,
    * optionally filtering by a specific historical batch.
    */
   async getLatestPrediction(companyId: string, customBatchId?: string) {
@@ -164,7 +173,7 @@ export class PredictionService implements OnModuleInit {
       p.result &&
       typeof p.result === 'object' &&
       (p.result as any).sourceBatchId === customBatchId;
-    
+
     // Fallback: If customBatchId is provided, we fetch all COMPLETED predictions
     // and find the one whose result.sourceBatchId matches customBatchId.
     if (customBatchId) {
@@ -174,11 +183,12 @@ export class PredictionService implements OnModuleInit {
       });
       // JSON filtering inside Prisma requires raw queries, so we filter in-memory (usually small list).
       // Priority: latest COMPLETED for this batch; fallback to latest state for this same batch.
-      prediction = allByCompany.find(
-        (p) => p.status === 'COMPLETED' && hasMatchingBatch(p),
-      ) ?? allByCompany.find(
-        (p) => hasMatchingBatch(p),
-      ) ?? null;
+      prediction =
+        allByCompany.find(
+          (p) => p.status === 'COMPLETED' && hasMatchingBatch(p),
+        ) ??
+        allByCompany.find((p) => hasMatchingBatch(p)) ??
+        null;
     } else {
       prediction = await this.prisma.prediction.findFirst({
         where: { companyId, status: 'COMPLETED' },
@@ -192,7 +202,7 @@ export class PredictionService implements OnModuleInit {
         predictionId: prediction.id,
         createdAt: prediction.createdAt,
         status: prediction.status,
-        ...prediction.result as object,
+        ...(prediction.result as object),
       };
     }
 

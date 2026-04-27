@@ -1,6 +1,27 @@
-import { Controller, Post, Put, Body, HttpCode, HttpStatus, Get, UseGuards, Res, Req, UnauthorizedException, Query, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Put,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  UseGuards,
+  Res,
+  Req,
+  UnauthorizedException,
+  Query,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import express from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { PostLoginService } from './post-login.service';
 import { RegisterDto } from './dto/register.dto';
@@ -42,9 +63,12 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: express.Response) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
     const result = await this.authService.login(loginDto);
-    
+
     // Injection du Refresh Token dans un cookie sécurisé
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
@@ -71,16 +95,24 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return await this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
+    return await this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  async refresh(@Req() req: express.Request, @Res({ passthrough: true }) res: express.Response) {
+  async refresh(
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
     const refreshToken = req?.cookies?.['refresh_token'];
-    
+
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token introuvable dans les cookies.');
+      throw new UnauthorizedException(
+        'Refresh token introuvable dans les cookies.',
+      );
     }
 
     const tokens = await this.authService.refreshTokens(refreshToken);
@@ -116,13 +148,19 @@ export class AuthController {
     @Body('currentPassword') currentPassword: string,
     @Body('newPassword') newPassword: string,
   ) {
-    return await this.authService.changePassword(user.userId, currentPassword, newPassword);
+    return await this.authService.changePassword(
+      user.userId,
+      currentPassword,
+      newPassword,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getProfile(@CurrentUser() user: jwtPayloadInterface.JwtPayload) {
-    const postLoginInfo = await this.postLoginService.getRedirectInfo(user.companyId);
+    const postLoginInfo = await this.postLoginService.getRedirectInfo(
+      user.companyId,
+    );
     return {
       message: 'Accès autorisé à la route protégée',
       user: user,
@@ -148,7 +186,7 @@ export class AuthController {
   async inviteMember(
     @CurrentUser() admin: jwtPayloadInterface.JwtPayload,
     @Body('email') email: string,
-    @Body('role') role: UserRole
+    @Body('role') role: UserRole,
   ) {
     return await this.authService.inviteMember(admin.userId, email, role);
   }
@@ -159,9 +197,14 @@ export class AuthController {
     @Body('token') token: string,
     @Body('password') password: string,
     @Body('firstName') firstName: string,
-    @Body('lastName') lastName: string
+    @Body('lastName') lastName: string,
   ) {
-    return await this.authService.acceptInvite(token, password, firstName, lastName);
+    return await this.authService.acceptInvite(
+      token,
+      password,
+      firstName,
+      lastName,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -177,8 +220,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async deleteTeamMember(
     @CurrentUser() admin: jwtPayloadInterface.JwtPayload,
-    @Param('id') userIdToDelete: string
+    @Param('id') userIdToDelete: string,
   ) {
-    return await this.authService.deleteTeamMember(admin.userId, userIdToDelete);
+    return await this.authService.deleteTeamMember(
+      admin.userId,
+      userIdToDelete,
+    );
   }
 }

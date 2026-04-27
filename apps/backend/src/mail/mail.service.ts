@@ -15,8 +15,12 @@ export class MailService {
     const port = this.configService.get<number>('MAIL_PORT');
 
     if (!host || !user || !pass) {
-      this.logger.warn('⚠️  Mail credentials not configured. Email service is DISABLED.');
-      this.logger.warn('   Set MAIL_HOST, MAIL_USER, and MAIL_PASSWORD in your .env file');
+      this.logger.warn(
+        '⚠️  Mail credentials not configured. Email service is DISABLED.',
+      );
+      this.logger.warn(
+        '   Set MAIL_HOST, MAIL_USER, and MAIL_PASSWORD in your .env file',
+      );
       this.isConfigured = false;
       return;
     }
@@ -34,7 +38,9 @@ export class MailService {
     // Verify connection on startup
     this.transporter.verify((error, success) => {
       if (error) {
-        this.logger.error(`❌ Mail service connection failed: ${error.message}`);
+        this.logger.error(
+          `❌ Mail service connection failed: ${error.message}`,
+        );
         this.isConfigured = false;
       } else {
         this.logger.log('✅ Mail service configured successfully');
@@ -144,16 +150,22 @@ export class MailService {
 
   async sendUserConfirmation(email: string, token: string) {
     if (!this.isConfigured) {
-      this.logger.warn(`⚠️  Email not sent to ${email} - Mail service not configured`);
+      this.logger.warn(
+        `⚠️  Email not sent to ${email} - Mail service not configured`,
+      );
       return;
     }
 
-    const apiUrl = this.configService.get<string>('API_URL') || 'http://localhost:3000/api/v1';
+    const apiUrl =
+      this.configService.get<string>('API_URL') ||
+      'http://localhost:3000/api/v1';
     const confirmationUrl = `${apiUrl}/auth/verify-email?token=${token}`;
 
     try {
       await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM') || '"SmartBiz AI" <noreply@smartbiz.ai>',
+        from:
+          this.configService.get<string>('MAIL_FROM') ||
+          '"SmartBiz AI" <noreply@smartbiz.ai>',
         to: email,
         subject: 'Confirmez votre adresse email',
         html: this.getEmailTemplate(
@@ -165,7 +177,7 @@ export class MailService {
               <a href="${confirmationUrl}" class="btn">Confirmer mon compte</a>
             </div>
             <p style="font-size: 14px; color: #64748b; margin-top: 24px;">Si vous n'avez pas créé de compte sur SmartBiz AI, vous pouvez ignorer cet email en toute sécurité.</p>
-          `
+          `,
         ),
       });
       this.logger.log(`Email de confirmation envoyé à : ${email}`);
@@ -176,7 +188,9 @@ export class MailService {
 
   async sendPasswordReset(email: string, token: string) {
     if (!this.isConfigured) {
-      this.logger.warn(`⚠️  Email not sent to ${email} - Mail service not configured`);
+      this.logger.warn(
+        `⚠️  Email not sent to ${email} - Mail service not configured`,
+      );
       return;
     }
 
@@ -185,7 +199,9 @@ export class MailService {
 
     try {
       await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM') || '"SmartBiz AI" <noreply@smartbiz.ai>',
+        from:
+          this.configService.get<string>('MAIL_FROM') ||
+          '"SmartBiz AI" <noreply@smartbiz.ai>',
         to: email,
         subject: 'Réinitialisation de mot de passe',
         html: this.getEmailTemplate(
@@ -198,7 +214,7 @@ export class MailService {
               <a href="${resetUrl}" class="btn">Réinitialiser mon mot de passe</a>
             </div>
             <p style="font-size: 14px; color: #64748b; margin-top: 24px;">Si vous n'avez pas demandé cette réinitialisation, veuillez ignorer cet email. Votre mot de passe restera inchangé.</p>
-          `
+          `,
         ),
       });
       this.logger.log(`Email de réinitialisation envoyé à : ${email}`);
@@ -209,16 +225,21 @@ export class MailService {
 
   async sendTeamInvite(email: string, token: string, companyName: string) {
     if (!this.isConfigured) {
-      this.logger.warn(`⚠️  Email not sent to ${email} - Mail service not configured`);
+      this.logger.warn(
+        `⚠️  Email not sent to ${email} - Mail service not configured`,
+      );
       return;
     }
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
     const inviteUrl = `${frontendUrl}/accept-invite?token=${token}`;
 
     try {
       await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM') || '"SmartBiz AI" <noreply@smartbiz.ai>',
+        from:
+          this.configService.get<string>('MAIL_FROM') ||
+          '"SmartBiz AI" <noreply@smartbiz.ai>',
         to: email,
         subject: `Invitation à rejoindre ${companyName} sur SmartBiz AI`,
         html: this.getEmailTemplate(
@@ -231,7 +252,7 @@ export class MailService {
               <a href="${inviteUrl}" class="btn">Accepter l'invitation</a>
             </div>
             <p style="font-size: 14px; color: #64748b; margin-top: 24px;">Ce lien d'invitation expirera dans 7 jours.</p>
-          `
+          `,
         ),
       });
       this.logger.log(`Email d'invitation envoyé à : ${email}`);
@@ -243,16 +264,21 @@ export class MailService {
 
   async sendInvitationAccepted(email: string, fullName: string) {
     if (!this.isConfigured) {
-      this.logger.warn(`⚠️  Email not sent to ${email} - Mail service not configured`);
+      this.logger.warn(
+        `⚠️  Email not sent to ${email} - Mail service not configured`,
+      );
       return;
     }
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
     const registerUrl = `${frontendUrl}/register?email=${encodeURIComponent(email)}`;
 
     try {
       await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM') || '"SmartBiz AI" <noreply@smartbiz.ai>',
+        from:
+          this.configService.get<string>('MAIL_FROM') ||
+          '"SmartBiz AI" <noreply@smartbiz.ai>',
         to: email,
         subject: `Votre demande d'invitation à SmartBiz AI a été acceptée !`,
         html: this.getEmailTemplate(
@@ -265,7 +291,7 @@ export class MailService {
               <a href="${registerUrl}" class="btn">Créer mon compte</a>
             </div>
             <p>Bienvenue dans l'équipe, nous avons hâte de voir ce que vous allez accomplir !</p>
-          `
+          `,
         ),
       });
       this.logger.log(`Email d'acceptation d'invitation envoyé à : ${email}`);
@@ -276,13 +302,17 @@ export class MailService {
 
   async sendInvitationRejected(email: string, fullName: string) {
     if (!this.isConfigured) {
-      this.logger.warn(`⚠️  Email not sent to ${email} - Mail service not configured`);
+      this.logger.warn(
+        `⚠️  Email not sent to ${email} - Mail service not configured`,
+      );
       return;
     }
 
     try {
       await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM') || '"SmartBiz AI" <noreply@smartbiz.ai>',
+        from:
+          this.configService.get<string>('MAIL_FROM') ||
+          '"SmartBiz AI" <noreply@smartbiz.ai>',
         to: email,
         subject: `Mise à jour concernant votre demande à SmartBiz AI`,
         html: this.getEmailTemplate(
@@ -293,7 +323,7 @@ export class MailService {
             <p>Après examen, nous ne sommes malheureusement pas en mesure de donner suite à votre demande d'accès pour le moment.</p>
             <p>Nous conservons néanmoins vos coordonnées pour de futures opportunités et vous tiendrons informé si de nouvelles places se libèrent.</p>
             <p>Cordialement,<br>L'équipe SmartBiz AI</p>
-          `
+          `,
         ),
       });
       this.logger.log(`Email de refus d'invitation envoyé à : ${email}`);

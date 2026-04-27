@@ -30,7 +30,11 @@ export class PostLoginService {
     });
 
     // Scénario 1 : Onboarding incomplet
-    const onboardingComplete = !!(company.sector && company.currency && company.fiscalYearStart);
+    const onboardingComplete = !!(
+      company.sector &&
+      company.currency &&
+      company.fiscalYearStart
+    );
     if (!onboardingComplete) {
       return {
         redirect: '/settings',

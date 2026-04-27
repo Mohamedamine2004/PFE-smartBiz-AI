@@ -25,7 +25,7 @@ import { InvitationRequestModule } from './invitation-request/invitation-request
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 60 secondes
-        limit: 120,  // max 120 requêtes par IP/min pour éviter les faux blocages au refresh
+        limit: 120, // max 120 requêtes par IP/min pour éviter les faux blocages au refresh
       },
     ]),
 
@@ -51,4 +51,4 @@ import { InvitationRequestModule } from './invitation-request/invitation-request
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

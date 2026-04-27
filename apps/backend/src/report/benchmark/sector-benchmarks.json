@@ -1,0 +1,83 @@
+{
+  "Technology": {
+    "grossMarginMedian": 0.72,
+    "netMarginMedian": 0.12,
+    "cacMedian": 180,
+    "ltvCacRatioMedian": 3.5,
+    "churnRateMedian": 0.05,
+    "revenueGrowthMedian": 0.25,
+    "debtRatioMedian": 0.35
+  },
+  "SaaS": {
+    "grossMarginMedian": 0.78,
+    "netMarginMedian": 0.08,
+    "cacMedian": 220,
+    "ltvCacRatioMedian": 4.0,
+    "churnRateMedian": 0.04,
+    "revenueGrowthMedian": 0.30,
+    "debtRatioMedian": 0.30
+  },
+  "Retail": {
+    "grossMarginMedian": 0.35,
+    "netMarginMedian": 0.05,
+    "cacMedian": 45,
+    "ltvCacRatioMedian": 2.8,
+    "churnRateMedian": 0.08,
+    "revenueGrowthMedian": 0.10,
+    "debtRatioMedian": 0.50
+  },
+  "Manufacturing": {
+    "grossMarginMedian": 0.30,
+    "netMarginMedian": 0.07,
+    "cacMedian": 300,
+    "ltvCacRatioMedian": 2.5,
+    "churnRateMedian": 0.03,
+    "revenueGrowthMedian": 0.08,
+    "debtRatioMedian": 0.55
+  },
+  "Services": {
+    "grossMarginMedian": 0.55,
+    "netMarginMedian": 0.10,
+    "cacMedian": 120,
+    "ltvCacRatioMedian": 3.0,
+    "churnRateMedian": 0.06,
+    "revenueGrowthMedian": 0.15,
+    "debtRatioMedian": 0.40
+  },
+  "Healthcare": {
+    "grossMarginMedian": 0.60,
+    "netMarginMedian": 0.09,
+    "cacMedian": 250,
+    "ltvCacRatioMedian": 3.2,
+    "churnRateMedian": 0.03,
+    "revenueGrowthMedian": 0.12,
+    "debtRatioMedian": 0.45
+  },
+  "Finance": {
+    "grossMarginMedian": 0.65,
+    "netMarginMedian": 0.18,
+    "cacMedian": 350,
+    "ltvCacRatioMedian": 4.5,
+    "churnRateMedian": 0.04,
+    "revenueGrowthMedian": 0.14,
+    "debtRatioMedian": 0.60
+  },
+  "Education": {
+    "grossMarginMedian": 0.50,
+    "netMarginMedian": 0.06,
+    "cacMedian": 80,
+    "ltvCacRatioMedian": 2.2,
+    "churnRateMedian": 0.07,
+    "revenueGrowthMedian": 0.10,
+    "debtRatioMedian": 0.35
+  },
+  "Default": {
+    "grossMarginMedian": 0.45,
+    "netMarginMedian": 0.08,
+    "cacMedian": 150,
+    "ltvCacRatioMedian": 3.0,
+    "churnRateMedian": 0.05,
+    "revenueGrowthMedian": 0.12,
+    "debtRatioMedian": 0.45
+  }
+}

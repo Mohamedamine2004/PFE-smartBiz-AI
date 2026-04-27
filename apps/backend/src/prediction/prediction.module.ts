@@ -7,7 +7,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 @Module({
   imports: [
     HttpModule.register({
-      timeout: 30_000,       // 30s timeout for ML inference
+      timeout: 30_000, // 30s timeout for ML inference
       maxRedirects: 3,
     }),
     PrismaModule,

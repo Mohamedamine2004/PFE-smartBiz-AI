@@ -85,8 +85,7 @@ export class ValuationService {
         formula: 'Value = FCF × (1 + g) / (WACC − g)',
         description:
           'Discounted cash flow approach for stable, mature companies with predictable growth.',
-        bestUseCase:
-          'Mature, stable companies with predictable cash flows.',
+        bestUseCase: 'Mature, stable companies with predictable cash flows.',
         requiredFields: ['freeCashFlow', 'growthRate', 'wacc'],
       },
     ];
