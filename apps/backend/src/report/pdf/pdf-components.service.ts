@@ -1,9 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { PdfRenderOptions } from '../interfaces/report-content.types';
+import { processPdfText, containsArabic as isArabicText } from './pdf-text-processor';
 
 @Injectable()
 export class PdfComponentsService {
+  constructor() {}
+
+  /**
+   * Process text for Arabic RTL rendering.
+   * Applies reshaping and word-order reversal so PDFKit displays Arabic correctly.
+   */
+  private processText(text: string, isRTL: boolean): string {
+    return processPdfText(text, isRTL);
+  }
+
+  /**
+   * Detect if text contains Arabic characters
+   */
+  private hasArabic(text: string): boolean {
+    return isArabicText(text);
+  }
+
+  /**
+   * Select appropriate font based on text content
+   */
+  private selectFontForText(
+    doc: typeof PDFDocument,
+    text: string,
+    isBold: boolean,
+    fonts: any,
+  ): void {
+    if (this.hasArabic(text)) {
+      try {
+        const fontName = isBold ? 'Arabic-Bold' : 'Arabic';
+        doc.font(fontName);
+      } catch (e) {
+        doc.font(isBold ? 'Helvetica-Bold' : 'Helvetica');
+      }
+    } else {
+      // ALWAYS use Helvetica for non-Arabic text (numbers, French, English)
+      doc.font(isBold ? 'Helvetica-Bold' : 'Helvetica');
+    }
+  }
 
   /**
    * Draw a small section number badge above the section header.
@@ -39,21 +78,25 @@ export class PdfComponentsService {
 
     const startY = doc.y;
 
-    // Section title
-    doc.font(fonts.heading).fontSize(22).fillColor(theme.textPrimary)
-      .text(title, leftMargin, startY, {
+    // Process title for Arabic RTL
+    const processedTitle = this.processText(title, isRTL);
+
+    // Section title - use smart font selection
+    this.selectFontForText(doc, title, true, fonts);
+    doc.fontSize(22).fillColor(theme.textPrimary)
+      .text(processedTitle, leftMargin, startY, {
         width: contentW,
         align: textAlign,
-        features: isRTL ? ['rtla'] : undefined,
       });
 
     if (subtitle) {
       doc.moveDown(0.3);
-      doc.font(fonts.body).fontSize(10).fillColor(theme.textMuted)
-        .text(subtitle, leftMargin, doc.y, {
+      const processedSubtitle = this.processText(subtitle, isRTL);
+      this.selectFontForText(doc, subtitle, false, fonts);
+      doc.fontSize(10).fillColor(theme.textMuted)
+        .text(processedSubtitle, leftMargin, doc.y, {
           width: contentW,
           align: textAlign,
-          features: isRTL ? ['rtla'] : undefined,
         });
     }
 
@@ -72,10 +115,10 @@ export class PdfComponentsService {
     const { contentW, theme, fonts, leftMargin, isRTL } = options;
     const textAlign = isRTL ? 'right' as const : 'left' as const;
 
-    // Strip emojis and unsupported symbols
-    // Keep Latin, Latin-Extended, Arabic, Arabic Extended, and general punctuation
+    // Strip only emoji and symbol characters that PDFKit can't render
+    // Keep ALL text characters (Latin, Arabic, numbers, punctuation, math symbols)
     const cleanText = text.replace(
-      /[^\x00-\x7F\u0080-\u00FF\u0100-\u017F\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\u2000-\u206F\n]/g,
+      /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,
       '',
     );
     const lines = cleanText.split('\n');
@@ -127,12 +170,13 @@ export class PdfComponentsService {
       if (trimmed.startsWith('# ')) {
         this.checkPageBreak(doc, 80);
         const headingText = trimmed.replace(/^#\s+/, '').replace(/\*\*/g, '');
+        const processedHeading = this.processText(headingText, isRTL);
         doc.moveDown(1.5);
-        doc.font(fonts.heading).fontSize(20).fillColor(theme.textPrimary)
-          .text(headingText, leftMargin, doc.y, {
+        this.selectFontForText(doc, headingText, true, fonts);
+        doc.fontSize(20).fillColor(theme.textPrimary)
+          .text(processedHeading, leftMargin, doc.y, {
             width: contentW,
             align: textAlign,
-            features: isRTL ? ['rtla'] : undefined,
           });
         doc.moveDown(0.3);
         const h1AccentX = isRTL ? leftMargin + contentW - 40 : leftMargin;
@@ -144,12 +188,13 @@ export class PdfComponentsService {
       if (trimmed.startsWith('### ')) {
         this.checkPageBreak(doc, 40);
         const headingText = trimmed.replace(/^###\s+/, '').replace(/\*\*/g, '');
+        const processedHeading = this.processText(headingText, isRTL);
         doc.moveDown(0.8);
-        doc.font(fonts.heading).fontSize(11).fillColor(theme.textSecondary)
-          .text(headingText, leftMargin, doc.y, {
+        this.selectFontForText(doc, headingText, true, fonts);
+        doc.fontSize(11).fillColor(theme.textSecondary)
+          .text(processedHeading, leftMargin, doc.y, {
             width: contentW,
             align: textAlign,
-            features: isRTL ? ['rtla'] : undefined,
           });
         doc.moveDown(0.4);
         continue;
@@ -158,6 +203,7 @@ export class PdfComponentsService {
       if (trimmed.startsWith('## ')) {
         this.checkPageBreak(doc, 60);
         const headingText = trimmed.replace(/^##\s+/, '').replace(/\*\*/g, '');
+        const processedHeading = this.processText(headingText, isRTL);
         doc.moveDown(1);
 
         const h2y = doc.y;
@@ -167,11 +213,11 @@ export class PdfComponentsService {
         doc.rect(barX, h2y - 4, 3, 28).fill(theme.accent);
 
         const textPad = isRTL ? 0 : 14;
-        doc.font(fonts.heading).fontSize(13).fillColor(theme.primary)
-          .text(headingText, leftMargin + textPad, h2y + 2, {
+        this.selectFontForText(doc, headingText, true, fonts);
+        doc.fontSize(13).fillColor(theme.primary)
+          .text(processedHeading, leftMargin + textPad, h2y + 2, {
             width: contentW - 20,
             align: textAlign,
-            features: isRTL ? ['rtla'] : undefined,
           });
         doc.moveDown(0.8);
         continue;
@@ -181,15 +227,16 @@ export class PdfComponentsService {
       if (trimmed.startsWith('> ')) {
         this.checkPageBreak(doc, 30);
         const quoteText = trimmed.replace(/^>\s+/, '');
+        const processedQuote = this.processText(quoteText.replace(/\*\*/g, ''), isRTL);
         const qy = doc.y;
         doc.rect(leftMargin, qy - 2, contentW, 24).fill(theme.highlightBg);
         const quoteBarX = isRTL ? leftMargin + contentW - 3 : leftMargin;
         doc.rect(quoteBarX, qy - 2, 3, 24).fill(theme.accent);
-        doc.font(fonts.body).fontSize(10).fillColor(theme.textSecondary)
-          .text(quoteText.replace(/\*\*/g, ''), leftMargin + 14, qy + 5, {
+        this.selectFontForText(doc, quoteText, false, fonts);
+        doc.fontSize(10).fillColor(theme.textSecondary)
+          .text(processedQuote, leftMargin + 14, qy + 5, {
             width: contentW - 20,
             align: textAlign,
-            features: isRTL ? ['rtla'] : undefined,
           });
         doc.moveDown(0.6);
         continue;
@@ -247,23 +294,25 @@ export class PdfComponentsService {
     const parts = text.split(/(\*\*[^*]+\*\*)/);
 
     if (parts.length === 1) {
-      doc.font(fonts.body).fontSize(10.5).fillColor(theme.textPrimary)
-        .text(text, x, y, {
+      // Process text for Arabic RTL
+      const processedText = this.processText(text, isRTL);
+      this.selectFontForText(doc, text, false, fonts);
+      doc.fontSize(10.5).fillColor(theme.textPrimary)
+        .text(processedText, x, y, {
           width: w,
           align: textAlign,
           lineGap: 3.5,
-          features: isRTL ? ['rtla'] : undefined,
         });
     } else {
       const richText = parts.map(p => p.replace(/\*\*/g, '')).join('');
+      const processedText = this.processText(richText, isRTL);
       const hasBold = parts.some(p => p.startsWith('**'));
-      const font = hasBold ? fonts.heading : fonts.body;
-      doc.font(font).fontSize(10.5).fillColor(theme.textPrimary)
-        .text(richText, x, y, {
+      this.selectFontForText(doc, richText, hasBold, fonts);
+      doc.fontSize(10.5).fillColor(theme.textPrimary)
+        .text(processedText, x, y, {
           width: w,
           align: textAlign,
           lineGap: 3.5,
-          features: isRTL ? ['rtla'] : undefined,
         });
     }
 
@@ -300,14 +349,15 @@ export class PdfComponentsService {
 
     orderedCells.forEach((cell, i) => {
       const cleanCell = cell.replace(/\*\*/g, '');
+      const processedCell = this.processText(cleanCell, isRTL);
       const cellX = leftMargin + i * colWidth;
-      doc.font(isHeader ? fonts.heading : fonts.body).fontSize(9)
+      this.selectFontForText(doc, cleanCell, isHeader, fonts);
+      doc.fontSize(9)
         .fillColor(isHeader ? theme.textWhite : theme.textPrimary)
-        .text(cleanCell, cellX + 8, rowY + 8, {
+        .text(processedCell, cellX + 8, rowY + 8, {
           width: colWidth - 16,
           align: 'center',
           lineBreak: false,
-          features: isRTL ? ['rtla'] : undefined,
         });
 
       if (i > 0) {

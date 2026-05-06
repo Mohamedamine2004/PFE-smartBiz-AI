@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { PdfRenderOptions } from '../interfaces/report-content.types';
+import { processPdfText, containsArabic } from './pdf-text-processor';
 
 @Injectable()
 export class PdfChartDrawer {
@@ -288,11 +289,17 @@ export class PdfChartDrawer {
 
     const titleX = isRTL ? x + 12 : x + 28;
     const titleW = w - 40;
-    doc.font(fonts.heading).fontSize(10).fillColor(theme.textPrimary)
-      .text(title, titleX, y + 12, {
+    const processedTitle = processPdfText(title, isRTL);
+    // Use Arabic font for Arabic text, Helvetica for Latin
+    if (containsArabic(title)) {
+      try { doc.font('Arabic-Bold'); } catch (e) { doc.font('Helvetica-Bold'); }
+    } else {
+      doc.font('Helvetica-Bold');
+    }
+    doc.fontSize(10).fillColor(theme.textPrimary)
+      .text(processedTitle, titleX, y + 12, {
         width: titleW,
         align: isRTL ? 'right' : 'left',
-        features: isRTL ? ['rtla'] : undefined,
       });
   }
 
@@ -301,9 +308,15 @@ export class PdfChartDrawer {
     x: number, y: number, h: number,
     theme: any, fonts: any, isRTL: boolean,
   ) {
-    const msg = isRTL ? 'بيانات غير كافية لإنشاء هذا الرسم البياني.' : 'Donnees insuffisantes pour generer ce graphique.';
-    doc.font(fonts.body).fontSize(10).fillColor(theme.textMuted)
-      .text(msg, x + 20, y + h / 2 - 8, { features: isRTL ? ['rtla'] : undefined });
+    const msg = isRTL ? 'بيانات غير كافية' : 'Donnees insuffisantes pour generer ce graphique.';
+    const processedMsg = processPdfText(msg, isRTL);
+    if (containsArabic(msg)) {
+      try { doc.font('Arabic'); } catch (e) { doc.font('Helvetica'); }
+    } else {
+      doc.font('Helvetica');
+    }
+    doc.fontSize(10).fillColor(theme.textMuted)
+      .text(processedMsg, x + 20, y + h / 2 - 8, {});
   }
 
   private truncate(s: string, maxLen: number): string {

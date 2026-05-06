@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as https from 'https';
 import PDFDocument from 'pdfkit';
 import { PdfComponentsService } from './pdf-components.service';
 import { PdfChartDrawer } from './pdf-chart-drawer.service';
+import { processPdfText, containsArabic } from './pdf-text-processor';
 import {
   CompanyBranding,
   PageBudget,
@@ -49,25 +51,108 @@ export class PdfCoreService {
   constructor(
     private readonly components: PdfComponentsService,
     private readonly charts: PdfChartDrawer,
-  ) {
-    // Check for Arabic font availability
-    const fontsDir = path.resolve('/usr/src/app/fonts');
-    const regularPath = path.join(fontsDir, 'NotoSansArabic-Regular.ttf');
-    const boldPath = path.join(fontsDir, 'NotoSansArabic-Bold.ttf');
+  ) { }
 
-    if (fs.existsSync(regularPath)) {
-      this.arabicFontPath = regularPath;
-      this.logger.log('Arabic font loaded: NotoSansArabic-Regular.ttf');
+  private async ensureFonts(): Promise<void> {
+    if (this.arabicFontPath && this.arabicBoldFontPath) return;
+
+    const fontsDir = path.resolve('/usr/src/app/fonts');
+    if (!fs.existsSync(fontsDir)) {
+      fs.mkdirSync(fontsDir, { recursive: true });
     }
-    if (fs.existsSync(boldPath)) {
+
+    // New filenames to force re-download (old cached files may be corrupt HTML)
+    const regularPath = path.join(fontsDir, 'NotoSansArabic-Regular-v3.ttf');
+    const boldPath = path.join(fontsDir, 'NotoSansArabic-Bold-v3.ttf');
+
+    // Delete old corrupt cached files
+    const oldFiles = ['NotoSansArabic-Regular-v2.ttf', 'NotoSansArabic-Bold-v2.ttf',
+      'NotoSansArabic-Regular.ttf', 'NotoSansArabic-Bold.ttf'];
+    for (const f of oldFiles) {
+      const p = path.join(fontsDir, f);
+      if (fs.existsSync(p)) { try { fs.unlinkSync(p); } catch (_) { /* ignore */ } }
+    }
+
+    const downloadFont = (urls: string[], dest: string): Promise<void> => {
+      return new Promise<void>((resolve, reject) => {
+        // Validate existing file: real TTF fonts are always > 50KB
+        if (fs.existsSync(dest)) {
+          const stat = fs.statSync(dest);
+          if (stat.size > 50_000) return resolve();
+          // File too small = corrupt, delete and re-download
+          this.logger.warn(`Font file ${dest} is only ${stat.size} bytes (corrupt), re-downloading...`);
+          fs.unlinkSync(dest);
+        }
+
+        const tryUrl = (index: number) => {
+          if (index >= urls.length) {
+            reject(new Error(`All download URLs failed for ${dest}`));
+            return;
+          }
+          const url = urls[index];
+          this.logger.log(`Downloading font from ${url}...`);
+
+          const follow = (targetUrl: string, depth: number) => {
+            if (depth > 5) { tryUrl(index + 1); return; }
+            https.get(targetUrl, (res) => {
+              if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                follow(res.headers.location, depth + 1);
+                return;
+              }
+              if (res.statusCode !== 200) {
+                this.logger.warn(`Font URL returned ${res.statusCode}: ${url}`);
+                tryUrl(index + 1);
+                return;
+              }
+              const file = fs.createWriteStream(dest);
+              res.pipe(file);
+              file.on('finish', () => {
+                file.close();
+                const stat = fs.statSync(dest);
+                if (stat.size < 50_000) {
+                  this.logger.warn(`Downloaded font is too small (${stat.size} bytes), trying next URL...`);
+                  fs.unlinkSync(dest);
+                  tryUrl(index + 1);
+                } else {
+                  this.logger.log(`Font downloaded successfully: ${dest} (${stat.size} bytes)`);
+                  resolve();
+                }
+              });
+            }).on('error', () => tryUrl(index + 1));
+          };
+          follow(url, 0);
+        };
+        tryUrl(0);
+      });
+    };
+
+    // Multiple CDN sources for reliability
+    const regularUrls = [
+      'https://cdn.jsdelivr.net/gh/notofonts/arabic@main/fonts/NotoSansArabic/unhinted/ttf/NotoSansArabic-Regular.ttf',
+      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/amiri/Amiri-Regular.ttf',
+      'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf',
+    ];
+    const boldUrls = [
+      'https://cdn.jsdelivr.net/gh/notofonts/arabic@main/fonts/NotoSansArabic/unhinted/ttf/NotoSansArabic-Bold.ttf',
+      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/amiri/Amiri-Bold.ttf',
+      'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Bold.ttf',
+    ];
+
+    try {
+      await downloadFont(regularUrls, regularPath);
+      await downloadFont(boldUrls, boldPath);
+      this.arabicFontPath = regularPath;
       this.arabicBoldFontPath = boldPath;
-      this.logger.log('Arabic bold font loaded: NotoSansArabic-Bold.ttf');
+      this.logger.log('Arabic fonts ready.');
+    } catch (e) {
+      this.logger.error('Failed to download Arabic fonts — Arabic text may not render correctly.', e);
     }
   }
 
   async generateReport(
     input: PdfCoreInput,
   ): Promise<{ buffer: Buffer; pageCount: number }> {
+    await this.ensureFonts();
     const isRTL = input.language === 'AR';
 
     const doc = new PDFDocument({
@@ -78,8 +163,17 @@ export class PdfCoreService {
 
     // Register Arabic fonts if available
     if (this.arabicFontPath) {
-      doc.registerFont('Arabic', this.arabicFontPath);
-      doc.registerFont('Arabic-Bold', this.arabicBoldFontPath || this.arabicFontPath);
+      try {
+        doc.registerFont('Arabic', this.arabicFontPath);
+        doc.registerFont('Arabic-Bold', this.arabicBoldFontPath || this.arabicFontPath);
+        this.logger.log(`Arabic fonts registered: ${this.arabicFontPath}`);
+      } catch (e) {
+        this.logger.error(`Failed to register Arabic font: ${e}`);
+        this.arabicFontPath = null;
+        this.arabicBoldFontPath = null;
+      }
+    } else {
+      this.logger.warn('No Arabic font available — Arabic text will use Helvetica (may show boxes).');
     }
 
     const chunks: Buffer[] = [];
@@ -166,6 +260,37 @@ export class PdfCoreService {
 
   // ─── Private Rendering Methods ───
 
+  /**
+   * Process text for Arabic RTL rendering using centralized processor.
+   */
+  private processText(text: string, isRTL: boolean): string {
+    return processPdfText(text || '', isRTL);
+  }
+
+  /**
+   * Select appropriate font based on text content
+   */
+  private selectFontForText(
+    doc: typeof PDFDocument,
+    text: string,
+    isBold: boolean,
+    fonts: PdfFonts,
+  ): void {
+    if (containsArabic(text)) {
+      try {
+        const fontName = isBold ? 'Arabic-Bold' : 'Arabic';
+        doc.font(fontName);
+      } catch (e) {
+        // Fallback to Helvetica if Arabic font not registered
+        doc.font(isBold ? 'Helvetica-Bold' : 'Helvetica');
+      }
+    } else {
+      // ALWAYS use Helvetica for non-Arabic text (numbers, French, English)
+      // This prevents empty squares when the Arabic font lacks Latin glyphs
+      doc.font(isBold ? 'Helvetica-Bold' : 'Helvetica');
+    }
+  }
+
   private renderCover(
     doc: typeof PDFDocument,
     input: PdfCoreInput,
@@ -230,11 +355,12 @@ export class PdfCoreService {
     }
 
     // ──────── Company Name (top) ────────
+    const companyName = this.processText(input.branding.companyName, isRTL);
+    this.selectFontForText(doc, input.branding.companyName, true, fonts);
     doc
-      .font(fonts.heading)
       .fontSize(14)
       .fillColor(theme.accentLight)
-      .text(input.branding.companyName.toUpperCase(), textX, logoY, {
+      .text(isRTL ? companyName : companyName.toUpperCase(), textX, logoY, {
         width: contentW,
         align: textAlign,
         characterSpacing: isRTL ? 0 : 4,
@@ -252,14 +378,15 @@ export class PdfCoreService {
       AR: 'تقرير التحليل',
       EN: 'Analysis Report',
     };
+    const titleText = titleMap[input.language || 'FR'] || titleMap.EN;
+    const processedTitle = this.processText(titleText, isRTL);
+    this.selectFontForText(doc, titleText, true, fonts);
     doc
-      .font(fonts.heading)
       .fontSize(isRTL ? 38 : 44)
       .fillColor(theme.textWhite)
-      .text(titleMap[input.language || 'FR'] || titleMap.EN, textX, titleY, {
+      .text(processedTitle, textX, titleY, {
         width: contentW * 0.7,
         align: textAlign,
-        features: isRTL ? ['rtla'] : undefined,
       });
 
     // ──────── Subtitle ────────
@@ -269,14 +396,15 @@ export class PdfCoreService {
       AR: 'المالي',
       EN: 'Financial',
     };
+    const subtitleText = subtitleMap[input.language || 'FR'] || subtitleMap.EN;
+    const processedSubtitle = this.processText(subtitleText, isRTL);
+    this.selectFontForText(doc, subtitleText, true, fonts);
     doc
-      .font(fonts.heading)
       .fontSize(isRTL ? 38 : 44)
       .fillColor(theme.accent)
-      .text(subtitleMap[input.language || 'FR'] || subtitleMap.EN, textX, doc.y, {
+      .text(processedSubtitle, textX, doc.y, {
         width: contentW * 0.7,
         align: textAlign,
-        features: isRTL ? ['rtla'] : undefined,
       });
 
     // ──────── Description Line ────────
@@ -286,14 +414,15 @@ export class PdfCoreService {
       AR: 'تحليل استراتيجي معمق للأداء المالي',
       EN: 'In-depth strategic analysis and financial performance review',
     };
+    const descText = descMap[input.language || 'FR'] || descMap.EN;
+    const processedDesc = this.processText(descText, isRTL);
+    this.selectFontForText(doc, descText, false, fonts);
     doc
-      .font(fonts.body)
       .fontSize(12)
       .fillColor(theme.accentLight)
-      .text(descMap[input.language || 'FR'] || descMap.EN, textX, doc.y, {
+      .text(processedDesc, textX, doc.y, {
         width: contentW * 0.65,
         align: textAlign,
-        features: isRTL ? ['rtla'] : undefined,
       });
 
     // ──────── Bottom Section ────────
@@ -309,14 +438,17 @@ export class PdfCoreService {
     const dateLabel = input.language === 'AR' ? 'تاريخ التقرير' : input.language === 'FR' ? 'Date de generation' : 'Report Date';
     const refLabel = input.language === 'AR' ? 'المرجع' : input.language === 'FR' ? 'Reference' : 'Reference ID';
 
-    doc.font(fonts.body).fontSize(10).fillColor(theme.textWhite)
-      .text(dateLabel, textX, ph - 140, { width: contentW, align: textAlign });
-    doc.font(fonts.heading).fontSize(12).fillColor(theme.accentLight)
-      .text(formattedDate, textX, ph - 125, { width: contentW, align: textAlign });
+    this.selectFontForText(doc, dateLabel, false, fonts);
+    doc.fontSize(10).fillColor(theme.textWhite)
+      .text(this.processText(dateLabel, isRTL), textX, ph - 140, { width: contentW, align: textAlign });
+    this.selectFontForText(doc, formattedDate, true, fonts);
+    doc.fontSize(12).fillColor(theme.accentLight)
+      .text(this.processText(formattedDate, isRTL), textX, ph - 125, { width: contentW, align: textAlign });
 
     // Report ID
-    doc.font(fonts.body).fontSize(10).fillColor(theme.textWhite)
-      .text(refLabel, textX, ph - 100, { width: contentW, align: textAlign });
+    this.selectFontForText(doc, refLabel, false, fonts);
+    doc.fontSize(10).fillColor(theme.textWhite)
+      .text(this.processText(refLabel, isRTL), textX, ph - 100, { width: contentW, align: textAlign });
     doc.font(fonts.mono).fontSize(9).fillColor(theme.accentLight)
       .text(input.reportId.substring(0, 18), textX, ph - 85, { width: contentW, align: textAlign });
 
@@ -327,8 +459,9 @@ export class PdfCoreService {
     doc.roundedRect(badgeX, badgeY, badgeW, 28, 4)
       .fillAndStroke(theme.primaryDark, theme.warning);
     const confLabel = input.language === 'AR' ? 'سري للغاية' : input.language === 'FR' ? 'STRICTEMENT CONFIDENTIEL' : 'STRICTLY CONFIDENTIAL';
-    doc.font(fonts.heading).fontSize(9).fillColor(theme.warning)
-      .text(confLabel, badgeX, badgeY + 9, {
+    this.selectFontForText(doc, confLabel, true, fonts);
+    doc.fontSize(9).fillColor(theme.warning)
+      .text(this.processText(confLabel, isRTL), badgeX, badgeY + 9, {
         width: badgeW,
         align: 'center',
         characterSpacing: isRTL ? 0 : 1.5,
@@ -352,11 +485,12 @@ export class PdfCoreService {
 
     // TOC Header
     const tocLabel = input.language === 'AR' ? 'الفهرس' : input.language === 'FR' ? 'SOMMAIRE' : 'TABLE OF CONTENTS';
+    const processedTocLabel = this.processText(tocLabel, isRTL);
+    this.selectFontForText(doc, tocLabel, true, fonts);
     doc
-      .font(fonts.heading)
       .fontSize(10)
       .fillColor(theme.accent)
-      .text(tocLabel.toUpperCase(), leftMargin, 80, {
+      .text(isRTL ? processedTocLabel : processedTocLabel.toUpperCase(), leftMargin, 80, {
         width: contentW,
         align: textAlign,
         characterSpacing: isRTL ? 0 : 3,
@@ -386,11 +520,12 @@ export class PdfCoreService {
       // Section title
       const titleX = isRTL ? leftMargin : numX + circleR * 2 + 12;
       const titleW = isRTL ? contentW - circleR * 2 - 60 : contentW - circleR * 2 - 60;
-      doc.font(fonts.body).fontSize(12).fillColor(theme.textPrimary)
-        .text(s.title, titleX, numY + 6, {
+      const processedTocTitle = this.processText(s.title, isRTL);
+      this.selectFontForText(doc, s.title, false, fonts);
+      doc.fontSize(12).fillColor(theme.textPrimary)
+        .text(processedTocTitle, titleX, numY + 6, {
           width: titleW,
           align: textAlign,
-          features: isRTL ? ['rtla'] : undefined,
         });
 
       currentY += 38;
@@ -427,11 +562,11 @@ export class PdfCoreService {
     const orderedHeaders = isRTL ? [...headers].reverse() : headers;
 
     orderedHeaders.forEach((h, i) => {
-      doc.font(fonts.heading).fontSize(9).fillColor(theme.textWhite)
-        .text(h, leftMargin + i * colWidth + 8, headerY + 8, {
+      this.selectFontForText(doc, h, true, fonts);
+      doc.fontSize(9).fillColor(theme.textWhite)
+        .text(this.processText(h, isRTL), leftMargin + i * colWidth + 8, headerY + 8, {
           width: colWidth - 16,
           align: 'center',
-          features: isRTL ? ['rtla'] : undefined,
         });
     });
 
@@ -455,8 +590,9 @@ export class PdfCoreService {
       const orderedCells = isRTL ? [...cells].reverse() : cells;
 
       orderedCells.forEach((cell, i) => {
-        doc.font(cell.font).fontSize(9).fillColor(cell.color)
-          .text(cell.text, leftMargin + i * colWidth + 8, rowY + 8, {
+        this.selectFontForText(doc, cell.text, false, fonts);
+        doc.fontSize(9).fillColor(cell.color)
+          .text(this.processText(cell.text, isRTL), leftMargin + i * colWidth + 8, rowY + 8, {
             width: colWidth - 16,
             align: 'center',
           });
@@ -482,8 +618,9 @@ export class PdfCoreService {
       // ──────── Header ────────
       doc.rect(0, 0, doc.page.width, 4).fill(theme.accent);
 
-      doc.font(fonts.body).fontSize(7.5).fillColor(theme.textMuted)
-        .text(input.branding.companyName, leftMargin, 16, {
+      this.selectFontForText(doc, input.branding.companyName, false, fonts);
+      doc.fontSize(7.5).fillColor(theme.textMuted)
+        .text(this.processText(input.branding.companyName, isRTL), leftMargin, 16, {
           align: isRTL ? 'right' : 'left',
           width: contentW / 2,
         });
@@ -502,8 +639,9 @@ export class PdfCoreService {
         .strokeColor(theme.borderLight).lineWidth(0.5).stroke();
 
       const confLabel = input.language === 'AR' ? 'سري' : input.language === 'FR' ? 'Confidentiel' : 'Confidential';
-      doc.font(fonts.body).fontSize(8).fillColor(theme.textMuted)
-        .text(confLabel, leftMargin, footerY + 10, {
+      this.selectFontForText(doc, confLabel, false, fonts);
+      doc.fontSize(8).fillColor(theme.textMuted)
+        .text(this.processText(confLabel, isRTL), leftMargin, footerY + 10, {
           width: contentW / 3,
           align: isRTL ? 'right' : 'left',
         });
@@ -559,13 +697,10 @@ export class PdfCoreService {
   }
 
   private getFonts(isRTL: boolean): PdfFonts {
-    if (isRTL && this.arabicFontPath) {
-      return {
-        heading: 'Arabic-Bold',
-        body: 'Arabic',
-        mono: 'Arabic',
-      };
-    }
+    // Always use Helvetica as the base fonts.
+    // selectFontForText() will dynamically switch to Arabic font
+    // when the text contains Arabic characters.
+    // This prevents numbers and French/Latin text from showing as empty squares.
     return {
       heading: 'Helvetica-Bold',
       body: 'Helvetica',

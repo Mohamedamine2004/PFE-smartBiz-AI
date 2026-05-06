@@ -105,6 +105,7 @@ export interface GeneratePromptContext {
   prediction: PredictionSummary;
   benchmark?: SectorBenchmark;
   benchmarkDeltas?: BenchmarkDelta[];
+  currency?: string;
 }
 
 export interface FallbackContext {
@@ -117,6 +118,7 @@ export interface FallbackContext {
   prediction: PredictionSummary;
   problemStatement?: string;
   language: string;
+  currency?: string;
 }
 
 // ─── PDF Rendering Types ───

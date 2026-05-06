@@ -39,10 +39,12 @@ export class PromptEngineService implements PromptEngine {
       prediction,
       benchmark,
       benchmarkDeltas,
+      currency,
     } = input;
 
     const audienceInstruction = this.getAudienceInstruction(audience, locale);
     const benchmarkBlock = this.buildBenchmarkBlock(benchmark, benchmarkDeltas);
+    const currencyLabel = currency || 'USD';
 
     return `You are a senior business consultant generating a section of a formal report for a client on SmartBiz AI.
 
@@ -55,6 +57,7 @@ Analysis depth: ${analysisDepth}
 Target length for this section: about ${pagesPerSection} pages
 
 === COMPANY FINANCIAL DATA ===
+Currency: ${currencyLabel} (IMPORTANT: Use ONLY this currency when referencing monetary values. Do NOT use dollars, USD, or any other currency.)
 Annual Revenue (N): ${annual.Revenues_N}
 Revenue Growth YoY: ${growthYoy.toFixed(1)}%
 Revenue Growth 2Y: ${growth2Y.toFixed(1)}%
@@ -83,13 +86,24 @@ Main business problem: ${problemStatement?.trim() || 'No specific problem provid
 - Use markdown headings (## and ###) to structure the content.
 - Use bullet points for lists and key takeaways.
 - Reference ONLY real numeric values from the data above. Do NOT invent numbers.
+- ALL monetary values MUST be expressed in ${currencyLabel}. Never use dollars, USD, or any other currency.
 - Provide actionable recommendations backed by data.
 - Write at least 600 words for a thorough analysis.
 - Be concise, data-driven, and business-ready.
 - EXTREMELY IMPORTANT: Do NOT blindly regurgitate all the raw metrics (CAC, LTV, Net Income, etc.) in every section. ONLY reference a metric if it is directly the focal point of your specific section. Focus exclusively on insights, strategic implications, and deep analysis pertinent to the current section domain. Eliminate redundancy.`;
   }
 
-  getTypeLabel(type: ReportType | string): string {
+  getTypeLabel(type: ReportType | string, language?: string): string {
+    if (language === 'AR') {
+      switch (type) {
+        case ReportType.FINANCIAL: return 'تحليل الأداء المالي';
+        case ReportType.STRATEGIC: return 'تحليل استراتيجي';
+        case ReportType.MARKETING: return 'تحليل التسويق';
+        case ReportType.OPERATIONAL: return 'تحليل الأداء التشغيلي';
+        case ReportType.VALUATION: return 'تقييم الشركة';
+        default: return String(type);
+      }
+    }
     switch (type) {
       case ReportType.FINANCIAL:
         return 'Analyse Financière';
@@ -123,7 +137,19 @@ Main business problem: ${problemStatement?.trim() || 'No specific problem provid
     }
   }
 
-  getSectionName(section: ReportSection | string): string {
+  getSectionName(section: ReportSection | string, language?: string): string {
+    if (language === 'AR') {
+      switch (section) {
+        case ReportSection.EXECUTIVE_SUMMARY: return 'ملخص تنفيذي';
+        case ReportSection.SWOT_ANALYSIS: return 'تحليل نقاط القوة والضعف';
+        case ReportSection.PERFORMANCE_ANALYSIS: return 'تحليل الأداء';
+        case ReportSection.FINANCIAL_OVERVIEW: return 'نظرة عامة مالية';
+        case ReportSection.RECOMMENDATIONS: return 'التوصيات';
+        case ReportSection.FORECASTS_TRENDS: return 'التنبؤات والاتجاهات';
+        case ReportSection.BENCHMARK: return 'المقارنة القطاعية';
+        default: return 'قسم التقرير';
+      }
+    }
     switch (section) {
       case ReportSection.EXECUTIVE_SUMMARY:
         return 'Executive Summary';

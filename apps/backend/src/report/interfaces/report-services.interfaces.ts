@@ -19,7 +19,7 @@ export interface LlmProvider {
 export interface PromptEngine {
   buildBasePrompt(input: GeneratePromptContext): string;
   getPromptForType(type: ReportType): string;
-  getSectionName(type: ReportSection): string;
+  getSectionName(type: ReportSection, language?: string): string;
   capPrompt(prompt: string): string;
   buildMonthlyTable(financialData: FinancialRow[]): string;
 }

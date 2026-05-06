@@ -1,9 +1,1 @@
-import PDFDocument from 'pdfkit';
-
-const doc = new PDFDocument();
-try {
-  doc.rect(10, NaN, 10, 10);
-  console.log("PDFKit: No error");
-} catch (e) {
-  console.error("PDFKit error:", e.message);
-}
+const PDFDocument = require('pdfkit'); const fs = require('fs'); const doc = new PDFDocument(); doc.pipe(fs.createWriteStream('test_pdf.pdf')); const fontPath = './fonts/NotoSansArabic-Regular.ttf'; if (fs.existsSync(fontPath)) { doc.font(fontPath); doc.fontSize(20); doc.text('????? ??????? - Hello World', { features: ['rtla'] }); } else { console.log('Font not found', fontPath); } doc.end();

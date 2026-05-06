@@ -180,6 +180,7 @@ export class ReportCoordinatorService {
           prediction,
           benchmark,
           benchmarkDeltas,
+          currency: company?.currency || 'USD',
         }),
       );
 
@@ -231,7 +232,7 @@ export class ReportCoordinatorService {
 
         sections.push({
           type,
-          title: this.promptEngine.getTypeLabel(type),
+          title: this.promptEngine.getTypeLabel(type, report.language),
           text: generated.text,
           chartData: this.getChartDataForSection(
             type,
@@ -245,7 +246,7 @@ export class ReportCoordinatorService {
       for (const section of snapshot.sections) {
         if (section === ReportSection.EXECUTIVE_SUMMARY) continue;
         const key = `SECTION_${section}`;
-        const sectionName = this.promptEngine.getSectionName(section);
+        const sectionName = this.promptEngine.getSectionName(section, report.language);
         const prompt = `${basePrompt}\n\n=== YOUR TASK ===\nWrite ONLY this section: "${sectionName}".\nProvide a thorough, multi-paragraph analysis.\nUse markdown headings (##, ###), bullet points.\nAim for at least 600 words.`;
 
         const generated = await this.llmStrategy
@@ -311,6 +312,7 @@ export class ReportCoordinatorService {
         type: 'EXECUTIVE_SUMMARY',
         title: this.promptEngine.getSectionName(
           ReportSection.EXECUTIVE_SUMMARY,
+          report.language,
         ),
         text: summaryGenerated.text,
       });

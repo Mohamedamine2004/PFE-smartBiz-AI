@@ -13,6 +13,9 @@ export class LlmStrategyService {
 
   /** Track providers that are permanently blocked (limit: 0) this session */
   private blockedProviders = new Set<string>();
+  
+  /** Track providers with quota exhaustion to fail fast */
+  private quotaExhausted = new Map<string, number>();
 
   constructor(
     private readonly geminiProvider: GeminiProviderService,
@@ -106,17 +109,29 @@ export class LlmStrategyService {
             break;
           }
 
-          // Rate limit handling (temporary)
+          // Rate limit / Quota exhaustion handling (fast failover)
           if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
-            const parsedDelay = this.parseRetryDelay(error);
-            const delay = parsedDelay > 0
-              ? (parsedDelay + 3) * 1000
-              : 15000 * (attempt + 1);
+            // Track quota exhaustion count
+            const quotaCount = (this.quotaExhausted.get(provider.name) || 0) + 1;
+            this.quotaExhausted.set(provider.name, quotaCount);
+
+            // If quota exhausted twice, skip provider entirely (likely daily limit)
+            if (quotaCount >= 2) {
+              this.logger.error(
+                `Provider ${provider.name} quota exhausted (${quotaCount} consecutive 429s). Switching to fallback.`,
+              );
+              this.blockedProviders.add(provider.name);
+              break;
+            }
+
+            // First 429: short 3-second wait before trying fallback
             this.logger.log(
-              `Rate limited on ${provider.name}. Waiting ${Math.round(delay / 1000)}s before retry...`,
+              `Rate limited on ${provider.name} (attempt ${attempt + 1}). Short wait before fallback (3s)...`,
             );
-            await new Promise((r) => setTimeout(r, delay));
-            continue;
+            await new Promise((r) => setTimeout(r, 3000));
+            
+            // Skip remaining attempts, go to next provider
+            break;
           }
 
           // General error — short backoff
