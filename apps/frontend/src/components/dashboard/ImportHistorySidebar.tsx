@@ -66,8 +66,8 @@ export const ImportHistorySidebar = ({
 
       {/* Sidebar Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-background/95 backdrop-blur-2xl border-l border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] z-50 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-          isOpen ? 'translate-x-0' : 'translate-x-[110%]'
+        className={`fixed top-0 ltr:right-0 rtl:left-0 h-full w-full max-w-md bg-background/95 backdrop-blur-2xl ltr:border-l rtl:border-r border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] z-50 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+          isOpen ? 'translate-x-0' : 'ltr:translate-x-[110%] rtl:-translate-x-[110%]'
         }`}
       >
         <div className="flex flex-col h-full bg-gradient-to-b from-brand/5 to-transparent">

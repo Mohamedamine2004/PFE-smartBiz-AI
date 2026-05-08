@@ -4,6 +4,7 @@ import { Mail, Send } from 'lucide-react';
 import axios from 'axios';
 import api from '../../lib/axios';
 import { Alert, Button } from '../ui';
+import { useAuthStore } from '../../store/authStore';
 
 interface InviteFormProps {
   onInviteSuccess: () => void;
@@ -11,11 +12,13 @@ interface InviteFormProps {
 
 export const InviteForm: React.FC<InviteFormProps> = ({ onInviteSuccess }) => {
   const { t } = useTranslation();
+  const currentUser = useAuthStore((state) => state.user);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'ADMIN' | 'COLLAB' | 'READER'>('COLLAB');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState('');
   const [inviteError, setInviteError] = useState('');
+  const canInviteAdmin = currentUser?.role === 'OWNER';
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +78,7 @@ export const InviteForm: React.FC<InviteFormProps> = ({ onInviteSuccess }) => {
             className="input w-full"
           >
             <option value="COLLAB">{t('team.roleUser')}</option>
-            <option value="ADMIN">{t('team.roleAdmin')}</option>
+            {canInviteAdmin && <option value="ADMIN">{t('team.roleAdmin')}</option>}
             <option value="READER">{t('team.roleReader')}</option>
           </select>
         </div>

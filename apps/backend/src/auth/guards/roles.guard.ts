@@ -9,23 +9,34 @@ import { UserRole } from '@prisma/client';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
+/**
+ * Role hierarchy — higher index = more privileged.
+ * A user with a higher rank implicitly satisfies lower-rank role requirements.
+ */
+const ROLE_HIERARCHY: Record<UserRole, number> = {
+  [UserRole.READER]: 0,
+  [UserRole.COLLAB]: 1,
+  [UserRole.ADMIN]: 2,
+  [UserRole.OWNER]: 3,
+};
+
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // 1. Récupération des rôles exigés pour cette route spécifique
+    // 1. Get the required roles for this route
     const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );
 
-    // Si la route n'a pas le décorateur @Roles(), on autorise l'accès par défaut
-    if (!requiredRoles) {
+    // If no @Roles() decorator, allow access
+    if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    // 2. Récupération de l'utilisateur injecté précédemment par le JwtAuthGuard
+    // 2. Get the authenticated user from the JWT guard
     const request = context.switchToHttp().getRequest();
     const user = request.user as JwtPayload;
 
@@ -33,10 +44,15 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Utilisateur non identifié.');
     }
 
-    // 3. Vérification de l'intersection des rôles
-    const hasRole = requiredRoles.includes(user.role);
+    const userRank = ROLE_HIERARCHY[user.role] ?? -1;
 
-    if (!hasRole) {
+    // 3. Check if the user's rank meets at least one of the required roles
+    // OWNER (rank 3) automatically satisfies any lower-rank requirement
+    const hasPermission = requiredRoles.some(
+      (required) => userRank >= ROLE_HIERARCHY[required],
+    );
+
+    if (!hasPermission) {
       throw new ForbiddenException(
         "Vous n'avez pas les permissions nécessaires pour effectuer cette action.",
       );

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL?.trim() || 'http://127.0.0.1:3001/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.trim() || 'http://127.0.0.1:3000/api/v1';
 
 if (import.meta.env.DEV && !import.meta.env.VITE_API_URL) {
-  console.warn('VITE_API_URL is not set. Falling back to http://127.0.0.1:3001/api/v1');
+  console.warn('VITE_API_URL is not set. Falling back to http://127.0.0.1:3000/api/v1');
 }
 
 const api = axios.create({

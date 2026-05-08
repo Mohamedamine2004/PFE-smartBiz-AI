@@ -2,6 +2,35 @@
   "app": {
     "loading": "Chargement de l'espace de travail..."
   },
+  "import": {
+    "title": "Importer des Données Financières",
+    "subtitle": "Importez vos données historiques pour générer des évaluations IA et des informations stratégiques.",
+    "step1": {
+      "title": "Étape 1 : Télécharger le Modèle",
+      "description": "Commencez par télécharger notre modèle Excel strictement formaté. Cette structure est requise pour que le moteur d'IA traite vos données."
+    },
+    "step2": {
+      "title": "Étape 2 : Comment remplir le modèle",
+      "intro": "Le modèle contient trois feuilles spécifiques. Ne renommez pas les feuilles et ne modifiez pas les en-têtes de colonnes.",
+      "sheet1": "Remplissez la ligne unique avec vos caractéristiques macro-financières (Actifs, Passifs, Résultat Net). Cela alimente directement le modèle d'évaluation par apprentissage automatique.",
+      "sheet2": "Saisissez vos indicateurs des 12 derniers mois. Les colonnes représentent les dates (AAAA-MM-JJ). Remplissez les valeurs correspondant à chaque ligne d'indicateur (ex. Revenu_Brut).",
+      "sheet3": "Fournissez vos chiffres exacts pour CAC, LTV, TAM, Part de Marché et Nombre d'employés. Ceux-ci sont utilisés pour générer des stratégies commerciales contextuelles."
+    },
+    "step3": {
+      "title": "Étape 3 : Télécharger le fichier complété",
+      "selectFile": "Cliquez pour sélectionner le fichier Excel",
+      "fileSpecs": "Formats acceptés : .xlsx, .xls (Max: 10MB)"
+    },
+    "errors": {
+      "invalidFileType": "Veuillez sélectionner un fichier Excel valide (.xlsx ou .xls)",
+      "fileTooLarge": "Le fichier dépasse la limite de 10MB.",
+      "uploadFailed": "Une erreur s'est produite lors de l'importation. Veuillez vérifier le format de vos données.",
+      "validationTitle": "Erreur de Validation"
+    },
+    "success": "Données importées avec succès ! Redirection vers le tableau de bord...",
+    "uploading": "Traitement des données...",
+    "submitBtn": "Lancer l'importation et l'analyse"
+  },
   "topbar": {
     "adminSpace": "Espace Administrateur",
     "collaboratorSpace": "Espace Collaborateur",
@@ -234,11 +263,17 @@
       "evTitle": "VALEUR D'ENTREPRISE PRÉDITE (EV)"
     },
     "charts": {
-      "revenue": "Revenus & Bénéfices",
+      "revenue": "Revenus & Dépenses",
+      "revenueSubtitle": "Comparez vos revenus générés aux dépenses opérationnelles",
       "expenses": "Dépenses & Coûts",
+      "expenseAllocation": "Répartition des Dépenses",
+      "netCashBurn": "Consommation Nette de Trésorerie",
+      "netCashBurnSubtitle": "Tendance mensuelle de la consommation nette de trésorerie",
       "overview": "Vue Flux de Trésorerie",
       "cashFlowTableTitle": "Tableau des Indicateurs de Trésorerie",
       "cashFlowTableSubtitle": "Valeurs en direct récupérées depuis les données importées du backend",
+      "dataTableProTitle": "Base de Données du Grand Livre Financier",
+      "dataTableProSubtitle": "Grand livre des métriques brutes, interrogeable et triable",
       "selectMetrics": "Choisir les indicateurs",
       "selectAll": "Tout sélectionner",
       "clear": "Effacer",
@@ -268,8 +303,12 @@
         "payrollExpenses": "Dépenses de paie",
         "marketingSpend": "Dépenses marketing",
         "netCashBurn": "Burn net de trésorerie",
-        "endingCashBalance": "Trésorerie finale"
-      }
+        "endingCashBalance": "Trésorerie finale",
+        "profitMargin": "Marge Bénéficiaire (%)"
+      },
+      "trendAnalysisTitle": "Analyse de Tendance",
+      "trendAnalysisSubtitle": "Volume brut vs évolution de la marge bénéficiaire relative",
+      "noData": "Aucune donnée historique disponible pour l'instant."
     },
     "tabs": {
       "strategic": "Vue Stratégique",
@@ -322,6 +361,23 @@
     "downloadTemplate": "Télécharger le modèle",
     "downloading": "Téléchargement en cours...",
     "downloadError": "Échec du téléchargement du modèle. Veuillez réessayer."
+  },
+  "insight": {
+    "growth": {
+      "high": "Fort élan des revenus détecté sur les périodes récentes.",
+      "low": "Les revenus montrent une tendance décélératrice.",
+      "stable": "La croissance des revenus est stable."
+    },
+    "margin": {
+      "high": "Les marges opérationnelles sont très rentables.",
+      "low": "La consommation de trésorerie dépasse actuellement la génération de revenus."
+    },
+    "retention": {
+      "high": "Rétention client de niveau mondial."
+    },
+    "liquidity": {
+      "stable": "Les réserves de liquidité restent dans les paramètres attendus."
+    }
   },
   "valuation": {
     "title": "Évaluation d'entreprise",
@@ -415,6 +471,41 @@
     "saved": "Enregistré ✓"
   },
   "reports": {
+    "tabs": {
+      "newReport": "Nouveau Rapport",
+      "myReports": "Mes Rapports",
+      "wizard": "Générateur",
+      "library": "Bibliothèque"
+    },
+    "library": {
+      "title": "Bibliothèque de rapports",
+      "refresh": "Actualiser",
+      "empty": {
+        "title": "Aucun rapport",
+        "description": "Vous n'avez généré aucun rapport."
+      },
+      "table": {
+        "date": "Date",
+        "sections": "Sections",
+        "status": "Statut",
+        "actions": "Actions",
+        "download": "Télécharger",
+        "delete": "Supprimer",
+        "processing": "En cours",
+        "deleteConfirm": "Voulez-vous supprimer ce rapport ?",
+        "deleteSuccess": "Rapport supprimé avec succès",
+        "error": {
+          "fetch": "Erreur lors de la récupération",
+          "download": "Erreur lors du téléchargement",
+          "delete": "Erreur lors de la suppression"
+        }
+      },
+      "status": {
+        "completed": "Terminé",
+        "processing": "En cours",
+        "failed": "Échec"
+      }
+    },
     "title": "Generateur de rapports IA",
     "subtitle": "Generez des rapports complets (10-25 pages) a partir des donnees importees et des predictions ML.",
     "configuration": "Configuration du rapport",
@@ -491,7 +582,15 @@
     },
     "step1": {
       "title": "Type de rapport",
-      "description": "Selectionnez le type de rapport qui convient le mieux a vos besoins"
+      "description": "Selectionnez le type de rapport qui convient le mieux a vos besoins",
+      "subtitle": "Sélectionnez l'objectif d'analyse principal pour ce rapport.",
+      "types": {
+        "FINANCIAL": { "label": "Financier", "desc": "Analyse des revenus, des flux de trésorerie et de la rentabilité" },
+        "STRATEGIC": { "label": "Stratégique", "desc": "Dynamique du marché, avantage concurrentiel et positionnement" },
+        "MARKETING": { "label": "Marketing & Croissance", "desc": "Performance d'acquisition, de fidélisation et de conversion des clients" },
+        "OPERATIONAL": { "label": "Opérationnel", "desc": "Efficacité, processus et structure des coûts" },
+        "VALUATION": { "label": "Évaluation", "desc": "Estimation de la valeur de l'entreprise et options de sortie" }
+      }
     },
     "step2": {
       "title": "Langue",

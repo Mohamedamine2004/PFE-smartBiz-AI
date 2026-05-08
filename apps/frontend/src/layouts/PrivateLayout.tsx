@@ -19,7 +19,7 @@ export const PrivateLayout = () => {
 
   // Forcer l'onboarding si le profil est incomplet
   if (!onboardingComplete) {
-    const isAdmin = user?.role === 'ADMIN';
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'OWNER';
 
     // L'ADMIN peut accéder à /settings pour terminer la configuration
     if (isAdmin && location.pathname !== '/settings') {
@@ -42,7 +42,9 @@ export const PrivateLayout = () => {
 
       <div 
         className={`flex flex-col w-full min-h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-          isSidebarOpen ? 'lg:pl-[292px]' : 'lg:pl-[116px]'
+          isSidebarOpen 
+            ? 'ltr:lg:pl-[292px] rtl:lg:pr-[292px]' 
+            : 'ltr:lg:pl-[116px] rtl:lg:pr-[116px]'
         }`}
       >
         {/* Dynamic Island Topbar */}

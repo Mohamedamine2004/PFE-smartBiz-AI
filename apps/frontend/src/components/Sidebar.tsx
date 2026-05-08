@@ -16,7 +16,7 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
   const location = useLocation();
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'OWNER';
 
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
     return {
@@ -39,10 +39,10 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       href: '/dashboard',
       icon: LayoutDashboard,
       subItems: [
-        { name: 'Vue Stratégique', href: '/dashboard?tab=strategic' },
-        { name: 'Perf. Financière', href: '/dashboard?tab=financial' },
-        { name: 'Vue Opérationnelle', href: '/dashboard?tab=operational' },
-        { name: 'Prédictions IA', href: '/dashboard?tab=ml-projection' },
+        { name: t('dashboard.tabs.strategic', 'Vue Stratégique'), href: '/dashboard?tab=strategic' },
+        { name: t('dashboard.tabs.financial', 'Perf. Financière'), href: '/dashboard?tab=financial' },
+        { name: t('dashboard.tabs.operational', 'Vue Opérationnelle'), href: '/dashboard?tab=operational' },
+        { name: t('dashboard.tabs.mlProjection', 'Prédictions IA'), href: '/dashboard?tab=ml-projection' },
       ]
     },
     ...(isAdmin ? [{
@@ -50,8 +50,8 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       href: '/team',
       icon: Users,
       subItems: [
-        { name: 'Membres', href: '/team?tab=members' },
-        { name: 'Boîte de réception', href: '/team?tab=inbox' },
+        { name: t('team.tabs.members', 'Membres'), href: '/team?tab=members' },
+        { name: t('team.tabs.inbox', 'Boîte de réception'), href: '/team?tab=inbox' },
       ]
     }] : []),
     {
@@ -59,11 +59,11 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       href: '/valuation',
       icon: Calculator,
       subItems: [
-        { name: 'EV / EBITDA', href: '/valuation?method=EV_EBITDA' },
-        { name: 'EV / Revenue', href: '/valuation?method=EV_REVENUE' },
-        { name: 'P/E Ratio', href: '/valuation?method=PE_RATIO' },
-        { name: 'Asset-Based', href: '/valuation?method=ASSET_BASED' },
-        { name: 'Gordon Growth', href: '/valuation?method=GORDON_GROWTH' },
+        { name: t('valuation.methods.evEbitda', 'EV / EBITDA'), href: '/valuation?method=EV_EBITDA' },
+        { name: t('valuation.methods.evRevenue', 'EV / Revenue'), href: '/valuation?method=EV_REVENUE' },
+        { name: t('valuation.methods.peRatio', 'P/E Ratio'), href: '/valuation?method=PE_RATIO' },
+        { name: t('valuation.methods.assetBased', 'Asset-Based'), href: '/valuation?method=ASSET_BASED' },
+        { name: t('valuation.methods.gordonGrowth', 'Gordon Growth'), href: '/valuation?method=GORDON_GROWTH' },
       ]
     },
     {
@@ -71,8 +71,8 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       href: '/reports',
       icon: FileText,
       subItems: [
-        { name: 'Nouveau Rapport', href: '/reports?tab=wizard' },
-        { name: 'Mes Rapports', href: '/reports?tab=library' },
+        { name: t('reports.tabs.newReport', 'Nouveau Rapport'), href: '/reports?tab=wizard' },
+        { name: t('reports.tabs.myReports', 'Mes Rapports'), href: '/reports?tab=library' },
       ]
     },
     {
@@ -80,8 +80,8 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       href: '/settings',
       icon: Settings,
       subItems: [
-        { name: 'Entreprise', href: '/settings?tab=company' },
-        { name: 'Mon compte', href: '/settings?tab=account' },
+        { name: t('settings.tabs.company', 'Entreprise'), href: '/settings?tab=company' },
+        { name: t('settings.tabs.account', 'Mon compte'), href: '/settings?tab=account' },
       ]
     },
   ];
@@ -89,11 +89,11 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
   return (
     <aside
       className={`
-        fixed z-40 h-full lg:h-[calc(100vh-32px)] top-0 lg:top-4 left-0 lg:left-4
+        fixed z-40 h-full lg:h-[calc(100vh-32px)] top-0 lg:top-4 ltr:left-0 rtl:right-0 ltr:lg:left-4 rtl:lg:right-4
         flex flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
         bg-surface/80 backdrop-blur-2xl lg:border border-white/10 dark:border-white/5
         lg:rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.1)]
-        ${isOpen ? 'w-[260px] translate-x-0' : 'w-[84px] -translate-x-full lg:translate-x-0'}
+        ${isOpen ? 'w-[260px] translate-x-0' : 'w-[84px] ltr:-translate-x-full rtl:translate-x-full lg:translate-x-0 rtl:lg:translate-x-0'}
       `}
     >
       {/* Mobile overlay */}
@@ -121,9 +121,9 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
         {/* Floating Toggle Button on the Edge */}
         <button
           onClick={onToggleSidebar}
-          className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 h-7 w-7 bg-surface/90 backdrop-blur border border-border/80 rounded-full items-center justify-center text-text-muted hover:text-brand hover:border-brand/50 hover:bg-brand/10 shadow-lg shadow-black/5 transition-all z-50 focus:outline-none"
+          className="hidden lg:flex absolute ltr:-right-3.5 rtl:-left-3.5 top-1/2 -translate-y-1/2 h-7 w-7 bg-surface/90 backdrop-blur border border-border/80 rounded-full items-center justify-center text-text-muted hover:text-brand hover:border-brand/50 hover:bg-brand/10 shadow-lg shadow-black/5 transition-all z-50 focus:outline-none"
         >
-          <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-500 ${isOpen ? (document.documentElement.dir === 'rtl' ? 'rotate-180' : 'rotate-180') : (document.documentElement.dir === 'rtl' ? 'rotate-180' : '')}`} />
         </button>
       </div>
 
@@ -188,12 +188,12 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
 
                 {/* Glowing active dot fallback */}
                 {isMainActive && isOpen && !hasSubItems && (
-                  <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_rgba(0,158,135,1)]" />
+                  <div className="absolute ltr:right-4 rtl:left-4 w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_rgba(0,158,135,1)]" />
                 )}
 
                 {/* Accordion Arrow for subItems */}
                 {hasSubItems && isOpen && (
-                  <ChevronRight className={`absolute right-4 h-4 w-4 text-text-muted transition-transform duration-300 ${isExpanded ? 'rotate-90 text-brand' : ''}`} />
+                  <ChevronRight className={`absolute ltr:right-4 rtl:left-4 h-4 w-4 text-text-muted transition-transform duration-300 ${isExpanded ? 'rotate-90 text-brand' : 'rtl:rotate-180'}`} />
                 )}
               </Link>
 
@@ -238,11 +238,11 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                           key={subItem.name}
                           to={subItem.href}
                           onClick={onNavigate}
-                          className={`relative py-2 pl-3 pr-2 text-xs font-semibold rounded-xl transition-all duration-300 flex items-center group z-10 ${isSubActive ? 'text-brand bg-brand/5' : 'text-text-muted hover:text-text-main hover:bg-elevated/50'
+                          className={`relative py-2 ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2 text-xs font-semibold rounded-xl transition-all duration-300 flex items-center group z-10 ${isSubActive ? 'text-brand bg-brand/5' : 'text-text-muted hover:text-text-main hover:bg-elevated/50'
                             }`}
                         >
-                          {isSubActive && <div className="absolute left-[-16px] w-[2px] h-[60%] bg-brand rounded-full shadow-[0_0_8px_rgba(0,158,135,1)]" />}
-                          <span className={`transition-transform duration-300 ${isSubActive ? 'translate-x-1' : 'group-hover:translate-x-1'}`}>
+                          {isSubActive && <div className="absolute ltr:left-[-16px] rtl:right-[-16px] w-[2px] h-[60%] bg-brand rounded-full shadow-[0_0_8px_rgba(0,158,135,1)]" />}
+                          <span className={`transition-transform duration-300 ${isSubActive ? 'ltr:translate-x-1 rtl:-translate-x-1' : 'ltr:group-hover:translate-x-1 rtl:group-hover:-translate-x-1'}`}>
                             {subItem.name}
                           </span>
                         </Link>
@@ -271,8 +271,8 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                 <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-text-muted tracking-widest">État du Système</span>
-                <span className="text-xs font-semibold text-text-main w-full truncate">Télémétrie OP</span>
+                <span className="text-[10px] uppercase font-bold text-text-muted tracking-widest">{t('sidebar.systemState', 'État du Système')}</span>
+                <span className="text-xs font-semibold text-text-main w-full truncate">{t('sidebar.telemetry', 'Télémétrie OP')}</span>
               </div>
             </div>
           </motion.div>

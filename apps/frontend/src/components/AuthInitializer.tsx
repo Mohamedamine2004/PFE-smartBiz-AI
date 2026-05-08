@@ -59,10 +59,7 @@ export const AuthInitializer = ({ children }: AuthInitializerProps) => {
       }
 
       try {
-        const response = await api.get('/auth/me');
-        const userData = response.data.user || response.data;
-        const { onboardingComplete, hasFinancialData } = response.data;
-        setAuth(userData, token, onboardingComplete ?? true, hasFinancialData ?? false);
+        await useAuthStore.getState().fetchUser();
       } catch {
         localStorage.removeItem('access_token');
         useAuthStore.setState({

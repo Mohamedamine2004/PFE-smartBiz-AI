@@ -59,7 +59,11 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
               </div>
               <motion.div layout className="flex flex-col justify-center">
                 <motion.span layout="position" className="text-[13px] font-bold text-text-main leading-tight whitespace-nowrap">
-                  {user?.role === 'ADMIN' ? 'Administrateur' : 'Utilisateur'}
+                  {user?.role === 'OWNER'
+                    ? t('topbar.roleOwner', 'Super Administrateur')
+                    : user?.role === 'ADMIN'
+                      ? t('topbar.roleAdmin', 'Administrateur')
+                      : t('topbar.roleUser', 'Utilisateur')}
                 </motion.span>
                 <AnimatePresence>
                   {!isExpanded && (
@@ -69,7 +73,7 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
                       exit={{ opacity: 0, height: 0 }}
                       className="text-[10px] text-brand font-bold uppercase tracking-widest whitespace-nowrap"
                     >
-                      En Ligne
+                      {t('topbar.online', 'En Ligne')}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -93,9 +97,9 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
                       value={i18n.language}
                       className="bg-transparent border-none text-[11px] font-bold text-text-main focus:ring-0 cursor-pointer outline-none appearance-none"
                     >
-                      <option value="fr">FR</option>
-                      <option value="en">EN</option>
-                      <option value="ar">AR</option>
+                      <option className="bg-surface text-text-main" value="fr">FR</option>
+                      <option className="bg-surface text-text-main" value="en">EN</option>
+                      <option className="bg-surface text-text-main" value="ar">AR</option>
                     </select>
                   </div>
 
@@ -130,11 +134,11 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
               >
                  <div className="bg-elevated/40 rounded-[20px] p-3 border border-border/40 flex items-center justify-between shadow-inner">
                     <div>
-                      <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold mb-0.5">Session Active</p>
+                      <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold mb-0.5">{t('topbar.activeSession', 'Session Active')}</p>
                       <p className="text-xs text-text-main font-semibold">{user?.email}</p>
                     </div>
                     <div className="px-2.5 py-1.5 bg-brand/10 border border-brand/20 text-brand text-[10px] uppercase font-bold rounded-lg shadow-sm">
-                      Espace Sécurisé
+                      {t('topbar.secureSpace', 'Espace Sécurisé')}
                     </div>
                  </div>
               </motion.div>

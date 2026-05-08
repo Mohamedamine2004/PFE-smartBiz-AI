@@ -13,6 +13,7 @@ import {
   Query,
   Delete,
   Param,
+  Patch,
 } from '@nestjs/common';
 import express from 'express';
 import {
@@ -43,6 +44,8 @@ export class AuthController {
     private readonly postLoginService: PostLoginService,
   ) {}
 
+  // ─── Public routes ────────────────────────────────────────────────────────
+
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return await this.authService.register(registerDto);
@@ -53,10 +56,8 @@ export class AuthController {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     try {
       await this.authService.verifyEmail(token);
-      // Redirect to the new frontend page with a success status
       return res.redirect(`${frontendUrl}/email-verified?status=success`);
-    } catch (error) {
-      // Redirect to the new frontend page with an error status
+    } catch {
       return res.redirect(`${frontendUrl}/email-verified?status=error`);
     }
   }
@@ -69,12 +70,11 @@ export class AuthController {
   ) {
     const result = await this.authService.login(loginDto);
 
-    // Injection du Refresh Token dans un cookie sécurisé
     res.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return {
@@ -127,6 +127,24 @@ export class AuthController {
     return { access_token: tokens.accessToken };
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Post('accept-invite')
+  async acceptInvite(
+    @Body('token') token: string,
+    @Body('password') password: string,
+    @Body('firstName') firstName: string,
+    @Body('lastName') lastName: string,
+  ) {
+    return await this.authService.acceptInvite(
+      token,
+      password,
+      firstName,
+      lastName,
+    );
+  }
+
+  // ─── Authenticated routes ─────────────────────────────────────────────────
+
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('logout')
@@ -134,7 +152,6 @@ export class AuthController {
     @CurrentUser() user: jwtPayloadInterface.JwtPayload,
     @Res({ passthrough: true }) res: express.Response,
   ) {
-    // Invalidate the refresh token in the database
     await this.authService.logout(user.userId);
     res.clearCookie('refresh_token');
     return { message: 'Déconnexion réussie.' };
@@ -170,61 +187,80 @@ export class AuthController {
     };
   }
 
+  // ─── Team management (ADMIN + OWNER) ─────────────────────────────────────
+
+  /** OWNER & ADMIN: View team */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @Get('team')
+  async getTeamMembers(@CurrentUser() admin: jwtPayloadInterface.JwtPayload) {
+    return await this.authService.getTeamMembers(admin.userId);
+  }
+
+  /** OWNER & ADMIN: Invite a member (OWNER can invite ADMIN; ADMIN can only invite COLLAB/READER) */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @Post('invite')
+  async inviteMember(
+    @CurrentUser() inviter: jwtPayloadInterface.JwtPayload,
+    @Body('email') email: string,
+    @Body('role') role: UserRole,
+  ) {
+    return await this.authService.inviteMember(inviter.userId, email, role);
+  }
+
+  /** OWNER & ADMIN: Update a team member's role */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @Patch('team/:id/role')
+  @HttpCode(HttpStatus.OK)
+  async updateMemberRole(
+    @CurrentUser() requester: jwtPayloadInterface.JwtPayload,
+    @Param('id') targetUserId: string,
+    @Body('role') newRole: UserRole,
+  ) {
+    return await this.authService.updateMemberRole(
+      requester.userId,
+      targetUserId,
+      newRole,
+    );
+  }
+
+  /** OWNER only: Transfer ownership to another team member */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWNER)
+  @Post('team/transfer-ownership')
+  @HttpCode(HttpStatus.OK)
+  async transferOwnership(
+    @CurrentUser() owner: jwtPayloadInterface.JwtPayload,
+    @Body('newOwnerId') newOwnerId: string,
+  ) {
+    return await this.authService.transferOwnership(owner.userId, newOwnerId);
+  }
+
+  /** OWNER & ADMIN: Delete a team member (ADMIN cannot delete ADMIN/OWNER) */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @Delete('team/:id')
+  @HttpCode(HttpStatus.OK)
+  async deleteTeamMember(
+    @CurrentUser() requester: jwtPayloadInterface.JwtPayload,
+    @Param('id') userIdToDelete: string,
+  ) {
+    return await this.authService.deleteTeamMember(
+      requester.userId,
+      userIdToDelete,
+    );
+  }
+
+  // ─── Legacy admin-only test route ─────────────────────────────────────────
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
   @Get('admin-only')
   getAdminData(@CurrentUser() user: jwtPayloadInterface.JwtPayload) {
     return {
       message: 'Accès autorisé : Vous êtes bien un administrateur.',
       companyId: user.companyId,
     };
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Post('invite')
-  async inviteMember(
-    @CurrentUser() admin: jwtPayloadInterface.JwtPayload,
-    @Body('email') email: string,
-    @Body('role') role: UserRole,
-  ) {
-    return await this.authService.inviteMember(admin.userId, email, role);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('accept-invite')
-  async acceptInvite(
-    @Body('token') token: string,
-    @Body('password') password: string,
-    @Body('firstName') firstName: string,
-    @Body('lastName') lastName: string,
-  ) {
-    return await this.authService.acceptInvite(
-      token,
-      password,
-      firstName,
-      lastName,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Get('team')
-  async getTeamMembers(@CurrentUser() admin: jwtPayloadInterface.JwtPayload) {
-    return await this.authService.getTeamMembers(admin.userId);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Delete('team/:id')
-  @HttpCode(HttpStatus.OK)
-  async deleteTeamMember(
-    @CurrentUser() admin: jwtPayloadInterface.JwtPayload,
-    @Param('id') userIdToDelete: string,
-  ) {
-    return await this.authService.deleteTeamMember(
-      admin.userId,
-      userIdToDelete,
-    );
   }
 }

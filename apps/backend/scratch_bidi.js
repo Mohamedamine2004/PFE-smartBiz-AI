@@ -1,1 +1,0 @@
-const bidiFactory = require('bidi-js'); const ArabicReshaper = require('arabic-reshaper'); const bidi = bidiFactory(); const text = 'Company ???? ????? development'; const reshaped = ArabicReshaper.reshape(text); const bidiText = bidi.getReorderedString(reshaped); console.log({text, reshaped, bidiText});

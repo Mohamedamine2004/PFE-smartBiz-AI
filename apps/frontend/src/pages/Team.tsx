@@ -9,6 +9,7 @@ import { TeamTable } from '../components/team/TeamTable';
 import type { TeamMember } from '../components/team/TeamTable';
 import { InviteForm } from '../components/team/InviteForm';
 import { DeleteUserModal } from '../components/team/DeleteUserModal';
+import { TransferOwnershipModal } from '../components/team/TransferOwnershipModal';
 import { PageHeader, Alert } from '../components/ui';
 import { InvitationInbox } from '../components/team/InvitationInbox';
 
@@ -43,10 +44,11 @@ export const Team = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<TeamMember | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
   // Redirect non-admin users
   useEffect(() => {
-    if (user && user.role !== 'ADMIN') {
+    if (user && user.role !== 'ADMIN' && user.role !== 'OWNER') {
       navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
@@ -54,7 +56,13 @@ export const Team = () => {
   const fetchTeam = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/auth/team');
+      const response = await api.get('/auth/team', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+        params: { t: Date.now() }
+      });
       setMembers(response.data);
     } catch (err: unknown) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.message : null;
@@ -153,7 +161,19 @@ export const Team = () => {
             error={error}
             onResendInvite={handleResendInvite}
             onDeleteClick={handleDeleteClick}
+            onRefresh={fetchTeam}
           />
+
+          {user?.role === 'OWNER' && (
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setIsTransferModalOpen(true)}
+                className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-lg transition-colors"
+              >
+                {t('team.transferOwnership', 'Transferer la propriete')}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Side: Invite Form (1/3 Sticky) */}
@@ -173,6 +193,13 @@ export const Team = () => {
         userName={userToDelete ? `${userToDelete.firstName} ${userToDelete.lastName !== 'attente' ? userToDelete.lastName : ''}` : ''}
         userEmail={userToDelete?.email || ''}
         isDeleting={isDeleting}
+      />
+
+      <TransferOwnershipModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        members={members}
+        onSuccess={fetchTeam}
       />
     </div>
   );

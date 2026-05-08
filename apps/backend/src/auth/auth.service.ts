@@ -13,10 +13,36 @@ import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { MailService } from '../mail/mail.service';
 import { PostLoginService } from './post-login.service';
+
+/** Ordered role hierarchy — higher index = more privileged */
+const ROLE_HIERARCHY: UserRole[] = [
+  UserRole.READER,
+  UserRole.COLLAB,
+  UserRole.ADMIN,
+  UserRole.OWNER,
+];
+
+function roleRank(role: UserRole): number {
+  return ROLE_HIERARCHY.indexOf(role);
+}
+
+function isUniqueOwnerConstraintError(error: unknown): boolean {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+    return false;
+  }
+  if (error.code !== 'P2002') {
+    return false;
+  }
+  const target = Array.isArray(error.meta?.target)
+    ? error.meta?.target.join(',')
+    : String(error.meta?.target ?? '');
+  return target.includes('User_company_owner_unique_idx');
+}
 
 @Injectable()
 export class AuthService {
@@ -28,9 +54,9 @@ export class AuthService {
     private readonly postLoginService: PostLoginService,
   ) {}
 
-  /**
-   * Inscription d'une nouvelle entreprise et de son administrateur
-   */
+  // ─────────────────────────────────────────────────────────────────────────────
+  // REGISTRATION — creator becomes OWNER automatically
+  // ─────────────────────────────────────────────────────────────────────────────
   async register(dto: RegisterDto) {
     try {
       const existingUser = await this.prisma.user.findUnique({
@@ -47,36 +73,40 @@ export class AuthService {
       }
 
       const hashedPassword = await bcrypt.hash(dto.password, 10);
-      const verifyToken = crypto.randomBytes(32).toString('hex');
 
-      const company = await this.prisma.company.create({
-        data: {
-          name: dto.companyName,
-          registrationNumber: dto.registrationNumber,
-          users: {
-            create: {
-              firstName: dto.firstName,
-              lastName: dto.lastName,
-              email: dto.email,
-              password: hashedPassword,
-              role: UserRole.ADMIN,
-              isEmailVerified: true, // ✅ Auto-verify email on registration
+      let company;
+      try {
+        company = await this.prisma.company.create({
+          data: {
+            name: dto.companyName,
+            registrationNumber: dto.registrationNumber,
+            users: {
+              create: {
+                firstName: dto.firstName,
+                lastName: dto.lastName,
+                email: dto.email,
+                password: hashedPassword,
+                role: UserRole.OWNER, // creator is always OWNER
+                isEmailVerified: true,
+              },
             },
           },
-        },
-        include: {
-          users: true,
-        },
-      });
-
-      // Skip email sending - auto-verify
-      // await this.mailService.sendUserConfirmation(dto.email, verifyToken);
+          include: { users: true },
+        });
+      } catch (error) {
+        if (isUniqueOwnerConstraintError(error)) {
+          throw new ConflictException(
+            'Conflit de role detecte: un seul Super Administrateur est autorise par entreprise.',
+          );
+        }
+        throw error;
+      }
 
       const {
         password,
         refreshToken,
         verifyEmailToken,
-        ...adminWithoutSecrets
+        ...ownerWithoutSecrets
       } = company.users[0];
 
       return {
@@ -86,7 +116,7 @@ export class AuthService {
           name: company.name,
           registrationNumber: company.registrationNumber,
         },
-        admin: adminWithoutSecrets,
+        admin: ownerWithoutSecrets,
       };
     } catch (error) {
       if (error instanceof ConflictException) throw error;
@@ -96,9 +126,9 @@ export class AuthService {
     }
   }
 
-  /**
-   * Validation de l'adresse email via le jeton envoyé
-   */
+  // ─────────────────────────────────────────────────────────────────────────────
+  // EMAIL VERIFICATION
+  // ─────────────────────────────────────────────────────────────────────────────
   async verifyEmail(token: string) {
     const user = await this.prisma.user.findUnique({
       where: { verifyEmailToken: token },
@@ -112,18 +142,15 @@ export class AuthService {
 
     await this.prisma.user.update({
       where: { id: user.id },
-      data: {
-        isEmailVerified: true,
-        verifyEmailToken: null,
-      },
+      data: { isEmailVerified: true, verifyEmailToken: null },
     });
 
     return { message: 'Votre adresse email a été vérifiée avec succès.' };
   }
 
-  /**
-   * Connexion initiale et génération de la paire de tokens
-   */
+  // ─────────────────────────────────────────────────────────────────────────────
+  // LOGIN
+  // ─────────────────────────────────────────────────────────────────────────────
   async login(dto: LoginDto) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -139,11 +166,6 @@ export class AuthService {
         throw new UnauthorizedException('Identifiants invalides.');
       }
 
-      // ✅ Email verification check removed - auto-verified on registration
-      // if (!user.isEmailVerified) {
-      //   throw new ForbiddenException('Veuillez vérifier votre adresse email avant de vous connecter.');
-      // }
-
       const tokens = await this.getTokens(
         user.id,
         user.email,
@@ -152,7 +174,6 @@ export class AuthService {
       );
       await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-      // Déterminer la destination post-login
       const postLoginInfo = await this.postLoginService.getRedirectInfo(
         user.companyId,
       );
@@ -187,9 +208,9 @@ export class AuthService {
     }
   }
 
-  /**
-   * Demande de réinitialisation de mot de passe
-   */
+  // ─────────────────────────────────────────────────────────────────────────────
+  // FORGOT / RESET PASSWORD
+  // ─────────────────────────────────────────────────────────────────────────────
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
@@ -223,9 +244,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * Application du nouveau mot de passe
-   */
   async resetPassword(token: string, newPassword: string) {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
@@ -257,9 +275,9 @@ export class AuthService {
     return { message: 'Votre mot de passe a été réinitialisé avec succès.' };
   }
 
-  /**
-   * Rafraîchissement des tokens via le Refresh Token validé depuis le cookie
-   */
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TOKEN MANAGEMENT
+  // ─────────────────────────────────────────────────────────────────────────────
   async refreshTokens(refreshToken: string) {
     try {
       const payload = await this.jwtService.verifyAsync(refreshToken, {
@@ -267,10 +285,7 @@ export class AuthService {
       });
 
       const userId = payload.sub;
-
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-      });
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
       if (!user || !user.refreshToken) {
         throw new ForbiddenException(
@@ -301,9 +316,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Utilitaire : Génération des tokens Access et Refresh
-   */
   async getTokens(
     userId: string,
     email: string,
@@ -326,21 +338,14 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  /**
-   * Utilitaire : Mise à jour du hash du Refresh Token en base
-   */
   async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-
     await this.prisma.user.update({
       where: { id: userId },
       data: { refreshToken: hashedRefreshToken },
     });
   }
 
-  /**
-   * Déconnexion — Invalide le refresh token en BDD
-   */
   async logout(userId: string) {
     await this.prisma.user.update({
       where: { id: userId },
@@ -348,9 +353,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Changement de mot de passe (utilisateur connecté)
-   */
   async changePassword(
     userId: string,
     currentPassword: string,
@@ -358,9 +360,7 @@ export class AuthService {
   ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (!user) {
-      throw new NotFoundException('Utilisateur introuvable.');
-    }
+    if (!user) throw new NotFoundException('Utilisateur introuvable.');
 
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
@@ -377,7 +377,6 @@ export class AuthService {
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
     await this.prisma.user.update({
       where: { id: userId },
       data: { password: hashedNewPassword },
@@ -386,24 +385,44 @@ export class AuthService {
     return { message: 'Mot de passe modifié avec succès.' };
   }
 
-  /**
-   * Invitation d'un membre d'équipe
-   */
-  async inviteMember(adminId: string, email: string, role: UserRole) {
-    const admin = await this.prisma.user.findUnique({
-      where: { id: adminId },
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TEAM: INVITE MEMBER
+  // Rules: OWNER can invite anyone (ADMIN/COLLAB/READER)
+  //        ADMIN can invite COLLAB or READER only
+  //        Nobody can invite as OWNER via invitation
+  // ─────────────────────────────────────────────────────────────────────────────
+  async inviteMember(inviterId: string, email: string, role: UserRole) {
+    const inviter = await this.prisma.user.findUnique({
+      where: { id: inviterId },
       include: { company: true },
     });
 
-    if (!admin || admin.role !== 'ADMIN') {
+    if (!inviter) throw new NotFoundException('Inviteur introuvable.');
+
+    const inviterIsOwner = inviter.role === UserRole.OWNER;
+    const inviterIsAdmin = inviter.role === UserRole.ADMIN;
+
+    if (!inviterIsOwner && !inviterIsAdmin) {
       throw new ForbiddenException(
-        'Seul un administrateur peut inviter des membres.',
+        'Seul un Administrateur ou le Super Administrateur peut inviter des membres.',
       );
     }
 
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    // Nobody can invite as OWNER
+    if (role === UserRole.OWNER) {
+      throw new ForbiddenException(
+        "Le rôle Super Administrateur (OWNER) ne peut pas être attribué par invitation. Utilisez le transfert de propriété.",
+      );
+    }
+
+    // ADMIN can only invite COLLAB or READER
+    if (inviterIsAdmin && role === UserRole.ADMIN) {
+      throw new ForbiddenException(
+        "Un Administrateur ne peut inviter que des Collaborateurs ou des Lecteurs. Seul le Super Administrateur peut créer un nouvel Administrateur.",
+      );
+    }
+
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new BadRequestException('Cet utilisateur existe déjà.');
     }
@@ -427,7 +446,7 @@ export class AuthService {
         email,
         password: dummyPassword,
         role,
-        companyId: admin.companyId,
+        companyId: inviter.companyId,
         isEmailVerified: false,
         inviteToken: hashedInviteToken,
         inviteTokenExpires: expires,
@@ -437,15 +456,15 @@ export class AuthService {
     await this.mailService.sendTeamInvite(
       email,
       inviteToken,
-      admin.company.name,
+      inviter.company.name,
     );
 
     return { message: 'Invitation envoyée avec succès.' };
   }
 
-  /**
-   * Acceptation d'une invitation
-   */
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TEAM: ACCEPT INVITE
+  // ─────────────────────────────────────────────────────────────────────────────
   async acceptInvite(
     token: string,
     newPassword: string,
@@ -491,25 +510,26 @@ export class AuthService {
     };
   }
 
-  /**
-   * Récupération des membres de l'équipe
-   */
-  async getTeamMembers(adminId: string) {
-    const admin = await this.prisma.user.findUnique({
-      where: { id: adminId },
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TEAM: GET MEMBERS
+  // OWNER and ADMIN can view the team
+  // ─────────────────────────────────────────────────────────────────────────────
+  async getTeamMembers(requesterId: string) {
+    const requester = await this.prisma.user.findUnique({
+      where: { id: requesterId },
     });
 
-    if (!admin || admin.role !== 'ADMIN') {
+    if (
+      !requester ||
+      (requester.role !== UserRole.OWNER && requester.role !== UserRole.ADMIN)
+    ) {
       throw new ForbiddenException(
-        "Seul un administrateur peut voir l'équipe.",
+        "Seul un Administrateur ou le Super Administrateur peut voir l'équipe.",
       );
     }
 
-    const team = await this.prisma.user.findMany({
-      where: {
-        companyId: admin.companyId,
-        deletedAt: null,
-      },
+    return this.prisma.user.findMany({
+      where: { companyId: requester.companyId, deletedAt: null },
       select: {
         id: true,
         firstName: true,
@@ -519,29 +539,182 @@ export class AuthService {
         isEmailVerified: true,
         createdAt: true,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     });
-
-    return team;
   }
 
-  /**
-   * Suppression d'un membre de l'équipe (Soft Delete)
-   */
-  async deleteTeamMember(adminId: string, userIdToDelete: string) {
-    const admin = await this.prisma.user.findUnique({
-      where: { id: adminId },
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TEAM: UPDATE MEMBER ROLE
+  // Rules:
+  //   - OWNER can change anyone's role (except assigning OWNER — use transferOwnership)
+  //   - ADMIN can only change COLLAB ↔ READER (roles below ADMIN)
+  //   - Nobody can downgrade the OWNER without simultaneous transfer
+  // ─────────────────────────────────────────────────────────────────────────────
+  async updateMemberRole(
+    requesterId: string,
+    targetUserId: string,
+    newRole: UserRole,
+  ) {
+    const requester = await this.prisma.user.findUnique({
+      where: { id: requesterId },
     });
+    if (!requester) throw new NotFoundException('Requester introuvable.');
 
-    if (!admin || admin.role !== 'ADMIN') {
-      throw new ForbiddenException(
-        'Seul un administrateur peut supprimer un membre.',
+    const target = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+    if (!target || target.companyId !== requester.companyId || target.deletedAt) {
+      throw new NotFoundException(
+        'Utilisateur introuvable dans votre entreprise.',
       );
     }
 
-    if (adminId === userIdToDelete) {
+    // Cannot change your own role
+    if (requesterId === targetUserId) {
+      throw new BadRequestException(
+        "Vous ne pouvez pas modifier votre propre rôle. Utilisez le transfert de propriété si vous souhaitez céder le statut OWNER.",
+      );
+    }
+
+    // Nobody can edit OWNER via this route; use ownership transfer.
+    if (target.role === UserRole.OWNER) {
+      throw new BadRequestException(
+        'Le role OWNER ne peut pas etre modifie directement. Utilisez le transfert de propriete.',
+      );
+    }
+
+    // Nobody can assign OWNER via this route
+    if (newRole === UserRole.OWNER) {
+      throw new BadRequestException(
+        "Pour transférer le statut Super Administrateur, utilisez l'endpoint de transfert de propriété.",
+      );
+    }
+
+    if (requester.role === UserRole.OWNER) {
+      // OWNER can change anyone's role (except the OWNER slot itself)
+      // No extra restriction
+    } else if (requester.role === UserRole.ADMIN) {
+      // ADMIN can only modify users with rank below ADMIN
+      if (roleRank(target.role) >= roleRank(UserRole.ADMIN)) {
+        throw new ForbiddenException(
+          "Un Administrateur ne peut modifier que les rôles qui lui sont inférieurs (Collaborateur / Lecteur). Seul le Super Administrateur peut modifier un autre Administrateur.",
+        );
+      }
+      // ADMIN cannot promote to ADMIN or above
+      if (roleRank(newRole) >= roleRank(UserRole.ADMIN)) {
+        throw new ForbiddenException(
+          "Un Administrateur ne peut pas promouvoir un utilisateur au rang d'Administrateur ou supérieur.",
+        );
+      }
+    } else {
+      throw new ForbiddenException(
+        "Vous n'avez pas les permissions nécessaires pour modifier les rôles.",
+      );
+    }
+
+    await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { role: newRole },
+    });
+
+    return {
+      message: `Rôle mis à jour avec succès vers ${newRole}.`,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TEAM: TRANSFER OWNERSHIP
+  // Only the current OWNER can call this.
+  // Atomically: new user becomes OWNER, current OWNER becomes ADMIN.
+  // ─────────────────────────────────────────────────────────────────────────────
+  async transferOwnership(ownerId: string, newOwnerId: string) {
+    const owner = await this.prisma.user.findUnique({ where: { id: ownerId } });
+    if (!owner || owner.role !== UserRole.OWNER) {
+      throw new ForbiddenException(
+        "Seul le Super Administrateur (OWNER) peut transférer la propriété.",
+      );
+    }
+
+    if (ownerId === newOwnerId) {
+      throw new BadRequestException(
+        'Vous êtes déjà le Super Administrateur.',
+      );
+    }
+
+    const newOwner = await this.prisma.user.findUnique({
+      where: { id: newOwnerId },
+    });
+    if (
+      !newOwner ||
+      newOwner.companyId !== owner.companyId ||
+      newOwner.deletedAt
+    ) {
+      throw new NotFoundException(
+        'Le nouvel utilisateur est introuvable dans votre entreprise.',
+      );
+    }
+
+    try {
+      // Atomic swap in a transaction with DB uniqueness guard.
+      await this.prisma.$transaction(async (tx) => {
+        const currentOwner = await tx.user.findUnique({ where: { id: ownerId } });
+        if (!currentOwner || currentOwner.role !== UserRole.OWNER) {
+          throw new ForbiddenException(
+            "Le role OWNER a change. Rechargez la page puis reessayez.",
+          );
+        }
+
+        // Demote first then promote to satisfy the unique OWNER index.
+        await tx.user.update({
+          where: { id: ownerId },
+          data: { role: UserRole.ADMIN },
+        });
+        await tx.user.update({
+          where: { id: newOwnerId },
+          data: { role: UserRole.OWNER },
+        });
+      });
+    } catch (error) {
+      if (isUniqueOwnerConstraintError(error)) {
+        throw new ConflictException(
+          'Conflit detecte: un autre transfert de propriete est en cours. Reessayez.',
+        );
+      }
+      throw error;
+    }
+
+    return {
+      message: `La propriété a été transférée à ${newOwner.firstName} ${newOwner.lastName}. Vous êtes maintenant Administrateur.`,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TEAM: DELETE MEMBER
+  // Rules:
+  //   - OWNER can delete anyone except themselves (must transfer first)
+  //   - ADMIN can delete only COLLAB or READER (not ADMIN, not OWNER)
+  //   - Nobody can delete the OWNER directly
+  // ─────────────────────────────────────────────────────────────────────────────
+  async deleteTeamMember(requesterId: string, userIdToDelete: string) {
+    const requester = await this.prisma.user.findUnique({
+      where: { id: requesterId },
+    });
+
+    if (
+      !requester ||
+      (requester.role !== UserRole.OWNER && requester.role !== UserRole.ADMIN)
+    ) {
+      throw new ForbiddenException(
+        'Seul un Administrateur ou le Super Administrateur peut supprimer un membre.',
+      );
+    }
+
+    if (requesterId === userIdToDelete) {
+      if (requester.role === UserRole.OWNER) {
+        throw new BadRequestException(
+          "Le Super Administrateur ne peut pas supprimer son propre compte sans avoir d'abord transféré la propriété à un autre membre.",
+        );
+      }
       throw new BadRequestException(
         'Vous ne pouvez pas supprimer votre propre compte.',
       );
@@ -551,9 +724,26 @@ export class AuthService {
       where: { id: userIdToDelete },
     });
 
-    if (!userToDelete || userToDelete.companyId !== admin.companyId) {
+    if (!userToDelete || userToDelete.companyId !== requester.companyId) {
       throw new NotFoundException(
         'Utilisateur introuvable dans votre entreprise.',
+      );
+    }
+
+    // Protect OWNER from deletion
+    if (userToDelete.role === UserRole.OWNER) {
+      throw new ForbiddenException(
+        "Le Super Administrateur (OWNER) ne peut pas être supprimé. Transférez d'abord la propriété.",
+      );
+    }
+
+    // ADMIN cannot delete another ADMIN
+    if (
+      requester.role === UserRole.ADMIN &&
+      userToDelete.role === UserRole.ADMIN
+    ) {
+      throw new ForbiddenException(
+        "Un Administrateur ne peut pas supprimer un autre Administrateur. Seul le Super Administrateur peut effectuer cette action.",
       );
     }
 

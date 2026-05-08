@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Mail, CheckCircle, XCircle, Clock, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import api from '../../lib/axios';
 
 interface InvitationRequest {
@@ -15,6 +16,7 @@ interface InvitationRequest {
 }
 
 export const InvitationInbox = () => {
+  const { t } = useTranslation();
   const [requests, setRequests] = useState<InvitationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -56,18 +58,18 @@ export const InvitationInbox = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h3 className="text-xl font-bold text-text-main flex items-center gap-2">
-            <Mail className="w-5 h-5 text-brand" /> Boîte de réception (Demandes d'accès)
+            <Mail className="w-5 h-5 text-brand" /> {t('team.inbox.title', "Boîte de réception (Demandes d'accès)")}
           </h3>
-          <p className="text-sm text-text-muted mt-1">Gérez les demandes d'invitation provenant de la landing page.</p>
+          <p className="text-sm text-text-muted mt-1">{t('team.inbox.subtitle', "Gérez les demandes d'invitation provenant de la landing page.")}</p>
         </div>
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-text-muted absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher..."
+            placeholder={t('team.inbox.search', "Rechercher...")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="input pl-9"
+            className="input ltr:pl-9 rtl:pr-9"
           />
         </div>
       </div>
@@ -76,12 +78,12 @@ export const InvitationInbox = () => {
         <table className="table-pro">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Utilisateur</th>
-              <th>Entreprise / Rôle</th>
-              <th>Message</th>
-              <th>Statut</th>
-              <th className="text-right">Actions</th>
+              <th>{t('team.inbox.date', 'Date')}</th>
+              <th>{t('team.inbox.user', 'Utilisateur')}</th>
+              <th>{t('team.inbox.companyRole', 'Entreprise / Rôle')}</th>
+              <th>{t('team.inbox.message', 'Message')}</th>
+              <th>{t('team.inbox.status', 'Statut')}</th>
+              <th className="ltr:text-right rtl:text-left">{t('team.inbox.actions', 'Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +96,7 @@ export const InvitationInbox = () => {
             ) : filteredRequests.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-text-muted">
-                  Aucune demande trouvée.
+                  {t('team.inbox.empty', 'Aucune demande trouvée.')}
                 </td>
               </tr>
             ) : (
@@ -124,7 +126,7 @@ export const InvitationInbox = () => {
                       {req.status}
                     </span>
                   </td>
-                  <td className="text-right space-x-2">
+                  <td className="ltr:text-right rtl:text-left space-x-2 rtl:space-x-reverse">
                     {req.status === 'PENDING' && (
                       <>
                         <button

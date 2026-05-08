@@ -7,7 +7,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'COLLAB' | 'READER';
+  role: 'OWNER' | 'ADMIN' | 'COLLAB' | 'READER';
   companyId: string;
 }
 
@@ -24,9 +24,10 @@ interface AuthState {
   setAuth: (user: User, token: string, onboardingComplete?: boolean, hasFinancialData?: boolean) => void;
   setCompanyStatus: (onboardingComplete: boolean, hasFinancialData: boolean) => void;
   setHasFinancialData: (hasData: boolean) => void;
+  fetchUser: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   token: localStorage.getItem('access_token'),
@@ -64,6 +65,45 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (error) {
       // Propagation de l'erreur pour que le composant Login.tsx puisse l'afficher
       throw error;
+    }
+  },
+
+  fetchUser: async () => {
+    try {
+      let token = get().token || localStorage.getItem('access_token');
+      
+      try {
+        // Force a token refresh to ensure the JWT payload has the latest role
+        const refreshRes = await api.post('/auth/refresh');
+        if (refreshRes.data && refreshRes.data.access_token) {
+          token = refreshRes.data.access_token;
+          localStorage.setItem('access_token', token as string);
+        }
+      } catch (e) {
+        console.warn('Silent token refresh failed', e);
+      }
+      
+      if (!token) return;
+      
+      const response = await api.get('/auth/me', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+        params: { t: Date.now() }
+      });
+      const userData = response.data.user || response.data;
+      const { onboardingComplete, hasFinancialData } = response.data;
+      
+      set({
+        user: userData,
+        token: token,
+        isAuthenticated: true,
+        onboardingComplete: onboardingComplete ?? true,
+        hasFinancialData: hasFinancialData ?? false,
+      });
+    } catch (error) {
+      console.error('Failed to fetch user', error);
     }
   },
 

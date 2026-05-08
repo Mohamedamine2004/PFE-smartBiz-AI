@@ -24,7 +24,7 @@ export const Settings = () => {
   const { t } = useTranslation();
   const { user, onboardingComplete } = useAuthStore();
 
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'OWNER';
   const isOnboarding = !onboardingComplete;
 
   const [searchParams, setSearchParams] = useSearchParams();
