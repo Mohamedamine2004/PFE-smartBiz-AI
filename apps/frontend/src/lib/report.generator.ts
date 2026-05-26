@@ -42,10 +42,10 @@ export const generateExecutiveSummary = async (
   
   // KPI Table
   const kpiData = [
-    ['Customer Acquisition Cost (CAC)', metrics.strategicKpis.cac ? `$${metrics.strategicKpis.cac.toLocaleString()}` : 'N/A'],
-    ['Lifetime Value (LTV)', metrics.strategicKpis.ltv ? `$${metrics.strategicKpis.ltv.toLocaleString()}` : 'N/A'],
+    ['Customer Acquisition Cost (CAC)', metrics.strategicKpis.cac ? `$${metrics.strategicKpis.cac.toLocaleString('en-US')}` : 'N/A'],
+    ['Lifetime Value (LTV)', metrics.strategicKpis.ltv ? `$${metrics.strategicKpis.ltv.toLocaleString('en-US')}` : 'N/A'],
     ['LTV/CAC Ratio', (metrics.strategicKpis.ltv && metrics.strategicKpis.cac) ? (metrics.strategicKpis.ltv / metrics.strategicKpis.cac).toFixed(2) : 'N/A'],
-    ['Total Addressable Market', metrics.strategicKpis.tam ? `$${metrics.strategicKpis.tam.toLocaleString()}` : 'N/A'],
+    ['Total Addressable Market', metrics.strategicKpis.tam ? `$${metrics.strategicKpis.tam.toLocaleString('en-US')}` : 'N/A'],
     ['Market Share', metrics.strategicKpis.marketShare ? `${metrics.strategicKpis.marketShare}%` : 'N/A'],
   ];
   
@@ -76,9 +76,9 @@ export const generateExecutiveSummary = async (
   if (metrics.chartData && metrics.chartData.length > 0) {
     const revenueData = metrics.chartData.slice(-12).map(d => [
       d.period || d.month || 'N/A',
-      d.revenue ? `$${d.revenue.toLocaleString()}` : 'N/A',
-      d.expenses ? `$${d.expenses.toLocaleString()}` : 'N/A',
-      d.cashflow ? `$${d.cashflow.toLocaleString()}` : 'N/A',
+      d.revenue ? `$${d.revenue.toLocaleString('en-US')}` : 'N/A',
+      d.expenses ? `$${d.expenses.toLocaleString('en-US')}` : 'N/A',
+      d.cashflow ? `$${d.cashflow.toLocaleString('en-US')}` : 'N/A',
     ]);
     
     if ((doc as any).autoTable) {
@@ -97,7 +97,7 @@ export const generateExecutiveSummary = async (
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
   doc.text(
-    `Generated on ${new Date().toLocaleDateString()} by SmartBiz AI`,
+    `Generated on ${new Date().toLocaleDateString('en-US')} by SmartBiz AI`,
     105,
     doc.internal.pageSize.height - 10,
     { align: 'center' },

@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { useTranslation } from 'react-i18next';
-import { LogOut, User, Moon, Sun, Globe, Menu } from 'lucide-react';
+import { LogOut, User, Moon, Sun, Globe, Menu, Building } from 'lucide-react';
+import { CompanySwitcherModal } from './CompanySwitcherModal';
 
 interface TopbarProps {
   onToggleSidebar?: () => void;
@@ -14,6 +15,7 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
   const { theme, toggleTheme } = useThemeStore();
   const { t, i18n } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
 
   const changeLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const lang = e.target.value;
@@ -31,18 +33,34 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
          <div className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-brand to-text-main">
            SmartBiz <span className="text-brand">AI</span>
          </div>
-         <button onClick={logout} className="p-2 text-error"><LogOut className="h-5 w-5" /></button>
+         <div className="flex items-center gap-2">
+           <button
+             onClick={() => setIsSwitcherOpen(true)}
+             className="p-2 text-text-muted hover:text-text-main hover:bg-elevated rounded-xl transition-all duration-200"
+             title={t('topbar.switchCompany', 'Changer d\'entreprise')}
+           >
+             <Building className="h-5 w-5 text-brand" />
+           </button>
+           <button
+             onClick={toggleTheme}
+             className="p-2 text-text-muted hover:text-text-main hover:bg-elevated rounded-xl transition-all duration-200"
+             title={theme === 'dark' ? t('topbar.lightMode', 'Mode Clair') : t('topbar.darkMode', 'Mode Sombre')}
+           >
+             {theme === 'dark' ? <Sun className="h-5 w-5 text-amber-500 animate-[spin_20s_linear_infinite]" /> : <Moon className="h-5 w-5 text-indigo-500" />}
+           </button>
+           <button onClick={logout} className="p-2 text-error"><LogOut className="h-5 w-5" /></button>
+         </div>
       </div>
 
       {/* Desktop Dynamic Island */}
       <div className="hidden lg:flex fixed top-6 left-1/2 -translate-x-[40%] z-50 justify-center">
-        <motion.div
+         <motion.div
           layout
           onHoverStart={() => setIsExpanded(true)}
           onHoverEnd={() => setIsExpanded(false)}
           initial={{ borderRadius: 64 }}
           animate={{
-            width: isExpanded ? 480 : 180,
+            width: isExpanded ? 520 : 180,
             borderRadius: isExpanded ? 32 : 64,
           }}
           transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
@@ -54,8 +72,14 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
 
           <div className="flex items-center justify-between w-full px-2 relative z-10">
             <motion.div layout className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand to-brand/40 flex items-center justify-center text-white shrink-0 shadow-lg shadow-brand/20 border border-brand/50">
-                <User className="h-5 w-5" />
+              <div className="h-10 w-10 rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-lg shadow-brand/20 border border-brand/50 relative bg-surface">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="User Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-tr from-brand to-brand/40 flex items-center justify-center text-white">
+                    <User className="h-5 w-5" />
+                  </div>
+                )}
               </div>
               <motion.div layout className="flex flex-col justify-center">
                 <motion.span layout="position" className="text-[13px] font-bold text-text-main leading-tight whitespace-nowrap">
@@ -89,6 +113,14 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
                   className="flex items-center gap-1.5"
                 >
                   <div className="h-8 w-px bg-border/60 mx-1" />
+
+                  <button
+                    onClick={() => setIsSwitcherOpen(true)}
+                    className="p-2 text-text-muted hover:text-text-main bg-elevated/50 hover:bg-elevated rounded-full transition-all duration-200 shadow-inner border border-white/5"
+                    title={t('topbar.switchCompany', "Changer d'entreprise")}
+                  >
+                    <Building className="h-4 w-4 text-brand" />
+                  </button>
                   
                   <div className="flex items-center text-text-muted hover:text-text-main transition-colors bg-elevated/50 rounded-full px-3 py-2 shadow-inner border border-white/5">
                     <Globe className="h-4 w-4 mr-1.5 text-brand" />
@@ -105,10 +137,14 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
 
                   <button
                     onClick={toggleTheme}
-                    className="p-2 text-text-muted hover:text-amber-400 bg-elevated/50 hover:bg-elevated rounded-full transition-all duration-200 shadow-inner border border-white/5 mx-1"
-                    aria-label="Thème"
+                    className="p-2 text-text-muted hover:text-text-main bg-elevated/50 hover:bg-elevated rounded-full transition-all duration-200 shadow-inner border border-white/5 ml-1"
+                    title={theme === 'dark' ? t('topbar.lightMode', 'Mode Clair') : t('topbar.darkMode', 'Mode Sombre')}
                   >
-                    {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4 drop-shadow-[0_0_4px_rgba(251,191,36,0.8)]" />}
+                    {theme === 'dark' ? (
+                      <Sun className="h-4 w-4 text-amber-500 animate-[spin_20s_linear_infinite]" />
+                    ) : (
+                      <Moon className="h-4 w-4 text-indigo-500" />
+                    )}
                   </button>
 
                   <button
@@ -146,6 +182,10 @@ export const Topbar = ({ onToggleSidebar }: TopbarProps) => {
           </AnimatePresence>
         </motion.div>
       </div>
+      <CompanySwitcherModal
+        isOpen={isSwitcherOpen}
+        onClose={() => setIsSwitcherOpen(false)}
+      />
     </>
   );
 };

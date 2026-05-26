@@ -1,4 +1,4 @@
-import { BarChart4, SlidersHorizontal, TrendingUp } from 'lucide-react';
+import { BarChart4, SlidersHorizontal, TrendingUp, HelpCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ViewMode } from './revenueProjectionChart.utils';
 
@@ -15,6 +15,11 @@ interface RevenueProjectionControlsProps {
   setDebtY2: (v: number) => void;
   maxDebtY1: number;
   maxDebtY2: number;
+  growthModifier: number;
+  setGrowthModifier: (v: number) => void;
+  volatility: number;
+  setVolatility: (v: number) => void;
+  currencySymbol?: string;
 }
 
 export const RevenueProjectionControls = ({
@@ -30,6 +35,11 @@ export const RevenueProjectionControls = ({
   setDebtY2,
   maxDebtY1,
   maxDebtY2,
+  growthModifier,
+  setGrowthModifier,
+  volatility,
+  setVolatility,
+  currencySymbol = '€',
 }: RevenueProjectionControlsProps) => {
   const { t } = useTranslation();
 
@@ -62,22 +72,94 @@ export const RevenueProjectionControls = ({
             onClick={() => setViewMode('revenue')}
             className={`px-4 py-1.5 text-[11px] uppercase tracking-wider font-bold transition-all rounded-lg ${viewMode === 'revenue' ? 'bg-brand text-white shadow-md' : 'text-text-muted hover:text-text-main'}`}
           >
-            {t('dashboard.mlZone.revenueMode')}
+            {t('dashboard.mlZone.revenueMode', 'Revenus')}
           </button>
           <button
             onClick={() => setViewMode('valuation')}
             className={`px-4 py-1.5 text-[11px] uppercase tracking-wider font-bold transition-all rounded-lg ${viewMode === 'valuation' ? 'bg-amber-600 text-white shadow-md' : 'text-text-muted hover:text-text-main'}`}
           >
-            {t('dashboard.mlZone.valuationMode')}
+            {t('dashboard.mlZone.valuationMode', 'Valorisation')}
           </button>
         </div>
       </div>
 
+      {/* ── REVENUE MODIFIERS (Monte Carlo / Sliders) ── */}
+      {viewMode === 'revenue' && (
+        <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex flex-wrap items-center gap-3 mb-5 p-3.5 bg-brand/5 border border-brand/20 rounded-xl">
+            <SlidersHorizontal className="w-4 h-4 text-brand" />
+            <span className="text-xs font-bold uppercase tracking-wider text-text-main">
+              {t('dashboard.mlZone.simulationConsole', 'Console de Simulation Interactive')}
+            </span>
+            <p className="w-full lg:w-auto lg:ml-auto text-xs font-semibold text-text-muted">
+              {t('dashboard.mlZone.liveRecalculation', 'Recalcul immédiat sur données réelles')}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Slider 1: Growth Modifer */}
+            <label className="block rounded-xl border border-border bg-surface p-4 space-y-4 cursor-pointer hover:border-brand/30 transition-colors shadow-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest flex items-center gap-1.5">
+                  {t('dashboard.mlZone.growthModifier', 'Ajustement de Croissance')}
+                  <HelpCircle className="w-3 h-3 text-text-muted" title="Modifie le CAGR annuel simulé sur les données réelles" />
+                </span>
+                <span className={`text-sm font-black font-mono ${growthModifier >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {growthModifier >= 0 ? '+' : ''}{growthModifier.toFixed(0)}% CAGR
+                </span>
+              </div>
+              <input
+                type="range"
+                min={-20}
+                max={50}
+                step={1}
+                value={growthModifier}
+                onChange={(e) => setGrowthModifier(Number(e.target.value))}
+                className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-border accent-brand"
+              />
+              <div className="flex justify-between text-[9px] font-bold text-text-muted">
+                <span>-20% (Récession)</span>
+                <span>Neutre</span>
+                <span>+50% (Hypercroissance)</span>
+              </div>
+            </label>
+
+            {/* Slider 2: Volatility / Confiance spread */}
+            <label className="block rounded-xl border border-border bg-surface p-4 space-y-4 cursor-pointer hover:border-brand/30 transition-colors shadow-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-text-primary uppercase tracking-widest flex items-center gap-1.5">
+                  {t('dashboard.mlZone.volatilitySpread', 'Volatilité de Monte Carlo (Risque)')}
+                  <HelpCircle className="w-3 h-3 text-text-muted" title="Écarte ou resserre la zone d'incertitude statistique" />
+                </span>
+                <span className="text-sm font-black font-mono text-[#00D1FF]">
+                  ± {volatility.toFixed(0)}% {t('dashboard.mlZone.riskSpread', 'écart')}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={2}
+                max={30}
+                step={1}
+                value={volatility}
+                onChange={(e) => setVolatility(Number(e.target.value))}
+                className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-border accent-[#00D1FF]"
+              />
+              <div className="flex justify-between text-[9px] font-bold text-text-muted">
+                <span>2% (Certitude)</span>
+                <span>Standard</span>
+                <span>30% (Haute Incertitude)</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* ── VALUATION MODIFIERS ── */}
       {viewMode === 'valuation' && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="flex flex-wrap items-center gap-3 mb-5 p-3.5 bg-brand/5 border border-brand/20 rounded-xl">
             <SlidersHorizontal className="w-4 h-4 text-brand" />
-            <span className="text-xs font-bold uppercase tracking-wider text-text-main">{t('dashboard.mlZone.baseScenario')}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-text-main">{t('dashboard.mlZone.baseScenario', 'Scénario de Référence')}</span>
             <div className="flex flex-wrap gap-2">
               {(['pessimistic', 'realistic', 'optimistic'] as const).map((scen) => (
                 <button
@@ -93,17 +175,17 @@ export const RevenueProjectionControls = ({
                       : 'bg-transparent border-border hover:bg-surface-hover text-text-muted'
                   }`}
                 >
-                  {t(`dashboard.mlZone.scenarios.${scen}`)}
+                  {t(`dashboard.mlZone.scenarios.${scen}`, scen)}
                 </button>
               ))}
             </div>
-            <p className="w-full lg:w-auto lg:ml-auto text-xs font-semibold text-text-muted">{t('dashboard.mlZone.drivesValuation')}</p>
+            <p className="w-full lg:w-auto lg:ml-auto text-xs font-semibold text-text-muted">{t('dashboard.mlZone.drivesValuation', 'Pilote la valorisation')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {[
               {
-                title: t('dashboard.mlZone.exitMultiple'),
+                title: t('dashboard.mlZone.exitMultiple', 'Multiple de Sortie (EBITDA / Rev)'),
                 state: exitMultiple,
                 setState: setExitMultiple,
                 min: 1,
@@ -112,30 +194,30 @@ export const RevenueProjectionControls = ({
                 suffix: 'x',
               },
               {
-                title: t('dashboard.mlZone.projectedDebtY1'),
+                title: t('dashboard.mlZone.projectedDebtY1', 'Dette Net Projetée (An 1)'),
                 state: debtY1,
                 setState: setDebtY1,
                 min: 0,
                 max: maxDebtY1,
                 step: 5000,
-                suffix: '$',
+                suffix: currencySymbol,
               },
               {
-                title: t('dashboard.mlZone.projectedDebtY2'),
+                title: t('dashboard.mlZone.projectedDebtY2', 'Dette Net Projetée (An 2+)'),
                 state: debtY2,
                 setState: setDebtY2,
                 min: 0,
                 max: maxDebtY2,
                 step: 5000,
-                suffix: '$',
+                suffix: currencySymbol,
               },
             ].map((slider, idx) => (
               <label key={idx} className="block rounded-xl border border-border bg-surface p-4 space-y-4 cursor-pointer hover:border-brand/30 transition-colors shadow-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">{slider.title}</span>
-                  <span className="text-sm font-black text-text-main tabular-nums">
-                    {slider.suffix === '$'
-                      ? slider.state.toLocaleString(undefined, { notation: 'compact', style: 'currency', currency: 'USD' })
+                  <span className="text-sm font-black text-text-main font-mono">
+                    {slider.suffix === currencySymbol
+                      ? `${slider.state.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`
                       : `${slider.state.toFixed(1)}${slider.suffix}`}
                   </span>
                 </div>
@@ -147,7 +229,6 @@ export const RevenueProjectionControls = ({
                   value={slider.state}
                   onChange={(e) => slider.setState(Number(e.target.value))}
                   className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-border"
-                  style={{ boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)' }}
                 />
               </label>
             ))}

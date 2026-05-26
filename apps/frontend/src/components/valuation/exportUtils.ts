@@ -21,7 +21,7 @@ export function exportPDF(
       maximumFractionDigits: 0,
     }).format(v);
 
-  const date = new Date().toLocaleDateString();
+  const date = new Date().toLocaleDateString('fr-FR');
   const methodName = result.method.replace(/_/g, ' / ');
 
   const inputRows = Object.entries(result.inputs)
@@ -29,7 +29,7 @@ export function exportPDF(
       ([k, v]) =>
         `<tr>
           <td class="input-label">${k.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())}</td>
-          <td class="input-value">${v.toLocaleString()}</td>
+          <td class="input-value">${v.toLocaleString('fr-FR')}</td>
         </tr>`,
     )
     .join('');

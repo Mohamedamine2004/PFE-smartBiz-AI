@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { Topbar } from '../components/Topbar';
 import { useAuthStore } from '../store/authStore';
+import { useThemeStore } from '../store/themeStore';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { ShortcutsHelpModal } from '../components/ui/ShortcutsHelpModal';
 
@@ -11,6 +12,20 @@ export const PrivateLayout = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { shortcuts, showHelp, setShowHelp } = useKeyboardShortcuts();
+  const { theme } = useThemeStore();
+
+  useEffect(() => {
+    // Dynamic theme synchronization
+    const isDark =
+      theme === 'dark' ||
+      (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   // Protection de la route
   if (!isAuthenticated) {
@@ -33,7 +48,7 @@ export const PrivateLayout = () => {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full bg-background overflow-hidden selection:bg-brand/30 selection:text-brand font-sans">
+    <div className="relative flex min-h-screen w-full bg-background selection:bg-brand/30 selection:text-brand font-sans">
       {/* Floating Glassmorphic Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -41,10 +56,10 @@ export const PrivateLayout = () => {
       />
 
       <div 
-        className={`flex flex-col w-full min-h-screen transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+        className={`flex flex-col w-full min-h-screen transition-[padding-left,padding-right] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
           isSidebarOpen 
-            ? 'ltr:lg:pl-[292px] rtl:lg:pr-[292px]' 
-            : 'ltr:lg:pl-[116px] rtl:lg:pr-[116px]'
+            ? 'ltr:pl-[88px] ltr:lg:pl-[292px] rtl:pr-[88px] rtl:lg:pr-[292px]' 
+            : 'ltr:pl-[88px] ltr:lg:pl-[112px] rtl:pr-[88px] rtl:lg:pr-[112px]'
         }`}
       >
         {/* Dynamic Island Topbar */}

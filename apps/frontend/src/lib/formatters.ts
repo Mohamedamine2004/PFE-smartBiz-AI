@@ -8,7 +8,7 @@ export const formatNumber = (value: number | null | undefined): string => {
   if (value == null) return '\u2014';
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
-  return value.toLocaleString();
+  return value.toLocaleString('fr-FR');
 };
 
 /** Decimal → percentage: 0.153 → "15.3%" */

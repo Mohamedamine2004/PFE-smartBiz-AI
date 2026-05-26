@@ -25,7 +25,8 @@ model Company {
   logoUrl            String?
   primaryColor       String?          @default("#1E3A5F")
   secondaryColor     String?          @default("#2563EB")
-  users              User[]
+  users              User[]           // Represents users whose active company is this one
+  members            UserCompany[]    // Represents all members of this company (multi-company relation)
   batches            ImportBatch[]
   predictions        Prediction[]
   valuations         SavedValuation[]
@@ -44,6 +45,7 @@ model User {
   role         UserRole  @default(COLLAB)
   companyId    String
   company      Company   @relation(fields: [companyId], references: [id])
+  memberships  UserCompany[] // Multi-company memberships
   reports      Report[]
   createdAt    DateTime  @default(now())
   deletedAt    DateTime?
@@ -56,11 +58,25 @@ model User {
   inviteTokenExpires   DateTime?
 }
 
+model UserCompany {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  role      UserRole @default(COLLAB)
+  password  String   // Hashed password specific to this company membership
+  createdAt DateTime @default(now())
+
+  @@unique([userId, companyId])
+}
+
 enum UserRole {
   OWNER
   ADMIN
   COLLAB
   READER
+  USER
 }
 
 // --- DATA & AI PIPELINE ---

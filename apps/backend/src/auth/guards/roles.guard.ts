@@ -14,10 +14,11 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
  * A user with a higher rank implicitly satisfies lower-rank role requirements.
  */
 const ROLE_HIERARCHY: Record<UserRole, number> = {
-  [UserRole.READER]: 0,
-  [UserRole.COLLAB]: 1,
-  [UserRole.ADMIN]: 2,
-  [UserRole.OWNER]: 3,
+  [UserRole.USER]: 0,
+  [UserRole.READER]: 1,
+  [UserRole.COLLAB]: 2,
+  [UserRole.ADMIN]: 3,
+  [UserRole.OWNER]: 4,
 };
 
 @Injectable()

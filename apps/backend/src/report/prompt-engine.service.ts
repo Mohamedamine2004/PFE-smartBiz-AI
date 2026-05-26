@@ -96,12 +96,18 @@ Main business problem: ${problemStatement?.trim() || 'No specific problem provid
   getTypeLabel(type: ReportType | string, language?: string): string {
     if (language === 'AR') {
       switch (type) {
-        case ReportType.FINANCIAL: return 'تحليل الأداء المالي';
-        case ReportType.STRATEGIC: return 'تحليل استراتيجي';
-        case ReportType.MARKETING: return 'تحليل التسويق';
-        case ReportType.OPERATIONAL: return 'تحليل الأداء التشغيلي';
-        case ReportType.VALUATION: return 'تقييم الشركة';
-        default: return String(type);
+        case ReportType.FINANCIAL:
+          return 'تحليل الأداء المالي';
+        case ReportType.STRATEGIC:
+          return 'تحليل استراتيجي';
+        case ReportType.MARKETING:
+          return 'تحليل التسويق';
+        case ReportType.OPERATIONAL:
+          return 'تحليل الأداء التشغيلي';
+        case ReportType.VALUATION:
+          return 'تقييم الشركة';
+        default:
+          return String(type);
       }
     }
     switch (type) {
@@ -114,7 +120,7 @@ Main business problem: ${problemStatement?.trim() || 'No specific problem provid
       case ReportType.OPERATIONAL:
         return 'Analyse Opérationnelle';
       case ReportType.VALUATION:
-        return 'Valorisation d\'Entreprise';
+        return "Valorisation d'Entreprise";
       default:
         return String(type);
     }
@@ -140,14 +146,22 @@ Main business problem: ${problemStatement?.trim() || 'No specific problem provid
   getSectionName(section: ReportSection | string, language?: string): string {
     if (language === 'AR') {
       switch (section) {
-        case ReportSection.EXECUTIVE_SUMMARY: return 'ملخص تنفيذي';
-        case ReportSection.SWOT_ANALYSIS: return 'تحليل نقاط القوة والضعف';
-        case ReportSection.PERFORMANCE_ANALYSIS: return 'تحليل الأداء';
-        case ReportSection.FINANCIAL_OVERVIEW: return 'نظرة عامة مالية';
-        case ReportSection.RECOMMENDATIONS: return 'التوصيات';
-        case ReportSection.FORECASTS_TRENDS: return 'التنبؤات والاتجاهات';
-        case ReportSection.BENCHMARK: return 'المقارنة القطاعية';
-        default: return 'قسم التقرير';
+        case ReportSection.EXECUTIVE_SUMMARY:
+          return 'ملخص تنفيذي';
+        case ReportSection.SWOT_ANALYSIS:
+          return 'تحليل نقاط القوة والضعف';
+        case ReportSection.PERFORMANCE_ANALYSIS:
+          return 'تحليل الأداء';
+        case ReportSection.FINANCIAL_OVERVIEW:
+          return 'نظرة عامة مالية';
+        case ReportSection.RECOMMENDATIONS:
+          return 'التوصيات';
+        case ReportSection.FORECASTS_TRENDS:
+          return 'التنبؤات والاتجاهات';
+        case ReportSection.BENCHMARK:
+          return 'المقارنة القطاعية';
+        default:
+          return 'قسم التقرير';
       }
     }
     switch (section) {
@@ -269,8 +283,7 @@ Use direct, action-oriented language. Lead with performance gaps and improvement
 
   private fmtValue(v: number): string {
     if (Math.abs(v) < 1) return `${(v * 100).toFixed(1)}%`;
-    if (Math.abs(v) >= 1_000_000)
-      return `${(v / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
     if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(1)}K`;
     return v.toFixed(1);
   }

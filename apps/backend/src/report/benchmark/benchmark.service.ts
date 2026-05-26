@@ -117,11 +117,7 @@ export class BenchmarkService {
     if (revN1 > 0 && revenue > 0) {
       const growth = (revenue - revN1) / revN1;
       deltas.push(
-        this.buildDelta(
-          'Croissance CA',
-          growth,
-          benchmark.revenueGrowthMedian,
-        ),
+        this.buildDelta('Croissance CA', growth, benchmark.revenueGrowthMedian),
       );
     }
 

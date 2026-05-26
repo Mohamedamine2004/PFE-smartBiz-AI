@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Calendar, Database, Trash2, ArrowRight, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { financialApi } from '../../lib/financial.service';
@@ -19,9 +20,13 @@ export const ImportHistorySidebar = ({
   onSelectBatch,
   onBatchDeleted,
 }: ImportHistorySidebarProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Arabic = RTL → nav sidebar is on the RIGHT, so history drawer comes from LEFT
+  // LTR (FR/EN) → nav sidebar is on the LEFT, so history drawer comes from RIGHT
+  const isRTL = i18n.resolvedLanguage === 'ar';
 
   useEffect(() => {
     if (isOpen) {
@@ -54,20 +59,22 @@ export const ImportHistorySidebar = ({
     }
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 transition-opacity"
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 transition-opacity"
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar Panel */}
+      {/* Sidebar Panel — RIGHT for LTR (FR/EN), LEFT for RTL (AR) */}
       <div
-        className={`fixed top-0 ltr:right-0 rtl:left-0 h-full w-full max-w-md bg-background/95 backdrop-blur-2xl ltr:border-l rtl:border-r border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] z-50 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
-          isOpen ? 'translate-x-0' : 'ltr:translate-x-[110%] rtl:-translate-x-[110%]'
+        className={`fixed top-0 h-full w-full max-w-md bg-background/95 backdrop-blur-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          isRTL
+            ? `left-0 border-r border-white/10 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`
+            : `right-0 border-l border-white/10 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`
         }`}
       >
         <div className="flex flex-col h-full bg-gradient-to-b from-brand/5 to-transparent">
@@ -201,7 +208,8 @@ export const ImportHistorySidebar = ({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 };
 

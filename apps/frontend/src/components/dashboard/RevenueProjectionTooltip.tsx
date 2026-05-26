@@ -6,6 +6,7 @@ interface ProjectionTooltipProps {
   payload?: Array<any>;
   label?: string;
   viewMode: ViewMode;
+  currencySymbol?: string;
 }
 
 export const RevenueProjectionTooltip = ({
@@ -13,6 +14,7 @@ export const RevenueProjectionTooltip = ({
   payload,
   label,
   viewMode,
+  currencySymbol = '€',
 }: ProjectionTooltipProps) => {
   const { t, i18n } = useTranslation();
   if (!active || !payload?.length) return null;
@@ -37,11 +39,7 @@ export const RevenueProjectionTooltip = ({
             <span className="text-xs font-bold text-text-main">{t('dashboard.mlZone.enterpriseValue')}</span>
           </div>
           <span className="text-sm font-black tabular-nums text-text-main">
-            {(payload[0].payload.enterprise || 0).toLocaleString(i18n.resolvedLanguage || undefined, {
-              style: 'currency',
-              currency: 'USD',
-              maximumFractionDigits: 0,
-            })}
+            {`${(payload[0].payload.enterprise || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`}
           </span>
         </div>
       )}
@@ -59,11 +57,7 @@ export const RevenueProjectionTooltip = ({
             </div>
             <span className="text-sm font-bold tabular-nums text-text-main">
               {typeof entry.value === 'number'
-                ? entry.value.toLocaleString(i18n.resolvedLanguage || undefined, {
-                    style: 'currency',
-                    currency: 'USD',
-                    maximumFractionDigits: 0,
-                  })
+                ? `${entry.value.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} ${currencySymbol}`
                 : entry.value}
             </span>
           </div>

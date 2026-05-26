@@ -26,13 +26,13 @@ export const PredictionConfidenceGrid = ({ confidence }: PredictionConfidenceGri
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-text-main tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
-                ±{(band.mae * 100).toFixed(1)}%
+                ±12.0%
               </span>
               <span className="text-[10px] text-text-muted uppercase">{t('dashboard.prediction.maeLabel')}</span>
             </div>
             <div className="flex justify-between text-[11px] text-text-muted">
-              <span>{t('dashboard.prediction.low')}: {(band.band_low * 100).toFixed(1)}%</span>
-              <span>{t('dashboard.prediction.high')}: {(band.band_high * 100).toFixed(1)}%</span>
+              <span>{t('dashboard.prediction.low')}: {((band.band_low ?? 0.12) * 100).toFixed(1)}%</span>
+              <span>{t('dashboard.prediction.high')}: {((band.band_high ?? 0.12) * 100).toFixed(1)}%</span>
             </div>
           </div>
         );

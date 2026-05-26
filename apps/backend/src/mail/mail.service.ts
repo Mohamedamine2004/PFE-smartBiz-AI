@@ -36,7 +36,7 @@ export class MailService {
     });
 
     // Verify connection on startup
-    this.transporter.verify((error, success) => {
+    this.transporter.verify((error, _success) => {
       if (error) {
         this.logger.error(
           `❌ Mail service connection failed: ${error.message}`,
@@ -158,7 +158,7 @@ export class MailService {
 
     const apiUrl =
       this.configService.get<string>('API_URL') ||
-      'http://localhost:3000/api/v1';
+      'http://localhost:3001/api/v1';
     const confirmationUrl = `${apiUrl}/auth/verify-email?token=${token}`;
 
     try {

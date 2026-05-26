@@ -16,13 +16,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import express from 'express';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { PostLoginService } from './post-login.service';
 import { RegisterDto } from './dto/register.dto';
@@ -184,6 +178,43 @@ export class AuthController {
       redirect: postLoginInfo.redirect,
       onboardingComplete: postLoginInfo.onboardingComplete,
       hasFinancialData: postLoginInfo.hasFinancialData,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my-companies')
+  async myCompanies(@CurrentUser() user: jwtPayloadInterface.JwtPayload) {
+    return await this.authService.listMyCompanies(user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('switch-company')
+  async switchCompany(
+    @CurrentUser() user: jwtPayloadInterface.JwtPayload,
+    @Body('companyId') companyId: string,
+    @Body('password') password: string,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    const result = await this.authService.switchCompany(
+      user.userId,
+      companyId,
+      password,
+    );
+
+    res.cookie('refresh_token', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return {
+      access_token: result.accessToken,
+      user: result.user,
+      redirect: result.redirect,
+      onboardingComplete: result.onboardingComplete,
+      hasFinancialData: result.hasFinancialData,
     };
   }
 

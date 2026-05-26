@@ -12,6 +12,7 @@ import { DeleteUserModal } from '../components/team/DeleteUserModal';
 import { TransferOwnershipModal } from '../components/team/TransferOwnershipModal';
 import { PageHeader, Alert } from '../components/ui';
 import { InvitationInbox } from '../components/team/InvitationInbox';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Team = () => {
   const { t } = useTranslation();
@@ -121,10 +122,12 @@ export const Team = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div>
-        <PageHeader title={t('team.title')} subtitle={t('team.subtitle')} />
-      </div>
+    <div className="relative max-w-7xl mx-auto space-y-8 pb-16">
+      {/* Premium Neon Backdrop Glows */}
+      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '8s' }} />
+      <div className="absolute bottom-1/3 right-1/4 w-[350px] h-[350px] bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none -z-10 animate-pulse" style={{ animationDuration: '6s' }} />
+
+      <PageHeader title={t('team.title')} subtitle={t('team.subtitle')} />
 
       {/* Feedback Alert (replaces native alert()) */}
       {feedbackMessage && (
@@ -135,55 +138,84 @@ export const Team = () => {
         />
       )}
 
-      {/* Tabs */}
-      <div className="flex border-b border-border mb-6">
+      {/* Premium Animated Tabs */}
+      <div className="relative p-1.5 flex gap-1 rounded-2xl bg-surface/50 border border-border/50 backdrop-blur-md self-start w-fit mb-8">
         <button
-          className={`tab-underline ${activeTab === 'members' ? 'active' : ''}`}
           onClick={() => handleTabChange('members')}
+          className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${
+            activeTab === 'members' ? 'text-text-main' : 'text-text-muted hover:text-text-main'
+          }`}
         >
+          {activeTab === 'members' && (
+            <motion.div
+              layoutId="teamActiveTab"
+              className="absolute inset-0 bg-elevated border border-border/80 rounded-xl shadow-sm -z-10"
+              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+            />
+          )}
           {t('team.tabs.members')}
         </button>
         <button
-          className={`tab-underline ${activeTab === 'inbox' ? 'active' : ''}`}
           onClick={() => handleTabChange('inbox')}
+          className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${
+            activeTab === 'inbox' ? 'text-text-main' : 'text-text-muted hover:text-text-main'
+          }`}
         >
+          {activeTab === 'inbox' && (
+            <motion.div
+              layoutId="teamActiveTab"
+              className="absolute inset-0 bg-elevated border border-border/80 rounded-xl shadow-sm -z-10"
+              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+            />
+          )}
           {t('team.tabs.inbox')}
         </button>
       </div>
 
-      {activeTab === 'members' ? (
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          {/* Left Side: Team Table (2/3) */}
-          <div className="w-full lg:w-2/3">
-          <TeamTable 
-            members={members}
-            loading={loading}
-            error={error}
-            onResendInvite={handleResendInvite}
-            onDeleteClick={handleDeleteClick}
-            onRefresh={fetchTeam}
-          />
+      {/* Content wrapper */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
+          {activeTab === 'members' ? (
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+              {/* Left Side: Team Table (2/3) */}
+              <div className="w-full lg:w-2/3">
+                <TeamTable 
+                  members={members}
+                  loading={loading}
+                  error={error}
+                  onResendInvite={handleResendInvite}
+                  onDeleteClick={handleDeleteClick}
+                  onRefresh={fetchTeam}
+                />
 
-          {user?.role === 'OWNER' && (
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setIsTransferModalOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-100 hover:bg-amber-200 rounded-lg transition-colors"
-              >
-                {t('team.transferOwnership', 'Transferer la propriete')}
-              </button>
+                {user?.role === 'OWNER' && (
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => setIsTransferModalOpen(true)}
+                      className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-500/10 border border-amber-500/25 hover:bg-amber-500 hover:text-white rounded-xl shadow-[0_4px_12px_rgba(245,158,11,0.15)] transition-all active:scale-95 duration-200"
+                    >
+                      {t('team.transferOwnership', 'Transferer la propriete')}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Side: Invite Form (1/3 Sticky) */}
+              <div className="w-full lg:w-1/3 lg:sticky lg:top-6">
+                <InviteForm onInviteSuccess={fetchTeam} />
+              </div>
             </div>
+          ) : (
+            <InvitationInbox />
           )}
-        </div>
-
-        {/* Right Side: Invite Form (1/3 Sticky) */}
-        <div className="w-full lg:w-1/3 lg:sticky lg:top-6">
-          <InviteForm onInviteSuccess={fetchTeam} />
-        </div>
-      </div>
-      ) : (
-        <InvitationInbox />
-      )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Delete Confirmation Modal */}
       <DeleteUserModal

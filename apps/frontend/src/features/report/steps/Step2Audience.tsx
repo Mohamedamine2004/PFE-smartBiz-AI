@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Users, TrendingUp, Landmark } from 'lucide-react';
+import { Users, TrendingUp, Landmark, CheckCircle2 } from 'lucide-react';
 import { ReportAudience } from '../../../types/report';
 import type { WizardStepProps } from '../types';
 
@@ -7,115 +7,126 @@ const AUDIENCES = [
   {
     value: ReportAudience.INTERNAL,
     icon: Users,
-    gradient: 'from-slate-700 to-slate-800',
+    accent: '#00d1ff',
+    glow: 'rgba(0,209,255,0.08)',
+    borderGlow: 'rgba(0,209,255,0.25)',
     description: 'wizard.step2new.audiences.INTERNAL.desc',
     focusLabel: 'wizard.step2new.audiences.INTERNAL.focus',
+    defaultDesc: 'Équipe & management — performance, coûts & opérations.',
+    defaultFocus: 'Opérationnel • Coûts • Effectifs',
   },
   {
     value: ReportAudience.INVESTORS,
     icon: TrendingUp,
-    gradient: 'from-blue-600 to-indigo-700',
+    accent: '#6366f1',
+    glow: 'rgba(99,102,241,0.08)',
+    borderGlow: 'rgba(99,102,241,0.25)',
     description: 'wizard.step2new.audiences.INVESTORS.desc',
     focusLabel: 'wizard.step2new.audiences.INVESTORS.focus',
+    defaultDesc: 'Investisseurs & conseil — croissance, valorisation & marché.',
+    defaultFocus: 'Croissance • Revenus • Marché',
   },
   {
     value: ReportAudience.BANK,
     icon: Landmark,
-    gradient: 'from-emerald-600 to-teal-700',
+    accent: '#10b981',
+    glow: 'rgba(16,185,129,0.08)',
+    borderGlow: 'rgba(16,185,129,0.25)',
     description: 'wizard.step2new.audiences.BANK.desc',
     focusLabel: 'wizard.step2new.audiences.BANK.focus',
+    defaultDesc: 'Établissements de crédit — solvabilité, ratios & remboursement.',
+    defaultFocus: 'Ratio dette • Cash-flow • Actifs',
   },
 ];
-
-const DEFAULT_DESCS: Record<string, string> = {
-  INTERNAL: 'Team & management — performance, costs & operations focus.',
-  INVESTORS: 'Investors & board — growth, valuation & market opportunity focus.',
-  BANK: 'Credit institutions — solvency, debt ratios & repayment capacity focus.',
-};
-
-const DEFAULT_FOCUS: Record<string, string> = {
-  INTERNAL: 'Operational • Costs • Headcount',
-  INVESTORS: 'Growth • Revenue • Market',
-  BANK: 'Debt ratio • Cash flow • Assets',
-};
 
 export const Step2Audience = ({ state, setState, errors }: WizardStepProps) => {
   const { t } = useTranslation();
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-slate-900 mb-2">
-        {t('wizard.step2new.title', 'Who will read this report?')}
-      </h2>
-      <p className="text-slate-500 mb-6">
-        {t('wizard.step2new.subtitle', 'The audience shapes the language, tone, and focus of your report automatically.')}
-      </p>
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] font-bold text-brand uppercase tracking-widest mb-1 font-mono">
+          {t('wizard.step', 'Étape')} 2 / 8
+        </p>
+        <h2 className="text-xl font-bold text-text-main">
+          {t('wizard.step2new.title', 'Qui lira ce rapport ?')}
+        </h2>
+        <p className="text-xs text-text-muted mt-1">
+          {t('wizard.step2new.subtitle', "L'audience définit automatiquement le langage, le ton et le focus.")}
+        </p>
+      </div>
 
-      <div className="flex flex-col gap-4">
-        {AUDIENCES.map(({ value, icon: Icon, gradient, description, focusLabel }) => {
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        {AUDIENCES.map(({ value, icon: Icon, accent, glow, borderGlow, description, focusLabel, defaultDesc, defaultFocus }) => {
           const isActive = state.audience === value;
           return (
             <button
               key={value}
               type="button"
               onClick={() => setState({ ...state, audience: value })}
-              className={`relative overflow-hidden flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 ${isActive
-                  ? 'border-transparent shadow-xl scale-[1.01]'
-                  : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md'
-                }`}
+              className={`group relative flex flex-col justify-between p-5 rounded-2xl text-left transition-all duration-300 border hover:-translate-y-1 hover:shadow-xl ${
+                isActive 
+                  ? 'border-brand/40 shadow-lg' 
+                  : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/25'
+              }`}
+              style={{
+                background: isActive ? glow : 'var(--bg-elevated)',
+                boxShadow: isActive ? `0 10px 30px ${glow}` : 'none',
+              }}
             >
-              {/* Gradient background when active */}
-              {isActive && (
-                <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-100`} />
-              )}
-
-              <div
-                className={`relative flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${isActive ? 'bg-white/20' : 'bg-slate-100'
-                  }`}
-              >
-                <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-600'}`} />
+              <div className="flex items-start justify-between w-full">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: isActive ? 'white' : 'var(--bg-surface)',
+                    border: `1px solid ${isActive ? accent : 'var(--border-color)'}`,
+                    boxShadow: isActive ? `0 0 15px ${borderGlow}` : 'none',
+                  }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: isActive ? accent : 'var(--text-secondary)' }} />
+                </div>
+                {isActive && (
+                  <CheckCircle2 className="w-5 h-5 shrink-0 animate-scale-up" style={{ color: accent }} />
+                )}
               </div>
 
-              <div className="relative flex-1">
-                <p className={`font-bold text-base ${isActive ? 'text-white' : 'text-slate-900'}`}>
-                  {t(`wizard.step2new.audiences.${value}.label`, value)}
-                </p>
-                <p className={`text-sm mt-1 ${isActive ? 'text-white/80' : 'text-slate-500'}`}>
-                  {t(description, DEFAULT_DESCS[value])}
-                </p>
-                <div className={`mt-2 flex gap-1 flex-wrap`}>
-                  {(t(focusLabel, DEFAULT_FOCUS[value]) as string)
+              <div className="mt-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <p className="font-bold text-sm text-text-main group-hover:text-brand transition-colors">
+                    {t(`wizard.step2new.audiences.${value}.label`, value)}
+                  </p>
+                  <p className="text-xs text-text-muted mt-1.5 leading-relaxed">
+                    {t(description, defaultDesc)}
+                  </p>
+                </div>
+                
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 flex gap-1 flex-wrap">
+                  {(t(focusLabel, defaultFocus) as string)
                     .split('•')
                     .map((tag) => tag.trim())
                     .filter(Boolean)
                     .map((tag) => (
                       <span
                         key={tag}
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider ${isActive
-                            ? 'bg-white/20 text-white'
-                            : 'bg-slate-100 text-slate-500'
-                          }`}
+                        className="text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider font-mono"
+                        style={{
+                          background: isActive ? 'rgba(255, 255, 255, 0.1)' : 'var(--bg-surface)',
+                          color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                          border: `1px solid ${isActive ? 'rgba(255, 255, 255, 0.15)' : 'var(--border-color)'}`,
+                        }}
                       >
                         {tag}
                       </span>
                     ))}
                 </div>
               </div>
-
-              {isActive && (
-                <div className="relative ml-auto flex-shrink-0 w-6 h-6 rounded-full bg-white/30 flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
             </button>
           );
         })}
       </div>
 
       {errors.audience && (
-        <p className="mt-3 text-sm text-red-600">{errors.audience}</p>
+        <p className="mt-3 text-xs text-red-500 font-semibold">{errors.audience}</p>
       )}
     </div>
   );

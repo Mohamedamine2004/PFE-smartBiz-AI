@@ -4,8 +4,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PostLoginService } from './post-login.service';
+import { TokenService } from './token.service';
+import { TeamManagementService } from './team-management.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { MailModule } from '../mail/mail.module'; // <-- Import du MailModule
+import { MailModule } from '../mail/mail.module';
 @Module({
   imports: [
     ConfigModule,
@@ -27,7 +29,6 @@ import { MailModule } from '../mail/mail.module'; // <-- Import du MailModule
         return {
           secret: jwtSecret,
           signOptions: {
-            // L'assertion "as any" neutralise l'erreur stricte liée à "StringValue"
             expiresIn: jwtExpiration as any,
           },
         };
@@ -35,7 +36,13 @@ import { MailModule } from '../mail/mail.module'; // <-- Import du MailModule
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PostLoginService, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    PostLoginService,
+    TokenService,
+    TeamManagementService,
+    JwtStrategy,
+  ],
+  exports: [AuthService, TokenService, TeamManagementService],
 })
 export class AuthModule {}

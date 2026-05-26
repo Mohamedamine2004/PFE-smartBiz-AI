@@ -5,7 +5,9 @@
 
 const getLocale = (): string => {
   if (typeof document !== 'undefined' && document.documentElement.lang) {
-    return document.documentElement.lang;
+    const lang = document.documentElement.lang;
+    if (lang === 'ar') return 'fr-FR';
+    return lang;
   }
   return 'en-US';
 };
@@ -33,6 +35,38 @@ export const formatFullCurrency = (
     currency,
     maximumFractionDigits: 0,
   });
+
+export const CURRENCY_SYMBOLS: Record<string, Record<string, string>> = {
+  ar: {
+    TND: 'د.ت',
+    DZD: 'د.ج',
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    SAR: 'ر.س',
+    AED: 'د.إ',
+    MAD: 'د.م',
+    CAD: 'C$',
+  },
+  default: {
+    TND: 'DT',
+    DZD: 'DA',
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    SAR: 'SR',
+    AED: 'DH',
+    MAD: 'DH',
+    CAD: 'C$',
+  }
+};
+
+/** Get dynamic localized currency symbol based on selected currency and language */
+export const getCurrencySymbol = (currencyCode: string, lang = 'fr'): string => {
+  const isArabic = lang === 'ar';
+  const mapping = isArabic ? CURRENCY_SYMBOLS.ar : CURRENCY_SYMBOLS.default;
+  return mapping[currencyCode] || currencyCode;
+};
 
 /** Format with a custom currency symbol (for company-specific currencies) */
 export const formatWithSymbol = (value: number, symbol = '€'): string => {

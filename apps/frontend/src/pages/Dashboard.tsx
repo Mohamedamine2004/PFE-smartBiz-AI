@@ -1,16 +1,16 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
 import { useAuthStore } from '../store/authStore';
 import { financialApi } from '../lib/financial.service';
-import { exportToPDF } from '../lib/export.utils';
 import type { DashboardMetrics, DashboardTab, PredictionResult } from '../types/dashboard';
 
 import { DashboardTopbar } from '../components/dashboard/DashboardTopbar';
 import { StrategicKpisGrid } from '../components/dashboard/StrategicKpisGrid';
+import { CohortRetentionGrid } from '../components/dashboard/CohortRetentionGrid';
 import { AiStrategicInsight } from '../components/dashboard/AiStrategicInsight';
 import { CustomerRetentionChart } from '../components/dashboard/CustomerRetentionChart';
 import { CashFlowMetricsTable } from '../components/dashboard/CashFlowMetricsTable';
@@ -22,6 +22,7 @@ import { TrendAnalysisChart } from '../components/dashboard/TrendAnalysisChart';
 import { PredictionStatesCard } from '../components/dashboard/PredictionStatesCard';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ImportHistorySidebar } from '../components/dashboard/ImportHistorySidebar';
+import { UnitEconomicsChart } from '../components/dashboard/UnitEconomicsChart';
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
@@ -190,13 +191,11 @@ export const Dashboard = () => {
   /*  Render                                                           */
   /* ================================================================ */
 
-  const handleExportPDF = async () => {
-    try {
-      await exportToPDF('dashboard-root-export');
-      toast.success(t('dashboard.exportSuccess', 'Dashboard exported as PDF.'));
-    } catch {
-      toast.error(t('dashboard.exportError', 'Failed to export dashboard.'));
-    }
+  const handleExportPDF = () => {
+    const originalTitle = document.title;
+    document.title = `SmartBiz AI — Dashboard — ${new Date().toLocaleDateString('fr-FR')}`;
+    window.print();
+    document.title = originalTitle;
   };
 
   // Derive filtered metrics based on period
@@ -218,8 +217,54 @@ export const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[60vh]">
-        <Loader2 className="w-8 h-8 text-brand animate-spin" />
+      <div className="space-y-5 page-animate">
+        {/* Topbar Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-32 rounded-lg bg-elevated/60 animate-pulse" />
+            <div className="flex gap-2">
+              {['strategic', 'financial', 'operational'].map((tab) => (
+                <div key={tab} className="h-9 w-24 rounded-lg bg-elevated/40 animate-pulse" />
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className="h-9 w-28 rounded-lg bg-elevated/40 animate-pulse" />
+            <div className="h-9 w-28 rounded-lg bg-elevated/40 animate-pulse" />
+          </div>
+        </div>
+
+        {/* KPI Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="glass-card p-5">
+              <div className="h-4 w-20 rounded bg-elevated/40 animate-pulse mb-3" />
+              <div className="h-8 w-24 rounded bg-elevated/60 animate-pulse" />
+            </div>
+          ))}
+        </div>
+
+        {/* Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="glass-card p-6 h-80">
+            <div className="h-5 w-40 rounded bg-elevated/40 animate-pulse mb-4" />
+            <div className="h-56 w-full rounded bg-elevated/30 animate-pulse" />
+          </div>
+          <div className="glass-card p-6 h-80">
+            <div className="h-5 w-40 rounded bg-elevated/40 animate-pulse mb-4" />
+            <div className="h-56 w-full rounded bg-elevated/30 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Additional Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="glass-card p-6 h-64">
+              <div className="h-5 w-32 rounded bg-elevated/40 animate-pulse mb-4" />
+              <div className="h-40 w-full rounded bg-elevated/30 animate-pulse" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -284,7 +329,7 @@ export const Dashboard = () => {
       />
       
       {/* Zone 1: Strategic KPIs */}
-      <StrategicKpisGrid data={metrics?.strategicKpis} />
+      <StrategicKpisGrid data={metrics?.strategicKpis} activeTab={activeTab} chartData={filteredChartData} />
 
       {/* Tab Content */}
       <div className="page-animate">
@@ -306,6 +351,9 @@ export const Dashboard = () => {
               <TrendAnalysisChart data={filteredChartData} />
               <RevenueExpensesChart data={filteredChartData} />
             </div>
+            <div className="grid grid-cols-1 gap-5">
+              <CashRunwayChart data={filteredChartData} />
+            </div>
             <CashFlowMetricsTable data={filteredChartData} />
           </div>
         )}
@@ -317,6 +365,8 @@ export const Dashboard = () => {
               <CustomerRetentionChart data={filteredChartData} />
               <RevenuePieChart data={filteredChartData} />
             </div>
+            <CohortRetentionGrid />
+            <UnitEconomicsChart kpis={metrics?.strategicKpis} />
             <div className="grid grid-cols-1 gap-5">
               <CashRunwayChart data={filteredChartData} />
             </div>

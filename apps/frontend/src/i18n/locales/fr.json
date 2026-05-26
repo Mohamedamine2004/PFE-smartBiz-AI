@@ -29,19 +29,28 @@
     },
     "success": "Données importées avec succès ! Redirection vers le tableau de bord...",
     "uploading": "Traitement des données...",
-    "submitBtn": "Lancer l'importation et l'analyse"
+    "submitBtn": "Lancer l'importation"
   },
   "topbar": {
     "adminSpace": "Espace Administrateur",
     "collaboratorSpace": "Espace Collaborateur",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "activeSession": "Session Active",
+    "online": "En Ligne",
+    "roleAdmin": "Administrateur",
+    "roleOwner": "Super Administrateur",
+    "roleUser": "Utilisateur",
+    "secureSpace": "Espace Sécurisé",
+    "lastSync": "Dernière synchro"
   },
   "sidebar": {
     "dashboard": "Tableau de bord",
     "team": "Équipe",
     "valuation": "Évaluation",
     "reports": "Rapports",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "systemState": "État du Système",
+    "telemetry": "Télémétrie OP"
   },
   "validation": {
     "emailRequired": "L'adresse email est requise.",
@@ -80,7 +89,9 @@
       "submitButton": "Se connecter",
       "loadingButton": "Connexion...",
       "noAccount": "Pas encore de compte ?",
-      "registerLink": "S'inscrire"
+      "registerLink": "S'inscrire",
+      "error": "Une erreur est survenue.",
+      "success": "Bon retour !"
     },
     "register": {
       "title": "Inscription",
@@ -125,8 +136,8 @@
     }
   },
   "team": {
-    "title": "Gestion de l'Équipe",
-    "subtitle": "Gérez les membres de votre entreprise et leurs accès.",
+    "title": "Équipe & Accès",
+    "subtitle": "Pilotez vos collaborateurs, attribuez les rôles stratégiques et sécurisez votre espace de travail.",
     "inviteMember": "Inviter un membre",
     "inviteDescription": "Envoyez une invitation pour rejoindre votre espace de travail.",
     "emailLabel": "Adresse email",
@@ -148,15 +159,64 @@
       "statusActive": "Actif",
       "resendInvite": "Renvoyer l'invitation",
       "resendSuccess": "Invitation renvoyée.",
-      "noMembers": "Aucun membre trouvé."
-    }
+      "noMembers": "Aucun membre trouvé.",
+      "deleteUser": "Supprimer l'utilisateur"
+    },
+    "deleteError": "Échec de la suppression de l'utilisateur",
+    "deleteModal": {
+      "confirmButton": "Oui, supprimer l'utilisateur",
+      "confirmationText": "Êtes-vous sûr de vouloir supprimer",
+      "fromCompany": "de l'entreprise ?",
+      "subtitle": "Cette action est irréversible.",
+      "title": "Supprimer l'utilisateur",
+      "warning": "L'utilisateur perdra immédiatement l'accès à toutes les ressources de l'entreprise."
+    },
+    "deleteSuccess": "Utilisateur supprimé avec succès.",
+    "empty": {
+      "description": "Invitez les membres de votre équipe à collaborer sur les analyses financières et les valorisations.",
+      "title": "Aucun membre d'équipe"
+    },
+    "fetchError": "Échec du chargement des membres de l'équipe",
+    "inbox": {
+      "actions": "Actions",
+      "companyRole": "Entreprise / Rôle",
+      "date": "Date",
+      "empty": "Aucune demande trouvée.",
+      "message": "Message",
+      "search": "Rechercher...",
+      "status": "Statut",
+      "user": "Utilisateur",
+      "title": "Demandes d'accès",
+      "subtitle": "Gérez les demandes d'invitation provenant de la landing page."
+    },
+    "roleChangeError": "Impossible de modifier le rôle.",
+    "roleChangeSuccess": "Rôle mis à jour vers {{role}}.",
+    "tabs": {
+      "inbox": "Boîte de réception",
+      "members": "Membres"
+    },
+    "transferOwnership": "Transférer la propriété",
+    "transferOwnershipModal": {
+      "title": "Transfert de propriété",
+      "irreversible": "Cette action est irréversible sans nouveau transfert",
+      "warning": "Le nouveau Super Administrateur aura tous les privilèges exclusifs. Vous deviendrez un Administrateur classique après le transfert.",
+      "selectNewOwner": "Sélectionner le nouveau Super Administrateur",
+      "noEligible": "Aucun membre éligible (seuls les membres actifs peuvent être sélectionnés).",
+      "selectPlaceholder": "-- Choisir un membre --",
+      "selectMember": "Veuillez sélectionner un membre.",
+      "success": "Propriété transférée à {{firstName}} {{lastName}}. Vous êtes maintenant Administrateur.",
+      "error": "Impossible de transférer la propriété.",
+      "confirm": "Confirmer le transfert"
+    },
+    "you": "Vous"
   },
   "settings": {
-    "title": "Paramètres",
-    "subtitle": "Gérez le profil de votre entreprise, votre compte et vos préférences.",
+    "title": "Paramètres du Système",
+    "subtitle": "Configurez l'identité de votre entreprise, votre sécurité et vos préférences globales.",
     "tabs": {
       "company": "Entreprise",
       "account": "Mon compte",
+      "workspaces": "Mes Entreprises",
       "team": "Équipe",
       "preferences": "Préférences"
     },
@@ -241,7 +301,8 @@
       "title": "Aucune donnée financière",
       "description": "Importez vos données financières pour débloquer les tableaux de bord, prédictions et analyses IA.",
       "importBtn": "Importer des données",
-      "settingsBtn": "Paramètres entreprise"
+      "settingsBtn": "Paramètres entreprise",
+      "action": "Importer des données"
     },
     "kpis": {
       "cac": "Coût d'Acquisition Client",
@@ -260,9 +321,33 @@
       "ltvTitle": "VALEUR VIE CLIENT (LTV)",
       "marketShareTitle": "PART DE MARCHÉ",
       "employeesTitle": "EFFECTIFS",
-      "evTitle": "VALEUR D'ENTREPRISE PRÉDITE (EV)"
+      "evTitle": "VALEUR D'ENTREPRISE PRÉDITE (EV)",
+      "health": "Santé",
+      "highCac": "CAC Élevé",
+      "stableGrowth": "Croissance",
+      "toDevelop": "À Développer",
+      "strongPosition": "Solide",
+      "cashBalance": "Trésorerie Actuelle",
+      "secureCash": "Sécurisé",
+      "netBurnRate": "Net Burn Rate (Mensuel)",
+      "highBurn": "Surveillance",
+      "lowBurn": "Stable",
+      "grossMargin": "Marge Opérationnelle",
+      "excellentMargin": "Excellente",
+      "standardMargin": "Standard",
+      "churnRate": "Attrition Mensuelle (Churn)",
+      "churnHealthy": "Sain < 3%",
+      "mrr": "Revenu Récurrent (MRR Est.)",
+      "mrrGrowthText": "{{sign}}{{value}}% MoM",
+      "ratioExcellent": "Excellent",
+      "ratioLow": "À optimiser"
     },
     "charts": {
+      "netCashFlow": "Flux de trésorerie net",
+      "zeroCashDate": "Date de trésorerie nulle",
+      "safetyZone": "Zone de Sécurité",
+      "fullyAutonomous": "100% Autonome",
+      "actuarialDisclaimer": "Calculs actuariels synchronisés sur l'historique comptable importé de SmartBiz AI.",
       "revenue": "Revenus & Dépenses",
       "revenueSubtitle": "Comparez vos revenus générés aux dépenses opérationnelles",
       "expenses": "Dépenses & Coûts",
@@ -304,11 +389,31 @@
         "marketingSpend": "Dépenses marketing",
         "netCashBurn": "Burn net de trésorerie",
         "endingCashBalance": "Trésorerie finale",
-        "profitMargin": "Marge Bénéficiaire (%)"
+        "profitMargin": "Marge Bénéficiaire (%)",
+        "otherOps": "Autres Dépenses",
+        "runwayMonths": "Piste (Mois)"
       },
       "trendAnalysisTitle": "Analyse de Tendance",
       "trendAnalysisSubtitle": "Volume brut vs évolution de la marge bénéficiaire relative",
-      "noData": "Aucune donnée historique disponible pour l'instant."
+      "noData": "Aucune donnée historique disponible pour l'instant.",
+      "cashRunwaySubtitle": "Métrique de survie basée sur le solde de trésorerie vs le burn rate",
+      "cashRunwayTitle": "Analyse de la Piste de Trésorerie",
+      "currentRunway": "Piste Actuelle",
+      "expenseAllocationSubtitle": "Répartition des dépenses opérationnelles (Agrégées)",
+      "infinite": "Illimité",
+      "modeGrouped": "Groupé",
+      "modeStacked": "Empilé",
+      "monthlyBurn": "Burn Mensuel",
+      "months": "Mois",
+      "newCustomers": "Nouveaux Clients",
+      "of": "sur",
+      "retentionSubtitle": "Performance historique des cohortes issue de la base de données",
+      "retentionTitle": "Acquisition & Fidélisation",
+      "rowsPerPage": "Lignes par page",
+      "searchPlaceholder": "Rechercher des métriques...",
+      "showing": "Affichage",
+      "totalRetention": "Fidélisation Totale",
+      "infiniteCashFlow": "Infinite (+ Cash Flow)"
     },
     "tabs": {
       "strategic": "Vue Stratégique",
@@ -329,13 +434,48 @@
       "pendingTitle": "Prédiction en cours",
       "pendingHint": "Veuillez patienter quelques secondes puis actualiser cet onglet.",
       "revenueProjection": "Projection des Revenus",
-      "maeDisclaimer": "L'incertitude de projection est affichée avec une MAE estimée entre 12 et 16%.",
+      "maeDisclaimer": "L'incertitude de projection est affichée avec une MAE fixe de 12%.",
       "featureImportance": "Facteurs d'Influence",
       "projectionRangeHint": "La zone pointillée indique la fourchette probable (min-max).",
       "featureHint": "Les facteurs ci-dessous montrent ce qui influence le plus la projection.",
       "impact": "Impact",
       "projectedValuations": "Évaluations Projetées",
-      "featureImportanceTitle": "Aperçus du Modèle ML"
+      "featureImportanceTitle": "Aperçus du Modèle ML",
+      "manualModeHint": "Aucun résultat ML trouvé. Vous pouvez toujours simuler la valeur de l'entreprise et des capitaux propres en temps réel avec les contrôles ci-dessous.",
+      "manualModeTitle": "Mode projection manuelle actif",
+      "predictionComplete": "Prédiction terminée !",
+      "predictionFailed": "Échec de la prédiction. Veuillez réessayer.",
+      "predictionStarted": "Prédiction ML démarrée. Cela peut prendre un moment...",
+      "valuationSimulator": "Simulateur de Valorisation & Liquidité",
+      "revenueHint": "Observez les limites de prévision de croissance du chiffre d'affaires basées sur l'IA.",
+      "valuationHint": "Modélisation interactive divisant la valeur d'entreprise en capitaux propres et dette.",
+      "revenueMode": "Mode Revenus",
+      "valuationMode": "Mode Valorisation",
+      "baseScenario": "Scénario de Base ML :",
+      "drivesValuation": "Pilote le plafond du multiplicateur de valorisation.",
+      "exitMultiple": "Multiple de Sortie",
+      "projectedDebtY1": "Dette Nette Projetée (An 1)",
+      "projectedDebtY2": "Dette Nette Projetée (An 2+)",
+      "enterpriseValue": "Valeur d'Entreprise",
+      "baseYear": "Année de Référence",
+      "historical": "Historique",
+      "historicalActual": "Historique Réel",
+      "importance": "Importance",
+      "scenarios": {
+        "pessimistic": "Pessimiste",
+        "realistic": "Réaliste",
+        "optimistic": "Optimiste"
+      },
+      "manualModeHint": "Aucun résultat ML trouvé. Vous pouvez toujours simuler la valeur de l'entreprise et des capitaux propres en temps réel avec les contrôles ci-dessous.",
+      "manualModeTitle": "Mode projection manuelle actif",
+      "predictionComplete": "Prédiction terminée !",
+      "predictionFailed": "Échec de la prédiction. Veuillez réessayer.",
+      "predictionStarted": "Prédiction ML démarrée. Cela peut prendre un moment...",
+      "simulationConsole": "Console de simulation interactive",
+      "liveRecalculation": "Recalcul immédiat sur données réelles",
+      "growthModifier": "Ajustement de croissance",
+      "volatilitySpread": "Volatilité de Monte Carlo (Risque)",
+      "riskSpread": "écart"
     },
     "history": {
       "title": "Historique des imports",
@@ -354,13 +494,76 @@
       "active": "Affichage actif",
       "today": "Aujourd'hui",
       "yesterday": "Hier",
-      "daysAgo": "Il y a {{count}} jours"
+      "daysAgo": "Il y a {{count}} jours",
+      "archiveTitle": "Historique des Imports",
+      "archiveSubtitle": "Securely manage historical snapshots",
+      "decrypting": "Decrypting Archives...",
+      "noHistoricalData": "No historical data preserved.",
+      "snapshot": "Snapshot {{number}}",
+      "rowsDigested": "Rows Digested",
+      "integrity": "Integrity",
+      "verified": "Verified",
+      "currentlyAuditing": "Currently Auditing",
+      "auditSnapshot": "Audit Snapshot",
+      "purgeArchive": "Purge Archive",
+      "deleteSuccess": "Import deleted successfully.",
+      "confirmDeleteDetailed": "Are you sure you want to delete this import? All associated data will be lost."
     },
     "fetchError": "Échec du chargement des données.",
     "lastImport": "Dernière importation",
     "downloadTemplate": "Télécharger le modèle",
     "downloading": "Téléchargement en cours...",
-    "downloadError": "Échec du téléchargement du modèle. Veuillez réessayer."
+    "downloadError": "Échec du téléchargement du modèle. Veuillez réessayer.",
+    "exportError": "Échec de l'export du tableau de bord.",
+    "exportSuccess": "Tableau de bord exporté en PDF.",
+    "aiInsight": {
+      "title": "SmartBiz AI Analysis"
+    },
+    "banner": {
+      "historicalSnapshot": "Visualisation de l'historique",
+      "returnLatestData": "Retourner aux données récentes"
+    },
+    "filters": {
+      "all": "Tout",
+      "month12": "12 Mois",
+      "month6": "6 Mois"
+    },
+    "export": {
+      "pdf": "Exporter PDF"
+    },
+    "exportPDF": {
+      "short": "PDF"
+    },
+    "exportExcel": {
+      "short": "Excel"
+    },
+    "prediction": {
+      "seriesForecast": "Forecast",
+      "seriesActual": "Actual",
+      "confidenceForHorizon": "{{horizon}} Confidence",
+      "accuracyShort": "acc.",
+      "maeLabel": "MAE",
+      "low": "Low",
+      "high": "High"
+    },
+    "cohorts": {
+      "title": "Rétention par Cohortes",
+      "badge": "AI Core",
+      "subtitle": "Suivi de l'engagement et de l'attrition des utilisateurs par date d'inscription",
+      "cohort": "Cohorte",
+      "size": "Taille",
+      "help": "Explication : M0 correspond au mois d'inscription (100% actifs). Chaque mois M1-M5 montre le pourcentage de cette cohorte qui est resté engagé.",
+      "clients": "{{count}} clients",
+      "monthIndex": "M{{index}}",
+      "months": {
+        "jan": "Janvier 2026",
+        "feb": "Février 2026",
+        "mar": "Mars 2026",
+        "apr": "Avril 2026",
+        "may": "Mai 2026",
+        "jun": "Juin 2026"
+      }
+    }
   },
   "insight": {
     "growth": {
@@ -380,8 +583,8 @@
     }
   },
   "valuation": {
-    "title": "Évaluation d'entreprise",
-    "subtitle": "Estimez la valeur de votre entreprise à l'aide de méthodes standards.",
+    "title": "Modélisation de la Valeur",
+    "subtitle": "Estimez la valeur de votre entreprise grâce à nos algorithmes d'évaluation avancés.",
     "selectMethod": "Sélectionnez une méthode d'évaluation",
     "chooseMethod": "-- Choisir une méthode --",
     "bestFor": "Idéal pour",
@@ -468,7 +671,20 @@
       "exported": "Exporté ✓"
     },
     "save": "Enregistrer",
-    "saved": "Enregistré ✓"
+    "saved": "Enregistré ✓",
+    "calcSuccess": "Valorisation calculée avec succès !",
+    "empty": {
+      "title": "Prêt à calculer"
+    },
+    "methods": {
+      "assetBased": "Basé sur l'actif",
+      "evEbitda": "VE / EBITDA",
+      "evRevenue": "VE / Chiffre d'affaires",
+      "gordonGrowth": "Modèle de Gordon",
+      "peRatio": "Ratio P/E"
+    },
+    "saveError": "Échec de la sauvegarde de la valorisation.",
+    "saveSuccess": "Valorisation sauvegardée avec succès !"
   },
   "reports": {
     "tabs": {
@@ -506,8 +722,8 @@
         "failed": "Échec"
       }
     },
-    "title": "Generateur de rapports IA",
-    "subtitle": "Generez des rapports complets (10-25 pages) a partir des donnees importees et des predictions ML.",
+    "title": "Générateur de Rapports IA",
+    "subtitle": "Générez des dossiers d'analyse complets à partir de vos données financières et prédictions ML.",
     "configuration": "Configuration du rapport",
     "generated": "Rapports generes",
     "batch": "Lot de donnees",
@@ -561,8 +777,20 @@
     }
   },
   "wizard": {
-    "title": "Generateur de Rapport",
-    "subtitle": "Creez un rapport personnalise adapte a vos besoins commerciaux",
+    "title": "Générateur de Rapport",
+    "subtitle": "Créez un rapport personnalisé adapté à vos besoins commerciaux",
+    "sections": {
+      "cover": "Couverture",
+      "summary": "Résumé",
+      "oneAnalysis": "1 Analyse",
+      "recommendations": "Recommandations",
+      "toc": "TDM",
+      "threeAnalyses": "3 Analyses",
+      "benchmark": "Benchmark",
+      "allAnalyses": "Toutes Analyses",
+      "forecasts": "Prévisions",
+      "appendices": "Annexes"
+    },
     "step": "Etape {{current}} sur {{total}}",
     "back": "Retour",
     "next": "Suivant",
@@ -578,18 +806,35 @@
       "problemStatementMinLength": "Veuillez decrire votre probleme en au moins 10 caracteres",
       "problemStatementMaxLength": "L'enonce du probleme est trop long",
       "selectAtLeastOneSection": "Veuillez selectionner au moins une section",
-      "selectTone": "Veuillez selectionner un ton"
+      "selectTone": "Veuillez selectionner un ton",
+      "selectAudience": "Veuillez sélectionner votre audience cible",
+      "selectLength": "Veuillez sélectionner la longueur du rapport"
     },
     "step1": {
       "title": "Type de rapport",
       "description": "Selectionnez le type de rapport qui convient le mieux a vos besoins",
       "subtitle": "Sélectionnez l'objectif d'analyse principal pour ce rapport.",
       "types": {
-        "FINANCIAL": { "label": "Financier", "desc": "Analyse des revenus, des flux de trésorerie et de la rentabilité" },
-        "STRATEGIC": { "label": "Stratégique", "desc": "Dynamique du marché, avantage concurrentiel et positionnement" },
-        "MARKETING": { "label": "Marketing & Croissance", "desc": "Performance d'acquisition, de fidélisation et de conversion des clients" },
-        "OPERATIONAL": { "label": "Opérationnel", "desc": "Efficacité, processus et structure des coûts" },
-        "VALUATION": { "label": "Évaluation", "desc": "Estimation de la valeur de l'entreprise et options de sortie" }
+        "FINANCIAL": {
+          "label": "Financier",
+          "desc": "Analyse des revenus, des flux de trésorerie et de la rentabilité"
+        },
+        "STRATEGIC": {
+          "label": "Stratégique",
+          "desc": "Dynamique du marché, avantage concurrentiel et positionnement"
+        },
+        "MARKETING": {
+          "label": "Marketing & Croissance",
+          "desc": "Performance d'acquisition, de fidélisation et de conversion des clients"
+        },
+        "OPERATIONAL": {
+          "label": "Opérationnel",
+          "desc": "Efficacité, processus et structure des coûts"
+        },
+        "VALUATION": {
+          "label": "Évaluation",
+          "desc": "Estimation de la valeur de l'entreprise et options de sortie"
+        }
       }
     },
     "step2": {
@@ -598,7 +843,22 @@
     },
     "step3": {
       "title": "Longueur du rapport",
-      "description": "Selectionnez la longueur preferee de votre rapport"
+      "description": "Sélectionnez la longueur préférée de votre rapport",
+      "subtitle": "Chaque profil garantit un nombre fixe de pages avec un contenu structuré.",
+      "profiles": {
+        "SHORT": {
+          "label": "Court",
+          "desc": "~5 pages — Analyse essentielle condensée"
+        },
+        "MEDIUM": {
+          "label": "Moyen",
+          "desc": "~10 pages — Analyse équilibrée avec benchmark"
+        },
+        "LONG": {
+          "label": "Long",
+          "desc": "~18 pages — Rapport complet et détaillé"
+        }
+      }
     },
     "step4": {
       "title": "Probleme commercial",
@@ -606,22 +866,117 @@
       "label": "Probleme / Zone de focus",
       "placeholder": "Ex: Nous devons optimiser nos couts d'acquisition de clients tout en maintenant la qualite...",
       "tip": "Conseil:",
-      "tipText": "Plus votre description du defi commercial est precise, plus votre rapport sera personalise et pertinent."
+      "tipText": "Plus votre description du defi commercial est precise, plus votre rapport sera personalise et pertinent.",
+      "examples": {
+        "title": "Exemples de prompts"
+      },
+      "subtitle": "Ce contexte façonne l'analyse IA. Plus de détails = meilleures analyses. (Optionnel mais recommandé)"
     },
     "step5": {
       "title": "Sections du rapport",
       "description": "Selectionnez les sections a inclure dans votre rapport",
-      "selected": "Sections selectionnees"
+      "selected": "Sections selectionnees",
+      "sections": {
+        "executiveSummary": {
+          "label": "Résumé exécutif",
+          "desc": "Aperçu général et conclusions clés"
+        },
+        "swot": {
+          "label": "Analyse SWOT",
+          "desc": "Forces, faiblesses, opportunités, menaces"
+        },
+        "performance": {
+          "label": "Analyse de performance",
+          "desc": "Métriques de performance détaillées et tendances"
+        },
+        "financialOverview": {
+          "label": "Aperçu financier",
+          "desc": "Santé financière et indicateurs clés"
+        },
+        "recommendations": {
+          "label": "Recommandations",
+          "desc": "Recommandations actionnables"
+        },
+        "forecasts": {
+          "label": "Prévisions & Tendances",
+          "desc": "Perspectives d'avenir et tendances du marché"
+        }
+      }
     },
     "step6": {
       "title": "Ton du rapport",
-      "description": "Selectionnez le ton et le style de votre rapport"
+      "description": "Selectionnez le ton et le style de votre rapport",
+      "logo": "Logo de l'entreprise",
+      "logoDesc": "Taille max 2 Mo. Format recommandé : PNG avec fond transparent",
+      "logoSizeError": "La taille du logo doit être inférieure à 2 Mo",
+      "primaryColor": "Couleur primaire",
+      "primaryColorDesc": "Utilisée pour les en-têtes et les fonds sombres",
+      "secondaryColor": "Couleur secondaire",
+      "secondaryColorDesc": "Utilisée pour les accents, les bordures et les graphiques",
+      "upload": "Cliquez pour télécharger le logo"
     },
     "step7": {
       "title": "Confirmer et generer",
       "description": "Verifiez les parametres de votre rapport et cliquez pour demarrer",
       "summary": "Configuration du rapport",
       "info": "La generation de votre rapport prend generalement 2-5 minutes. Vous recevrez une notification par email a l'issue."
+    },
+    "badge": "Rapport IA",
+    "confirmation": {
+      "audience": "Audience",
+      "auto": "Inclus automatiquement",
+      "features": {
+        "benchmark": "Benchmark sectoriel automatique",
+        "branding": "Branding de l'entreprise appliqué",
+        "charts": "Graphiques et tableaux PDF natifs",
+        "headers": "En-têtes, pieds de page et pagination",
+        "toc": "Page de couverture + Table des matières"
+      },
+      "language": "Langue",
+      "length": "Longueur du rapport",
+      "problem": "Contexte commercial",
+      "title": "Prêt à générer !",
+      "type": "Type d'analyse",
+      "audiences": {
+        "internal": "Équipe interne",
+        "investors": "Investisseurs / Conseil",
+        "bank": "Banque / Crédit"
+      },
+      "lengths": {
+        "short": {
+          "label": "Court",
+          "pages": "~5 pages"
+        },
+        "medium": {
+          "label": "Moyen",
+          "pages": "~10 pages"
+        },
+        "long": {
+          "label": "Long",
+          "pages": "~18 pages"
+        }
+      }
+    },
+    "step2new": {
+      "subtitle": "L'audience façonne automatiquement le langage, le ton et le focus de votre rapport.",
+      "title": "Qui lira ce rapport ?",
+      "audiences": {
+        "INTERNAL": {
+          "label": "Équipe & Management",
+          "desc": "Équipe & management — performance, coûts & opérations.",
+          "focus": "Opérationnel • Coûts • Effectifs"
+        },
+        "INVESTORS": {
+          "label": "Investisseurs & Conseil",
+          "desc": "Investisseurs & conseil — croissance, valorisation & marché.",
+          "focus": "Croissance • Revenus • Marché"
+        },
+        "BANK": {
+          "label": "Banque & Crédit",
+          "desc": "Établissements de crédit — solvabilité, ratios & remboursement.",
+          "focus": "Ratio dette • Cash-flow • Actifs"
+        }
+      }
     }
   },
   "report": {
@@ -654,7 +1009,14 @@
       "step9": "Finalisation du document"
     },
     "generationError": "Echec de la generation du rapport",
-    "generationFailed": "Echec de la generation du rapport"
+    "generationFailed": "Echec de la generation du rapport",
+    "pdfPreview": "Aperçu du rapport",
+    "openInNewTab": "Ouvrir dans un nouvel onglet",
+    "exitFullscreen": "Quitter le plein écran",
+    "fullscreen": "Plein écran",
+    "close": "Fermer",
+    "loadingPdf": "Chargement du PDF...",
+    "pdfError": "Impossible d'afficher le PDF."
   },
   "waitingSetup": {
     "title": "Configuration en cours",
@@ -691,5 +1053,270 @@
     "admin": "Admin",
     "collaborator": "Collaborateur",
     "reader": "Lecteur"
+  },
+  "common": {
+    "cancel": "Annuler"
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "testimonials": "Testimonials",
+      "faq": "FAQ",
+      "login": "Sign in",
+      "invite": "Request Invite",
+      "changeLanguage": "Change language",
+      "toggleTheme": "Toggle theme"
+    },
+    "hero": {
+      "badge": "Digital Command Center for Finance",
+      "title1": "Business valuation",
+      "title2": "next generation.",
+      "subtitle": "Financial AI that models your KPIs, projects your cash flows, and generates investor-ready memos in minutes.",
+      "cta": {
+        "primary": "Demander une invitation",
+        "secondary": "S'inscrire"
+      },
+      "social": {
+        "count": "450+ professionals",
+        "text1": "in finance",
+        "text2": "already operate from this cockpit."
+      }
+    },
+    "stats": {
+      "item1": {
+        "label": "Cases Analyzed",
+        "suffix": "+"
+      },
+      "item2": {
+        "label": "Model Accuracy",
+        "suffix": "%"
+      },
+      "item3": {
+        "label": "Partner Firms",
+        "suffix": "+"
+      },
+      "item4": {
+        "label": "Valuation Volume",
+        "suffix": " B EUR"
+      }
+    },
+    "features": {
+      "title": "Concrete gains. Immediate impact.",
+      "subtitle": "Spend less time in spreadsheets and more time on strategic advisory.",
+      "items": {
+        "time": {
+          "title": "4x faster delivery",
+          "desc": "Stop waiting weeks for data prep. Import your files and get a valuation-ready baseline in minutes."
+        },
+        "reliability": {
+          "title": "98% ML reliability",
+          "desc": "Our models automatically calibrate key drivers against broad market transaction patterns."
+        },
+        "memorandum": {
+          "title": "Institutional reports",
+          "desc": "Generate structured, source-backed PDF memorandums ready to share with investors."
+        },
+        "realtime": {
+          "title": "Real-time impact",
+          "desc": "Instantly simulate how cost increases or revenue drops affect final valuation."
+        },
+        "roi": {
+          "title": "Multi-method ROI",
+          "desc": "Combine DCF, multiples, and asset-based methods without extra manual effort."
+        },
+        "margin": {
+          "title": "Improve margins",
+          "desc": "Reduce production costs for valuation assignments and increase firm profitability."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "From raw data to institutional output in 3 steps.",
+      "step1": {
+        "title": "1. Import your financials",
+        "desc": "Connect accounting tools or upload Excel files. We normalize your statements instantly."
+      },
+      "step2": {
+        "title": "2. AI models outcomes",
+        "desc": "Algorithms clean anomalies and project cash flow over 5 years with high reliability."
+      },
+      "step3": {
+        "title": "3. Report generated",
+        "desc": "Get a complete valuation memo (DCF, multiples) ready for committees or investors."
+      }
+    },
+    "pricing": {
+      "title": "Simple pricing, immediate ROI.",
+      "subtitle": "Monetize SmartBiz AI from your very first valuation mission.",
+      "cta": "Request access",
+      "recommended": "Recommended",
+      "perMonth": "/month",
+      "starter": {
+        "name": "Starter",
+        "desc": "Idéal pour les équipes qui débutent avec l'évaluation par IA.",
+        "price": "199",
+        "features": [
+          "Jusqu'à 5 dossiers par mois",
+          "Méthode DCF standard",
+          "Export PDF basique",
+          "Support par email"
+        ]
+      },
+      "expert": {
+        "name": "Expert",
+        "desc": "Conçu pour les cabinets de conseil et directeurs financiers à temps partagé.",
+        "price": "499",
+        "features": [
+          "Dossiers illimités",
+          "Toutes les méthodes (DCF, Multiples, Actifs)",
+          "Projections ML personnalisables",
+          "Exports en marque blanche",
+          "Support prioritaire 24h/7j"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "desc": "Sur mesure pour les banques d'affaires et les équipes M&A.",
+        "price": "Sur devis",
+        "features": [
+          "API dédiée",
+          "Intégrations ERP sur mesure",
+          "Hébergement dédié",
+          "Gestionnaire de compte dédié",
+          "Formation sur site"
+        ]
+      }
+    },
+    "trust": {
+      "title": "Trusted by finance teams for valuation workflows"
+    },
+    "roi": {
+      "title": "Calculate your ROI",
+      "subtitle": "Discover how much time and money SmartBiz AI can save for your advisory practice.",
+      "question": "How many valuation files do you handle each month?",
+      "manualTime": "Estimated manual time",
+      "aiTime": "Time with SmartBiz AI",
+      "perMonthHours": "h /month",
+      "timeSaved": "Time saved",
+      "hours": "hours",
+      "estimatedGain": "Estimated profitability gain",
+      "basedOn": "Based on an average billing rate of {{rate}}/hour"
+    },
+    "security": {
+      "items": {
+        "compliance": {
+          "title": "GDPR Compliance",
+          "desc": "Your financial data is never shared and never used to train global models."
+        },
+        "encryption": {
+          "title": "AES-256 Encryption",
+          "desc": "Bank-grade security protocols protect all inbound and outbound requests."
+        },
+        "sovereignty": {
+          "title": "Data Sovereignty",
+          "desc": "Hosting is guaranteed in Europe with high-availability standards."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "Approuvé par les professionnels",
+      "subtitle": "Découvrez pourquoi les équipes financières choisissent SmartBiz AI.",
+      "items": [
+        {
+          "name": "Jean Dupont",
+          "role": "Directeur Financier, TechCorp",
+          "content": "SmartBiz AI a divisé par 4 le temps de reporting mensuel. Les prévisions ML sont d'un réalisme impressionnant."
+        },
+        {
+          "name": "Sophie Martin",
+          "role": "Expert-comptable, Cabinet SM",
+          "content": "L'interface est claire et l'import est fluide. Ce qui nous retient, c'est la qualité exceptionnelle des rapports."
+        },
+        {
+          "name": "Marc Lellouche",
+          "role": "CEO, InnovStartup",
+          "content": "Les modèles de valorisation nous ont aidés à justifier nos hypothèses de valorisation pré-money lors de notre levée en seed."
+        }
+      ]
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "items": [
+        {
+          "q": "Mes données financières sont-elles sécurisées ?",
+          "a": "Oui. Nous utilisons un chiffrement de bout en bout AES-256 et respectons strictement le RGPD. Vos données ne sont jamais partagées."
+        },
+        {
+          "q": "Quels formats d'importation sont pris en charge ?",
+          "a": "Vous pouvez importer des fichiers Excel et CSV, avec des intégrations comptables directes à venir."
+        },
+        {
+          "q": "Comment fonctionne l'IA de valorisation ?",
+          "a": "Les modèles comparent vos indicateurs clés (KPI) à des ensembles de données de marché anonymisés et pondèrent les méthodes d'évaluation grâce au machine learning."
+        },
+        {
+          "q": "Puis-je exporter les rapports en PDF ?",
+          "a": "Oui. La génération de rapports PDF professionnels et personnalisables est incluse."
+        }
+      ]
+    },
+    "mockup": {
+      "tabs": {
+        "valuation": "Valuation",
+        "forecast": "Forecast",
+        "risk": "Risk"
+      },
+      "kpis": {
+        "enterpriseValue": "Enterprise Value",
+        "projectedGrowth": "Projected Growth",
+        "mlReliability": "ML Reliability"
+      },
+      "forecast": {
+        "title": "5-Year ML Forecast",
+        "desc": "The model generated 12,450 scenarios based on historical sector volatility."
+      },
+      "risk": {
+        "sectorRisk": "Sector Risk",
+        "medium": "Medium",
+        "survivalRate": "Survival Rate (5Y)"
+      }
+    },
+    "footer": {
+      "description": "Next-generation platform for business valuation, cash projections, and AI-assisted financial modeling.",
+      "product": {
+        "title": "Product",
+        "benefits": "Benefits",
+        "howItWorks": "How it works",
+        "mlModels": "ML Models",
+        "pricing": "Pricing"
+      },
+      "company": {
+        "title": "Company",
+        "about": "About",
+        "contact": "Contact",
+        "privacy": "Privacy",
+        "terms": "Legal"
+      },
+      "copyright": "SmartBiz AI. Final Year Project.",
+      "operational": "Operational System",
+      "hosted": "Hosted in Europe"
+    },
+    "finalCta": {
+      "title": "Ready to upgrade your financial operations?",
+      "subtitle": "Join teams already using AI to move faster and decide better.",
+      "button": "Get access"
+    }
+  },
+  "export": {
+    "deprecatedMessage": "L'exportation directe du tableau de bord est temporairement désactivée pour maintenance. Veuillez utiliser l'onglet Rapports pour générer un document PDF professionnel complet via notre moteur IA."
+  },
+  "errorBoundary": {
+    "title": "Une erreur est survenue",
+    "reload": "Recharger la page"
+  },
+  "shortcuts": {
+    "modalTitle": "Raccourcis clavier",
+    "toggleHelp": "Appuyez sur {{key}} pour afficher cette aide"
   }
 }

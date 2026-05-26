@@ -107,6 +107,6 @@ export class ReportController {
     @CurrentUser() user: JwtPayload,
     @Param('id') reportId: string,
   ): Observable<MessageEvent> {
-    return this.reportService.streamReportProgress(user.companyId, reportId) as Observable<MessageEvent>;
+    return this.reportService.streamReportProgress(user.companyId, reportId);
   }
 }

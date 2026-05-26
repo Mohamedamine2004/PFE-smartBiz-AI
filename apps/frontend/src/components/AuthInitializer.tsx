@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
-import api from '../lib/axios';
 import { Spinner } from './ui';
 
 interface AuthInitializerProps {

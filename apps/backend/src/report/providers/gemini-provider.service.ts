@@ -12,9 +12,12 @@ export class GeminiProviderService implements LlmProvider {
   private readonly genAI: GoogleGenerativeAI;
 
   constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('GEMINI_API_KEY')?.trim() || '';
-    this.modelName = this.configService.get<string>('GEMINI_MODEL')?.trim() || 'gemini-2.5-flash';
-    
+    this.apiKey =
+      this.configService.get<string>('GEMINI_API_KEY')?.trim() || '';
+    this.modelName =
+      this.configService.get<string>('GEMINI_MODEL')?.trim() ||
+      'gemini-2.5-flash';
+
     if (this.isConfigured()) {
       this.genAI = new GoogleGenerativeAI(this.apiKey);
     }
@@ -30,12 +33,12 @@ export class GeminiProviderService implements LlmProvider {
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ 
+      const model = this.genAI.getGenerativeModel({
         model: this.modelName,
         generationConfig: {
           maxOutputTokens: 8192, // Gemini supports high output tokens
           temperature: 0.7,
-        }
+        },
       });
 
       const result = await model.generateContent(prompt);
@@ -48,7 +51,10 @@ export class GeminiProviderService implements LlmProvider {
 
       return this.normalizeResponseText(text);
     } catch (error: any) {
-      this.logger.error(`Error generating section ${sectionKey} with Gemini: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error generating section ${sectionKey} with Gemini: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

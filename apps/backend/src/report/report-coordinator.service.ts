@@ -210,7 +210,8 @@ export class ReportCoordinatorService {
         const generated = await this.llmStrategy
           .generate(prompt, type)
           .catch((error: unknown) => {
-            const errMsg = error instanceof Error ? error.message : String(error);
+            const errMsg =
+              error instanceof Error ? error.message : String(error);
             this.logger.error(
               `[AI Error] Failed to generate section '${type}': ${errMsg}`,
               error instanceof Error ? error.stack : undefined,
@@ -246,13 +247,17 @@ export class ReportCoordinatorService {
       for (const section of snapshot.sections) {
         if (section === ReportSection.EXECUTIVE_SUMMARY) continue;
         const key = `SECTION_${section}`;
-        const sectionName = this.promptEngine.getSectionName(section, report.language);
+        const sectionName = this.promptEngine.getSectionName(
+          section,
+          report.language,
+        );
         const prompt = `${basePrompt}\n\n=== YOUR TASK ===\nWrite ONLY this section: "${sectionName}".\nProvide a thorough, multi-paragraph analysis.\nUse markdown headings (##, ###), bullet points.\nAim for at least 600 words.`;
 
         const generated = await this.llmStrategy
           .generate(prompt, key)
           .catch((error: unknown) => {
-            const errMsg = error instanceof Error ? error.message : String(error);
+            const errMsg =
+              error instanceof Error ? error.message : String(error);
             this.logger.error(
               `[AI Error] Failed to generate section '${key}': ${errMsg}`,
               error instanceof Error ? error.stack : undefined,
@@ -321,8 +326,10 @@ export class ReportCoordinatorService {
       const branding: CompanyBranding = {
         companyName: company?.name ?? 'Enterprise',
         logoUrl: snapshot.logoBase64 || company?.logoUrl,
-        primaryColor: snapshot.primaryColor || company?.primaryColor || '#1E3A5F',
-        secondaryColor: snapshot.secondaryColor || company?.secondaryColor || '#2563EB',
+        primaryColor:
+          snapshot.primaryColor || company?.primaryColor || '#1E3A5F',
+        secondaryColor:
+          snapshot.secondaryColor || company?.secondaryColor || '#2563EB',
       };
 
       // ─── 9. Generate PDF ───
@@ -482,7 +489,11 @@ export class ReportCoordinatorService {
       case ReportSection.FINANCIAL_OVERVIEW:
         return {
           type: 'dual_axis',
-          title: label('Revenus vs Dépenses Opérationnelles', 'Revenue vs OpEx', 'الإيرادات مقابل المصاريف التشغيلية'),
+          title: label(
+            'Revenus vs Dépenses Opérationnelles',
+            'Revenue vs OpEx',
+            'الإيرادات مقابل المصاريف التشغيلية',
+          ),
           series: getMetricSeries('Gross_Revenue'),
           compareSeries: getMetricSeriesAbs('Operating_Expenses_Total'),
           metricName: 'Revenue_vs_OpEx',
@@ -491,14 +502,22 @@ export class ReportCoordinatorService {
       case ReportSection.SWOT_ANALYSIS:
         return {
           type: 'area',
-          title: label('Évolution de la Trésorerie', 'Cash Position Trend', 'تطور السيولة النقدية'),
+          title: label(
+            'Évolution de la Trésorerie',
+            'Cash Position Trend',
+            'تطور السيولة النقدية',
+          ),
           series: getMetricSeries('Cash_and_Equivalents'),
           metricName: 'Cash',
         };
       case 'VALUATION':
         return {
           type: 'bar',
-          title: label('Croissance du Résultat Net', 'Net Income Growth', 'نمو صافي الدخل'),
+          title: label(
+            'Croissance du Résultat Net',
+            'Net Income Growth',
+            'نمو صافي الدخل',
+          ),
           series: getMetricSeries('Net_Income'),
           metricName: 'NetIncome',
         };
@@ -506,14 +525,22 @@ export class ReportCoordinatorService {
       case ReportSection.PERFORMANCE_ANALYSIS:
         return {
           type: 'line',
-          title: label('Dépenses Opérationnelles', 'Operating Expenses Trend', 'المصاريف التشغيلية'),
+          title: label(
+            'Dépenses Opérationnelles',
+            'Operating Expenses Trend',
+            'المصاريف التشغيلية',
+          ),
           series: getMetricSeries('Operating_Expenses_Total'),
           metricName: 'OpEx',
         };
       case 'MARKETING':
         return {
           type: 'line',
-          title: label('Nouveaux Clients Acquis', 'New Customer Acquisition', 'العملاء الجدد المكتسبون'),
+          title: label(
+            'Nouveaux Clients Acquis',
+            'New Customer Acquisition',
+            'العملاء الجدد المكتسبون',
+          ),
           series: getMetricSeriesLike('new_customers'),
           metricName: 'NewCustomers',
         };
@@ -521,7 +548,11 @@ export class ReportCoordinatorService {
       case ReportSection.FORECASTS_TRENDS:
         return {
           type: 'area',
-          title: label('Évolution du Cash Burn', 'Cash Burn Trend', 'تطور استهلاك النقدية'),
+          title: label(
+            'Évolution du Cash Burn',
+            'Cash Burn Trend',
+            'تطور استهلاك النقدية',
+          ),
           series: getMetricSeriesAbs('Net_Cash_Burn'),
           metricName: 'Burn',
         };
@@ -554,8 +585,7 @@ export class ReportCoordinatorService {
         : ReportAnalysisDepth.STANDARD;
 
     const tone =
-      raw.tone &&
-      Object.values(ReportTone).includes(raw.tone as ReportTone)
+      raw.tone && Object.values(ReportTone).includes(raw.tone as ReportTone)
         ? (raw.tone as ReportTone)
         : ReportTone.PROFESSIONAL;
 
@@ -578,9 +608,9 @@ export class ReportCoordinatorService {
       tone,
       audience,
       sections,
-      primaryColor: raw.primaryColor as string | undefined,
-      secondaryColor: raw.secondaryColor as string | undefined,
-      logoBase64: raw.logoBase64 as string | undefined,
+      primaryColor: raw.primaryColor,
+      secondaryColor: raw.secondaryColor,
+      logoBase64: raw.logoBase64,
     };
   }
 

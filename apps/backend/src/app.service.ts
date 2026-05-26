@@ -1,12 +1,3 @@
-/*import { Injectable } from '@nestjs/common';
-
-@Injectable()
-export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
-}
-*/
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 
@@ -18,22 +9,28 @@ export class AppService {
   // Injection de dépendance du PrismaService
   constructor(private readonly prisma: PrismaService) {}
 
-  async testDatabaseConnection(): Promise<any> {
+  async testDatabaseConnection(): Promise<{
+    status: string;
+    message: string;
+    userCount?: number;
+    details?: string;
+  }> {
     try {
-      // Tente de compter les utilisateurs dans la table "User"
       const userCount = await this.prisma.user.count();
 
       return {
         status: 'success',
         message:
           'La connexion à la base de données PostgreSQL est opérationnelle.',
-        userCount: userCount,
+        userCount,
       };
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       return {
         status: 'error',
         message: 'Échec de la connexion à la base de données.',
-        details: error.message,
+        details: errorMessage,
       };
     }
   }

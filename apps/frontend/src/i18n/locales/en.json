@@ -29,19 +29,28 @@
     },
     "success": "Data imported successfully! Redirecting to dashboard...",
     "uploading": "Processing Data...",
-    "submitBtn": "Run Import & Analysis"
+    "submitBtn": "Run Import"
   },
   "topbar": {
     "adminSpace": "Admin Workspace",
     "collaboratorSpace": "Collaborator Workspace",
-    "logout": "Log out"
+    "logout": "Log out",
+    "activeSession": "Active Session",
+    "online": "Online",
+    "roleAdmin": "Administrator",
+    "roleOwner": "Super Administrator",
+    "roleUser": "User",
+    "secureSpace": "Secure Space",
+    "lastSync": "Last sync"
   },
   "sidebar": {
     "dashboard": "Dashboard",
     "team": "Team",
     "valuation": "Valuation",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "systemState": "System State",
+    "telemetry": "OP Telemetry"
   },
   "validation": {
     "emailRequired": "Email is required.",
@@ -80,7 +89,9 @@
       "submitButton": "Sign in",
       "loadingButton": "Signing in...",
       "noAccount": "Don't have an account?",
-      "registerLink": "Sign up"
+      "registerLink": "Sign up",
+      "error": "An error occurred.",
+      "success": "Welcome back!"
     },
     "register": {
       "title": "Sign up",
@@ -148,8 +159,56 @@
       "statusActive": "Active",
       "resendInvite": "Resend invite",
       "resendSuccess": "Invitation resent.",
-      "noMembers": "No members found."
-    }
+      "noMembers": "No members found.",
+      "deleteUser": "Remove User"
+    },
+    "deleteError": "Failed to delete user",
+    "deleteModal": {
+      "confirmButton": "Yes, Remove User",
+      "confirmationText": "Are you sure you want to remove",
+      "fromCompany": "from the company?",
+      "subtitle": "This action cannot be undone.",
+      "title": "Remove User",
+      "warning": "The user will lose access to all company resources immediately."
+    },
+    "deleteSuccess": "User removed successfully.",
+    "empty": {
+      "description": "Invite your team members to collaborate on financial analysis and valuations.",
+      "title": "No team members yet"
+    },
+    "fetchError": "Failed to fetch team members",
+    "inbox": {
+      "actions": "Actions",
+      "companyRole": "Company / Role",
+      "date": "Date",
+      "empty": "No requests found.",
+      "message": "Message",
+      "search": "Search...",
+      "status": "Status",
+      "user": "User",
+      "title": "Access Requests",
+      "subtitle": "Manage invitation requests from the landing page."
+    },
+    "roleChangeError": "Failed to update role.",
+    "roleChangeSuccess": "Role updated to {{role}}.",
+    "tabs": {
+      "inbox": "Inbox",
+      "members": "Members"
+    },
+    "transferOwnership": "Transfer Ownership",
+    "transferOwnershipModal": {
+      "title": "Transfer Ownership",
+      "irreversible": "This action is irreversible without a new transfer",
+      "warning": "The new Super Administrator will have all exclusive privileges. You will become a regular Administrator after the transfer.",
+      "selectNewOwner": "Select the new Super Administrator",
+      "noEligible": "No eligible members (only active members can be selected).",
+      "selectPlaceholder": "-- Choose a member --",
+      "selectMember": "Please select a member.",
+      "success": "Ownership transferred to {{firstName}} {{lastName}}. You are now an Administrator.",
+      "error": "Could not transfer ownership.",
+      "confirm": "Confirm transfer"
+    },
+    "you": "You"
   },
   "settings": {
     "title": "Settings",
@@ -157,6 +216,7 @@
     "tabs": {
       "company": "Company",
       "account": "My Account",
+      "workspaces": "Workspaces",
       "team": "Team",
       "preferences": "Preferences"
     },
@@ -241,7 +301,8 @@
       "title": "No financial data yet",
       "description": "Import your financial data to unlock dashboards, predictions and AI-powered insights.",
       "importBtn": "Import data",
-      "settingsBtn": "Company settings"
+      "settingsBtn": "Company settings",
+      "action": "Import Data"
     },
     "kpis": {
       "cac": "Customer Acquisition Cost",
@@ -265,9 +326,28 @@
       "highCac": "High CAC",
       "stableGrowth": "Stable Growth",
       "toDevelop": "To Develop",
-      "strongPosition": "Strong Position"
+      "strongPosition": "Strong Position",
+      "cashBalance": "Current Cash Balance",
+      "secureCash": "Secure",
+      "netBurnRate": "Net Burn Rate (Monthly)",
+      "highBurn": "Watch",
+      "lowBurn": "Stable",
+      "grossMargin": "Operating Margin",
+      "excellentMargin": "Excellent",
+      "standardMargin": "Standard",
+      "churnRate": "Monthly Churn Rate",
+      "churnHealthy": "Healthy < 3%",
+      "mrr": "Recurring Revenue (MRR Est.)",
+      "mrrGrowthText": "{{sign}}{{value}}% MoM",
+      "ratioExcellent": "Excellent",
+      "ratioLow": "To Optimize"
     },
     "charts": {
+      "netCashFlow": "Net Cash Flow",
+      "zeroCashDate": "Zero Cash Date",
+      "safetyZone": "Safety Zone",
+      "fullyAutonomous": "100% Autonomous",
+      "actuarialDisclaimer": "Actuarial calculations synchronized with the accounting history imported from SmartBiz AI.",
       "revenue": "Revenue & Expenses",
       "revenueSubtitle": "Compare your generated revenue against operational expenses",
       "expenses": "Expenses & Costs",
@@ -309,12 +389,31 @@
         "marketingSpend": "Marketing Spend",
         "netCashBurn": "Net Cash Burn",
         "endingCashBalance": "Ending Cash Balance",
-        "profitMargin": "Profit Margin (%)"
+        "profitMargin": "Profit Margin (%)",
+        "otherOps": "Other Expenses",
+        "runwayMonths": "Runway (Months)"
       },
       "infiniteCashFlow": "Infinite (+ Cash Flow)",
       "trendAnalysisTitle": "Trend Analysis",
       "trendAnalysisSubtitle": "Gross volume vs relative profit margin evolution",
-      "noData": "No historical data available yet."
+      "noData": "No historical data available yet.",
+      "cashRunwaySubtitle": "Survival metric based on cash balance vs burn rate",
+      "cashRunwayTitle": "Cash Runway Analysis",
+      "currentRunway": "Current Runway",
+      "expenseAllocationSubtitle": "Distribution of operating expenses (Aggregated)",
+      "infinite": "Infinite",
+      "modeGrouped": "Grouped",
+      "modeStacked": "Stacked",
+      "monthlyBurn": "Monthly Burn",
+      "months": "Months",
+      "newCustomers": "New Customers",
+      "of": "of",
+      "retentionSubtitle": "Historical cohort performance drawn from the live database",
+      "retentionTitle": "Acquisition & Retention",
+      "rowsPerPage": "Rows per page",
+      "searchPlaceholder": "Search metrics...",
+      "showing": "Showing",
+      "totalRetention": "Total Retention"
     },
     "tabs": {
       "strategic": "Strategic View",
@@ -335,7 +434,7 @@
       "pendingTitle": "Prediction in progress",
       "pendingHint": "Please wait a few seconds and refresh this tab.",
       "revenueProjection": "Revenue Projection",
-      "maeDisclaimer": "Projection uncertainty is shown with an estimated MAE range of 12-16%.",
+      "maeDisclaimer": "Projection uncertainty is shown with a fixed MAE of 12%.",
       "featureImportance": "Feature Importance",
       "projectionRangeHint": "Dotted lines indicate the likely range (min-max).",
       "featureHint": "These factors show what most influences the projection.",
@@ -361,7 +460,17 @@
         "pessimistic": "Pessimistic",
         "realistic": "Realistic",
         "optimistic": "Optimistic"
-      }
+      },
+      "manualModeHint": "No ML result found. You can still simulate company and equity value in real time using the controls below.",
+      "manualModeTitle": "Manual projection mode active",
+      "predictionComplete": "Prediction complete!",
+      "predictionFailed": "Prediction failed. Please try again.",
+      "predictionStarted": "ML prediction started. This may take a moment...",
+      "simulationConsole": "Interactive Simulation Console",
+      "liveRecalculation": "Immediate recalculation on live data",
+      "growthModifier": "Growth Adjustment",
+      "volatilitySpread": "Monte Carlo Volatility (Risk)",
+      "riskSpread": "spread"
     },
     "history": {
       "title": "Import History",
@@ -381,7 +490,7 @@
       "yesterday": "Yesterday",
       "daysAgo": "{{count}} days ago",
       "active": "Currently viewing",
-      "archiveTitle": "Data Archive",
+      "archiveTitle": "Import History",
       "archiveSubtitle": "Securely manage historical snapshots",
       "decrypting": "Decrypting Archives...",
       "noHistoricalData": "No historical data preserved.",
@@ -429,7 +538,27 @@
       "maeLabel": "MAE",
       "low": "Low",
       "high": "High"
-    }
+    },
+    "cohorts": {
+      "title": "Cohort Retention Matrix",
+      "badge": "AI Core",
+      "subtitle": "Tracking user engagement and attrition by signup date cohort",
+      "cohort": "Cohort",
+      "size": "Size",
+      "help": "Explanation: M0 represents the month of signup (100% active). Each subsequent month M1-M5 shows the percentage of that cohort that remained active.",
+      "clients": "{{count}} clients",
+      "monthIndex": "M{{index}}",
+      "months": {
+        "jan": "January 2026",
+        "feb": "February 2026",
+        "mar": "March 2026",
+        "apr": "April 2026",
+        "may": "May 2026",
+        "jun": "June 2026"
+      }
+    },
+    "exportError": "Failed to export dashboard.",
+    "exportSuccess": "Dashboard exported as PDF."
   },
   "insight": {
     "growth": {
@@ -537,7 +666,20 @@
       "exported": "Exported ✓"
     },
     "save": "Save",
-    "saved": "Saved ✓"
+    "saved": "Saved ✓",
+    "calcSuccess": "Valuation calculated successfully!",
+    "empty": {
+      "title": "Ready to calculate"
+    },
+    "methods": {
+      "assetBased": "Asset-Based",
+      "evEbitda": "EV / EBITDA",
+      "evRevenue": "EV / Revenue",
+      "gordonGrowth": "Gordon Growth",
+      "peRatio": "P/E Ratio"
+    },
+    "saveError": "Failed to save valuation.",
+    "saveSuccess": "Valuation saved successfully!"
   },
   "reports": {
     "tabs": {
@@ -632,6 +774,18 @@
   "wizard": {
     "title": "Report Generator",
     "subtitle": "Create a custom report tailored to your business needs",
+    "sections": {
+      "cover": "Cover",
+      "summary": "Summary",
+      "oneAnalysis": "1 Analysis",
+      "recommendations": "Recommendations",
+      "toc": "TOC",
+      "threeAnalyses": "3 Analyses",
+      "benchmark": "Benchmark",
+      "allAnalyses": "All Analyses",
+      "forecasts": "Forecasts",
+      "appendices": "Appendices"
+    },
     "step": "Step {{current}} of {{total}}",
     "back": "Back",
     "next": "Next",
@@ -647,18 +801,35 @@
       "problemStatementMinLength": "Please describe your problem in at least 10 characters",
       "problemStatementMaxLength": "Problem statement is too long",
       "selectAtLeastOneSection": "Please select at least one section",
-      "selectTone": "Please select a tone"
+      "selectTone": "Please select a tone",
+      "selectAudience": "Please select your target audience",
+      "selectLength": "Please select report length"
     },
     "step1": {
       "title": "Report Type",
       "description": "Select the type of report that best fits your needs",
       "subtitle": "Select the primary analysis focus for this report.",
       "types": {
-        "FINANCIAL": { "label": "Financial", "desc": "Revenue, cash flow, and profitability analysis" },
-        "STRATEGIC": { "label": "Strategic", "desc": "Market dynamics, competitive advantage, and positioning" },
-        "MARKETING": { "label": "Marketing & Growth", "desc": "Customer acquisition, retention, and conversion performance" },
-        "OPERATIONAL": { "label": "Operational", "desc": "Efficiency, processes, and cost structure" },
-        "VALUATION": { "label": "Valuation", "desc": "Company value estimation and exit options" }
+        "FINANCIAL": {
+          "label": "Financial",
+          "desc": "Revenue, cash flow, and profitability analysis"
+        },
+        "STRATEGIC": {
+          "label": "Strategic",
+          "desc": "Market dynamics, competitive advantage, and positioning"
+        },
+        "MARKETING": {
+          "label": "Marketing & Growth",
+          "desc": "Customer acquisition, retention, and conversion performance"
+        },
+        "OPERATIONAL": {
+          "label": "Operational",
+          "desc": "Efficiency, processes, and cost structure"
+        },
+        "VALUATION": {
+          "label": "Valuation",
+          "desc": "Company value estimation and exit options"
+        }
       }
     },
     "step2": {
@@ -667,7 +838,22 @@
     },
     "step3": {
       "title": "Report Length",
-      "description": "Select your preferred report length"
+      "description": "Select your preferred report length",
+      "subtitle": "Each profile guarantees a fixed number of pages with structured content.",
+      "profiles": {
+        "SHORT": {
+          "label": "Short",
+          "desc": "~5 pages — Condensed essential analysis"
+        },
+        "MEDIUM": {
+          "label": "Medium",
+          "desc": "~10 pages — Balanced analysis with benchmark"
+        },
+        "LONG": {
+          "label": "Long",
+          "desc": "~18 pages — Comprehensive detailed report"
+        }
+      }
     },
     "step4": {
       "title": "Business Problem",
@@ -675,22 +861,117 @@
       "label": "Business Problem / Focus Area",
       "placeholder": "E.g., We need to optimize our customer acquisition costs while maintaining quality...",
       "tip": "Tip:",
-      "tipText": "The more specific you are about your business challenge, the more tailored and relevant your report will be."
+      "tipText": "The more specific you are about your business challenge, the more tailored and relevant your report will be.",
+      "examples": {
+        "title": "Example prompts"
+      },
+      "subtitle": "This context shapes the AI analysis. More detail = better insights. (Optional but recommended)"
     },
     "step5": {
       "title": "Report Sections",
       "description": "Select sections to include in your report",
-      "selected": "Selected sections"
+      "selected": "Selected sections",
+      "sections": {
+        "executiveSummary": {
+          "label": "Executive Summary",
+          "desc": "High-level overview and key findings"
+        },
+        "swot": {
+          "label": "SWOT Analysis",
+          "desc": "Strengths, weaknesses, opportunities, threats"
+        },
+        "performance": {
+          "label": "Performance Analysis",
+          "desc": "Detailed performance metrics and trends"
+        },
+        "financialOverview": {
+          "label": "Financial Overview",
+          "desc": "Financial health and key indicators"
+        },
+        "recommendations": {
+          "label": "Recommendations",
+          "desc": "Actionable recommendations"
+        },
+        "forecasts": {
+          "label": "Forecasts & Trends",
+          "desc": "Future outlook and market trends"
+        }
+      }
     },
     "step6": {
       "title": "Report Tone",
-      "description": "Select the tone and style for your report"
+      "description": "Select the tone and style for your report",
+      "logo": "Company Logo",
+      "logoDesc": "Max size 2MB. Recommended format: PNG with transparent background",
+      "logoSizeError": "Logo size must be less than 2MB",
+      "primaryColor": "Primary Color",
+      "primaryColorDesc": "Used for headers and dark backgrounds",
+      "secondaryColor": "Secondary Color",
+      "secondaryColorDesc": "Used for accents, borders, and charts",
+      "upload": "Click to upload logo"
     },
     "step7": {
       "title": "Confirm & Generate",
       "description": "Review your report settings and click Generate to start",
       "summary": "Report Configuration",
       "info": "Your report generation typically takes 2-5 minutes. You will receive an email notification when it is complete."
+    },
+    "badge": "AI-Powered Report",
+    "confirmation": {
+      "audience": "Audience",
+      "auto": "Automatically included",
+      "features": {
+        "benchmark": "Automatic sector benchmark",
+        "branding": "Company branding applied",
+        "charts": "Native PDF charts & tables",
+        "headers": "Headers, footers & pagination",
+        "toc": "Cover page + Table of Contents"
+      },
+      "language": "Language",
+      "length": "Report Length",
+      "problem": "Business Context",
+      "title": "Ready to generate!",
+      "type": "Analysis Type",
+      "audiences": {
+        "internal": "Internal Team",
+        "investors": "Investors / Board",
+        "bank": "Bank / Credit"
+      },
+      "lengths": {
+        "short": {
+          "label": "Short",
+          "pages": "~5 pages"
+        },
+        "medium": {
+          "label": "Medium",
+          "pages": "~10 pages"
+        },
+        "long": {
+          "label": "Long",
+          "pages": "~18 pages"
+        }
+      }
+    },
+    "step2new": {
+      "subtitle": "The audience shapes the language, tone, and focus of your report automatically.",
+      "title": "Who will read this report?",
+      "audiences": {
+        "INTERNAL": {
+          "label": "Team & Management",
+          "desc": "Team & management — performance, costs & operations.",
+          "focus": "Operational • Costs • Headcount"
+        },
+        "INVESTORS": {
+          "label": "Investors & Board",
+          "desc": "Investors & board — growth, valuation & market.",
+          "focus": "Growth • Revenue • Market"
+        },
+        "BANK": {
+          "label": "Bank & Credit",
+          "desc": "Credit institutions — solvency, ratios & repayment.",
+          "focus": "Debt Ratio • Cash Flow • Assets"
+        }
+      }
     }
   },
   "report": {
@@ -723,7 +1004,14 @@
       "step9": "Finalizing document"
     },
     "generationError": "Report generation failed",
-    "generationFailed": "Report generation failed"
+    "generationFailed": "Report generation failed",
+    "pdfPreview": "Report Preview",
+    "openInNewTab": "Open in new tab",
+    "exitFullscreen": "Exit fullscreen",
+    "fullscreen": "Fullscreen",
+    "close": "Close",
+    "loadingPdf": "Loading PDF...",
+    "pdfError": "Could not display the PDF."
   },
   "waitingSetup": {
     "title": "Setup in progress",
@@ -746,8 +1034,8 @@
       "title2": "next generation.",
       "subtitle": "Financial AI that models your KPIs, projects your cash flows, and generates investor-ready memos in minutes.",
       "cta": {
-        "primary": "Request a demo",
-        "secondary": "Sample report"
+        "primary": "Request an Invitation",
+        "secondary": "View Live Demo"
       },
       "social": {
         "count": "450+ professionals",
@@ -1011,5 +1299,19 @@
     "admin": "Admin",
     "collaborator": "Collaborator",
     "reader": "Reader"
+  },
+  "common": {
+    "cancel": "Cancel"
+  },
+  "export": {
+    "deprecatedMessage": "Direct dashboard export is temporarily disabled for maintenance. Please use the Reports tab to generate a professional PDF document through our AI engine."
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "reload": "Reload Page"
+  },
+  "shortcuts": {
+    "modalTitle": "Keyboard Shortcuts",
+    "toggleHelp": "Press {{key}} to toggle this help"
   }
 }

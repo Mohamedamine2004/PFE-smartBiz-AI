@@ -7,7 +7,12 @@ import {
 
 // ─── Core Data Types ───
 
-export type ReportContentSource = 'gemini' | 'xai' | 'openrouter' | 'fallback' | 'mixed';
+export type ReportContentSource =
+  | 'gemini'
+  | 'xai'
+  | 'openrouter'
+  | 'fallback'
+  | 'mixed';
 
 export interface FinancialRow {
   metric?: string;
@@ -65,7 +70,13 @@ export interface CompanyBranding {
 // ─── Chart Types ───
 
 export interface ChartData {
-  type: 'bar' | 'line' | 'area' | 'donut' | 'benchmark_comparison' | 'dual_axis';
+  type:
+    | 'bar'
+    | 'line'
+    | 'area'
+    | 'donut'
+    | 'benchmark_comparison'
+    | 'dual_axis';
   title: string;
   series: Array<{ label: string; value: number }>;
   metricName: string;

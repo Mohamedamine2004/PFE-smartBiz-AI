@@ -8,11 +8,11 @@ import type { SavedValuation } from '../../types/valuation';
 import type { ValuationMethod } from '../../types/valuation';
 
 const METHOD_LABELS: Record<string, string> = {
-  EV_EBITDA: 'EV / EBITDA',
-  EV_REVENUE: 'EV / Revenue',
-  PE_RATIO: 'P/E Ratio',
-  ASSET_BASED: 'Asset-Based',
-  GORDON_GROWTH: 'Gordon Growth',
+  EV_EBITDA: 'valuation.methods.evEbitda',
+  EV_REVENUE: 'valuation.methods.evRevenue',
+  PE_RATIO: 'valuation.methods.peRatio',
+  ASSET_BASED: 'valuation.methods.assetBased',
+  GORDON_GROWTH: 'valuation.methods.gordonGrowth',
 };
 
 const fmt = (v: number) =>
@@ -119,7 +119,7 @@ export const HistoryPanel = () => {
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <span className="text-xs font-mono font-medium text-brand">
-                    {METHOD_LABELS[item.method] ?? item.method}
+                    {t(METHOD_LABELS[item.method] ?? item.method)}
                   </span>
                   {item.label && (
                     <span className="ml-2 text-xs text-text-muted">

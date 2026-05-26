@@ -71,7 +71,6 @@ export enum ReportSection {
   BENCHMARK = 'BENCHMARK',
 }
 
-
 export class GenerateReportDto {
   @IsOptional()
   @IsUUID()

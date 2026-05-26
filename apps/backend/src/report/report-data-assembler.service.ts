@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  FinancialRow,
-} from './interfaces/report-content.types';
+import { FinancialRow } from './interfaces/report-content.types';
 
 @Injectable()
 export class ReportDataAssembler {

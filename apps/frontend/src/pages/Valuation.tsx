@@ -15,6 +15,8 @@ import { HistoryPanel } from '../components/valuation/HistoryPanel';
 import { ComparisonView } from '../components/valuation/ComparisonView';
 import type { ValuationInputs } from '../types/valuation';
 import { ValuationMethod } from '../types/valuation';
+import { financialApi } from '../lib/financial.service';
+import type { DashboardMetrics } from '../types/dashboard';
 
 export const Valuation = () => {
   const { t } = useTranslation();
@@ -42,6 +44,21 @@ export const Valuation = () => {
   const [saved, setSaved] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
   const [compareLoading, setCompareLoading] = useState(false);
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+
+  useEffect(() => {
+    const loadMetrics = async () => {
+      try {
+        const data = await financialApi.getDashboardMetrics();
+        if (data && data.hasData) {
+          setMetrics(data);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard metrics for valuation:', err);
+      }
+    };
+    loadMetrics();
+  }, []);
 
   useEffect(() => {
     const fetchMethods = async () => {
@@ -134,7 +151,7 @@ export const Valuation = () => {
   };
 
   return (
-    <div className="page-animate space-y-8">
+    <div className="relative max-w-7xl mx-auto space-y-8 pb-16">
       {/* Header with action buttons */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <PageHeader
@@ -193,6 +210,7 @@ export const Valuation = () => {
                 method={selectedMethod}
                 onSubmit={handleCalculate}
                 loading={loading}
+                importedMetrics={metrics}
               />
             </div>
 
@@ -215,6 +233,7 @@ export const Valuation = () => {
                     method={compareMethod}
                     onSubmit={handleCompareCalculate}
                     loading={compareLoading}
+                    importedMetrics={metrics}
                   />
                 )}
               </div>

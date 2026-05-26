@@ -76,8 +76,9 @@ export class OpenRouterProviderService implements LlmProvider {
   }
 
   private extractContent(data: unknown): string {
-    const content = (data as { choices?: Array<{ message?: { content?: unknown } }> })
-      ?.choices?.[0]?.message?.content;
+    const content = (
+      data as { choices?: Array<{ message?: { content?: unknown } }> }
+    )?.choices?.[0]?.message?.content;
     if (typeof content === 'string') return content;
     if (Array.isArray(content)) {
       return content

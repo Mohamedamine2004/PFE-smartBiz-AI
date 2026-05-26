@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -18,6 +19,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   // Activation de la validation stricte des DTOs
   app.useGlobalPipes(
@@ -50,7 +53,7 @@ async function bootstrap() {
     .setTitle('SmartBiz AI API')
     .setDescription(
       'AI-powered business intelligence platform for SMEs. ' +
-        'Features financial data management, company valuation, and ML predictions.',
+      'Features financial data management, company valuation, and ML predictions.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -91,4 +94,7 @@ async function bootstrap() {
   console.log(`🚀 Application running on port ${port}`);
   console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
 }
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Failed to bootstrap application:', error);
+  process.exit(1);
+});

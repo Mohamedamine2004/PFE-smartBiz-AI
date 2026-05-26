@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
+import i18n from '../i18n/config';
 
 interface Props {
   children: ReactNode;
@@ -39,13 +40,13 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="icon-circle mx-auto">
               <span className="text-2xl">⚠️</span>
             </div>
-            <h1 className="section-heading">Something went wrong</h1>
+            <h1 className="section-heading">{i18n.t('errorBoundary.title', 'Something went wrong')}</h1>
             <p className="text-helper">{this.state.error?.message}</p>
             <button
               onClick={() => window.location.reload()}
               className="btn-primary mx-auto px-6"
             >
-              Reload Page
+              {i18n.t('errorBoundary.reload', 'Reload Page')}
             </button>
           </div>
         </div>

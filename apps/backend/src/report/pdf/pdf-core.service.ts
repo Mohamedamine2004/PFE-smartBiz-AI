@@ -17,7 +17,13 @@ import {
 } from '../interfaces/report-content.types';
 
 type ChartSpec = {
-  type: 'bar' | 'line' | 'area' | 'donut' | 'benchmark_comparison' | 'dual_axis';
+  type:
+    | 'bar'
+    | 'line'
+    | 'area'
+    | 'donut'
+    | 'benchmark_comparison'
+    | 'dual_axis';
   title: string;
   series: Array<{ label: string; value: number }>;
   metricName: string;
@@ -51,7 +57,7 @@ export class PdfCoreService {
   constructor(
     private readonly components: PdfComponentsService,
     private readonly charts: PdfChartDrawer,
-  ) { }
+  ) {}
 
   private async ensureFonts(): Promise<void> {
     if (this.arabicFontPath && this.arabicBoldFontPath) return;
@@ -66,11 +72,21 @@ export class PdfCoreService {
     const boldPath = path.join(fontsDir, 'NotoSansArabic-Bold-v3.ttf');
 
     // Delete old corrupt cached files
-    const oldFiles = ['NotoSansArabic-Regular-v2.ttf', 'NotoSansArabic-Bold-v2.ttf',
-      'NotoSansArabic-Regular.ttf', 'NotoSansArabic-Bold.ttf'];
+    const oldFiles = [
+      'NotoSansArabic-Regular-v2.ttf',
+      'NotoSansArabic-Bold-v2.ttf',
+      'NotoSansArabic-Regular.ttf',
+      'NotoSansArabic-Bold.ttf',
+    ];
     for (const f of oldFiles) {
       const p = path.join(fontsDir, f);
-      if (fs.existsSync(p)) { try { fs.unlinkSync(p); } catch (_) { /* ignore */ } }
+      if (fs.existsSync(p)) {
+        try {
+          fs.unlinkSync(p);
+        } catch (_) {
+          /* ignore */
+        }
+      }
     }
 
     const downloadFont = (urls: string[], dest: string): Promise<void> => {
@@ -80,7 +96,9 @@ export class PdfCoreService {
           const stat = fs.statSync(dest);
           if (stat.size > 50_000) return resolve();
           // File too small = corrupt, delete and re-download
-          this.logger.warn(`Font file ${dest} is only ${stat.size} bytes (corrupt), re-downloading...`);
+          this.logger.warn(
+            `Font file ${dest} is only ${stat.size} bytes (corrupt), re-downloading...`,
+          );
           fs.unlinkSync(dest);
         }
 
@@ -93,32 +111,48 @@ export class PdfCoreService {
           this.logger.log(`Downloading font from ${url}...`);
 
           const follow = (targetUrl: string, depth: number) => {
-            if (depth > 5) { tryUrl(index + 1); return; }
-            https.get(targetUrl, (res) => {
-              if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                follow(res.headers.location, depth + 1);
-                return;
-              }
-              if (res.statusCode !== 200) {
-                this.logger.warn(`Font URL returned ${res.statusCode}: ${url}`);
-                tryUrl(index + 1);
-                return;
-              }
-              const file = fs.createWriteStream(dest);
-              res.pipe(file);
-              file.on('finish', () => {
-                file.close();
-                const stat = fs.statSync(dest);
-                if (stat.size < 50_000) {
-                  this.logger.warn(`Downloaded font is too small (${stat.size} bytes), trying next URL...`);
-                  fs.unlinkSync(dest);
-                  tryUrl(index + 1);
-                } else {
-                  this.logger.log(`Font downloaded successfully: ${dest} (${stat.size} bytes)`);
-                  resolve();
+            if (depth > 5) {
+              tryUrl(index + 1);
+              return;
+            }
+            https
+              .get(targetUrl, (res) => {
+                if (
+                  res.statusCode &&
+                  res.statusCode >= 300 &&
+                  res.statusCode < 400 &&
+                  res.headers.location
+                ) {
+                  follow(res.headers.location, depth + 1);
+                  return;
                 }
-              });
-            }).on('error', () => tryUrl(index + 1));
+                if (res.statusCode !== 200) {
+                  this.logger.warn(
+                    `Font URL returned ${res.statusCode}: ${url}`,
+                  );
+                  tryUrl(index + 1);
+                  return;
+                }
+                const file = fs.createWriteStream(dest);
+                res.pipe(file);
+                file.on('finish', () => {
+                  file.close();
+                  const stat = fs.statSync(dest);
+                  if (stat.size < 50_000) {
+                    this.logger.warn(
+                      `Downloaded font is too small (${stat.size} bytes), trying next URL...`,
+                    );
+                    fs.unlinkSync(dest);
+                    tryUrl(index + 1);
+                  } else {
+                    this.logger.log(
+                      `Font downloaded successfully: ${dest} (${stat.size} bytes)`,
+                    );
+                    resolve();
+                  }
+                });
+              })
+              .on('error', () => tryUrl(index + 1));
           };
           follow(url, 0);
         };
@@ -145,7 +179,10 @@ export class PdfCoreService {
       this.arabicBoldFontPath = boldPath;
       this.logger.log('Arabic fonts ready.');
     } catch (e) {
-      this.logger.error('Failed to download Arabic fonts — Arabic text may not render correctly.', e);
+      this.logger.error(
+        'Failed to download Arabic fonts — Arabic text may not render correctly.',
+        e,
+      );
     }
   }
 
@@ -165,7 +202,10 @@ export class PdfCoreService {
     if (this.arabicFontPath) {
       try {
         doc.registerFont('Arabic', this.arabicFontPath);
-        doc.registerFont('Arabic-Bold', this.arabicBoldFontPath || this.arabicFontPath);
+        doc.registerFont(
+          'Arabic-Bold',
+          this.arabicBoldFontPath || this.arabicFontPath,
+        );
         this.logger.log(`Arabic fonts registered: ${this.arabicFontPath}`);
       } catch (e) {
         this.logger.error(`Failed to register Arabic font: ${e}`);
@@ -173,7 +213,9 @@ export class PdfCoreService {
         this.arabicBoldFontPath = null;
       }
     } else {
-      this.logger.warn('No Arabic font available — Arabic text will use Helvetica (may show boxes).');
+      this.logger.warn(
+        'No Arabic font available — Arabic text will use Helvetica (may show boxes).',
+      );
     }
 
     const chunks: Buffer[] = [];
@@ -183,7 +225,13 @@ export class PdfCoreService {
     const contentW = doc.page.width - 112;
     const theme = this.generateTheme(input.branding);
     const fonts = this.getFonts(isRTL);
-    const options: PdfRenderOptions = { contentW, theme, fonts, leftMargin, isRTL };
+    const options: PdfRenderOptions = {
+      contentW,
+      theme,
+      fonts,
+      leftMargin,
+      isRTL,
+    };
 
     // 1. Cover Page
     this.renderCover(doc, input, options);
@@ -222,23 +270,39 @@ export class PdfCoreService {
         };
 
         if (section.chartData.type === 'bar') {
-          await this.charts.drawBarChart(doc, section.chartData.series, chartOpts);
+          await this.charts.drawBarChart(
+            doc,
+            section.chartData.series,
+            chartOpts,
+          );
         } else if (section.chartData.type === 'area') {
           await this.charts.drawLineChart(doc, section.chartData.series, {
             ...chartOpts,
             isArea: true,
           });
         } else if (section.chartData.type === 'dual_axis') {
-          await this.charts.drawDualAxisChart(doc, section.chartData, chartOpts);
+          await this.charts.drawDualAxisChart(
+            doc,
+            section.chartData,
+            chartOpts,
+          );
         } else {
-          await this.charts.drawLineChart(doc, section.chartData.series, chartOpts);
+          await this.charts.drawLineChart(
+            doc,
+            section.chartData.series,
+            chartOpts,
+          );
         }
         doc.y += 240;
       }
     }
 
     // 4. Benchmark Page (if deltas available)
-    if (input.benchmarkDeltas && input.benchmarkDeltas.length > 0 && input.benchmark) {
+    if (
+      input.benchmarkDeltas &&
+      input.benchmarkDeltas.length > 0 &&
+      input.benchmark
+    ) {
       doc.addPage();
       this.renderBenchmarkPage(doc, input, options);
     }
@@ -299,7 +363,7 @@ export class PdfCoreService {
     const { theme, fonts, leftMargin, contentW, isRTL } = options;
     const pw = doc.page.width;
     const ph = doc.page.height;
-    const textAlign = isRTL ? 'right' as const : 'left' as const;
+    const textAlign = isRTL ? ('right' as const) : ('left' as const);
     const textX = isRTL ? leftMargin : leftMargin;
 
     // ──────── Premium Background ────────
@@ -308,19 +372,13 @@ export class PdfCoreService {
     // Diagonal accent shape (mirrored for RTL)
     doc.save();
     if (isRTL) {
-      doc.polygon(
-        [pw, 0],
-        [pw * 0.35, 0],
-        [pw * 0.65, ph],
-        [pw, ph],
-      ).fill(theme.primary);
+      doc
+        .polygon([pw, 0], [pw * 0.35, 0], [pw * 0.65, ph], [pw, ph])
+        .fill(theme.primary);
     } else {
-      doc.polygon(
-        [0, 0],
-        [pw * 0.65, 0],
-        [pw * 0.35, ph],
-        [0, ph],
-      ).fill(theme.primary);
+      doc
+        .polygon([0, 0], [pw * 0.65, 0], [pw * 0.35, ph], [0, ph])
+        .fill(theme.primary);
     }
     doc.restore();
 
@@ -335,16 +393,27 @@ export class PdfCoreService {
     for (let i = 0; i < 8; i++) {
       const lineY = 120 + i * 60;
       doc.save();
-      doc.moveTo(0, lineY).lineTo(pw, lineY)
-        .strokeColor(theme.accentSoft).lineWidth(0.3).opacity(0.15).stroke();
+      doc
+        .moveTo(0, lineY)
+        .lineTo(pw, lineY)
+        .strokeColor(theme.accentSoft)
+        .lineWidth(0.3)
+        .opacity(0.15)
+        .stroke();
       doc.restore();
     }
 
     // ──────── Logo ────────
     let logoY = 100;
-    if (input.branding.logoUrl && input.branding.logoUrl.startsWith('data:image/')) {
+    if (
+      input.branding.logoUrl &&
+      input.branding.logoUrl.startsWith('data:image/')
+    ) {
       try {
-        const base64Data = input.branding.logoUrl.replace(/^data:image\/\w+;base64,/, '');
+        const base64Data = input.branding.logoUrl.replace(
+          /^data:image\/\w+;base64,/,
+          '',
+        );
         const imgBuffer = Buffer.from(base64Data, 'base64');
         const logoX = isRTL ? pw - leftMargin - 120 : leftMargin;
         doc.image(imgBuffer, logoX, 80, { fit: [120, 60], align: 'center' });
@@ -431,36 +500,79 @@ export class PdfCoreService {
 
     // Date
     const formattedDate = new Date().toLocaleDateString(
-      input.language === 'AR' ? 'ar-SA' : input.language === 'FR' ? 'fr-FR' : 'en-US',
+      input.language === 'AR'
+        ? 'ar-SA'
+        : input.language === 'FR'
+          ? 'fr-FR'
+          : 'en-US',
       { year: 'numeric', month: 'long', day: 'numeric' },
     );
 
-    const dateLabel = input.language === 'AR' ? 'تاريخ التقرير' : input.language === 'FR' ? 'Date de generation' : 'Report Date';
-    const refLabel = input.language === 'AR' ? 'المرجع' : input.language === 'FR' ? 'Reference' : 'Reference ID';
+    const dateLabel =
+      input.language === 'AR'
+        ? 'تاريخ التقرير'
+        : input.language === 'FR'
+          ? 'Date de generation'
+          : 'Report Date';
+    const refLabel =
+      input.language === 'AR'
+        ? 'المرجع'
+        : input.language === 'FR'
+          ? 'Reference'
+          : 'Reference ID';
 
     this.selectFontForText(doc, dateLabel, false, fonts);
-    doc.fontSize(10).fillColor(theme.textWhite)
-      .text(this.processText(dateLabel, isRTL), textX, ph - 140, { width: contentW, align: textAlign });
+    doc
+      .fontSize(10)
+      .fillColor(theme.textWhite)
+      .text(this.processText(dateLabel, isRTL), textX, ph - 140, {
+        width: contentW,
+        align: textAlign,
+      });
     this.selectFontForText(doc, formattedDate, true, fonts);
-    doc.fontSize(12).fillColor(theme.accentLight)
-      .text(this.processText(formattedDate, isRTL), textX, ph - 125, { width: contentW, align: textAlign });
+    doc
+      .fontSize(12)
+      .fillColor(theme.accentLight)
+      .text(this.processText(formattedDate, isRTL), textX, ph - 125, {
+        width: contentW,
+        align: textAlign,
+      });
 
     // Report ID
     this.selectFontForText(doc, refLabel, false, fonts);
-    doc.fontSize(10).fillColor(theme.textWhite)
-      .text(this.processText(refLabel, isRTL), textX, ph - 100, { width: contentW, align: textAlign });
-    doc.font(fonts.mono).fontSize(9).fillColor(theme.accentLight)
-      .text(input.reportId.substring(0, 18), textX, ph - 85, { width: contentW, align: textAlign });
+    doc
+      .fontSize(10)
+      .fillColor(theme.textWhite)
+      .text(this.processText(refLabel, isRTL), textX, ph - 100, {
+        width: contentW,
+        align: textAlign,
+      });
+    doc
+      .font(fonts.mono)
+      .fontSize(9)
+      .fillColor(theme.accentLight)
+      .text(input.reportId.substring(0, 18), textX, ph - 85, {
+        width: contentW,
+        align: textAlign,
+      });
 
     // Confidential badge
     const badgeW = 180;
     const badgeX = isRTL ? leftMargin : pw - badgeW - leftMargin;
     const badgeY = ph - 145;
-    doc.roundedRect(badgeX, badgeY, badgeW, 28, 4)
+    doc
+      .roundedRect(badgeX, badgeY, badgeW, 28, 4)
       .fillAndStroke(theme.primaryDark, theme.warning);
-    const confLabel = input.language === 'AR' ? 'سري للغاية' : input.language === 'FR' ? 'STRICTEMENT CONFIDENTIEL' : 'STRICTLY CONFIDENTIAL';
+    const confLabel =
+      input.language === 'AR'
+        ? 'سري للغاية'
+        : input.language === 'FR'
+          ? 'STRICTEMENT CONFIDENTIEL'
+          : 'STRICTLY CONFIDENTIAL';
     this.selectFontForText(doc, confLabel, true, fonts);
-    doc.fontSize(9).fillColor(theme.warning)
+    doc
+      .fontSize(9)
+      .fillColor(theme.warning)
       .text(this.processText(confLabel, isRTL), badgeX, badgeY + 9, {
         width: badgeW,
         align: 'center',
@@ -468,7 +580,10 @@ export class PdfCoreService {
       });
 
     // SmartBiz AI Branding
-    doc.font(fonts.body).fontSize(8).fillColor(theme.textMuted)
+    doc
+      .font(fonts.body)
+      .fontSize(8)
+      .fillColor(theme.textMuted)
       .text('Powered by SmartBiz AI', leftMargin, ph - 60, {
         align: isRTL ? 'right' : 'left',
         width: contentW,
@@ -481,20 +596,30 @@ export class PdfCoreService {
     options: PdfRenderOptions,
   ) {
     const { theme, fonts, leftMargin, contentW, isRTL } = options;
-    const textAlign = isRTL ? 'right' as const : 'left' as const;
+    const textAlign = isRTL ? ('right' as const) : ('left' as const);
 
     // TOC Header
-    const tocLabel = input.language === 'AR' ? 'الفهرس' : input.language === 'FR' ? 'SOMMAIRE' : 'TABLE OF CONTENTS';
+    const tocLabel =
+      input.language === 'AR'
+        ? 'الفهرس'
+        : input.language === 'FR'
+          ? 'SOMMAIRE'
+          : 'TABLE OF CONTENTS';
     const processedTocLabel = this.processText(tocLabel, isRTL);
     this.selectFontForText(doc, tocLabel, true, fonts);
     doc
       .fontSize(10)
       .fillColor(theme.accent)
-      .text(isRTL ? processedTocLabel : processedTocLabel.toUpperCase(), leftMargin, 80, {
-        width: contentW,
-        align: textAlign,
-        characterSpacing: isRTL ? 0 : 3,
-      });
+      .text(
+        isRTL ? processedTocLabel : processedTocLabel.toUpperCase(),
+        leftMargin,
+        80,
+        {
+          width: contentW,
+          align: textAlign,
+          characterSpacing: isRTL ? 0 : 3,
+        },
+      );
 
     // Accent line under header
     const accentX = isRTL ? leftMargin + contentW - 40 : leftMargin;
@@ -508,10 +633,13 @@ export class PdfCoreService {
       const numY = currentY;
       const circleR = 12;
 
-      doc.circle(numX + circleR, numY + circleR, circleR).fill(
-        idx === 0 ? theme.accent : theme.sectionBg,
-      );
-      doc.font(fonts.heading).fontSize(10).fillColor(idx === 0 ? theme.textWhite : theme.primary)
+      doc
+        .circle(numX + circleR, numY + circleR, circleR)
+        .fill(idx === 0 ? theme.accent : theme.sectionBg);
+      doc
+        .font(fonts.heading)
+        .fontSize(10)
+        .fillColor(idx === 0 ? theme.textWhite : theme.primary)
         .text(String(idx + 1).padStart(2, '0'), numX + 2, numY + 6, {
           width: circleR * 2 - 4,
           align: 'center',
@@ -519,10 +647,14 @@ export class PdfCoreService {
 
       // Section title
       const titleX = isRTL ? leftMargin : numX + circleR * 2 + 12;
-      const titleW = isRTL ? contentW - circleR * 2 - 60 : contentW - circleR * 2 - 60;
+      const titleW = isRTL
+        ? contentW - circleR * 2 - 60
+        : contentW - circleR * 2 - 60;
       const processedTocTitle = this.processText(s.title, isRTL);
       this.selectFontForText(doc, s.title, false, fonts);
-      doc.fontSize(12).fillColor(theme.textPrimary)
+      doc
+        .fontSize(12)
+        .fillColor(theme.textPrimary)
         .text(processedTocTitle, titleX, numY + 6, {
           width: titleW,
           align: textAlign,
@@ -541,8 +673,12 @@ export class PdfCoreService {
     const deltas = input.benchmarkDeltas!;
     const benchmark = input.benchmark!;
 
-    const headerLabel = input.language === 'AR' ? 'المقارنة القطاعية'
-      : input.language === 'FR' ? 'Benchmark Sectoriel' : 'Sector Benchmark';
+    const headerLabel =
+      input.language === 'AR'
+        ? 'المقارنة القطاعية'
+        : input.language === 'FR'
+          ? 'Benchmark Sectoriel'
+          : 'Sector Benchmark';
     const subtitleLabel = `${benchmark.sectorLabel} (${benchmark.sampleSize} ${input.language === 'AR' ? 'شركة' : input.language === 'FR' ? 'entreprises' : 'companies'})`;
 
     this.components.drawSectionHeader(doc, headerLabel, subtitleLabel, options);
@@ -553,49 +689,91 @@ export class PdfCoreService {
     const headerY = doc.y;
 
     doc.rect(leftMargin, headerY, contentW, 28).fill(theme.primary);
-    const headers = input.language === 'AR'
-      ? ['المؤشر', 'قيمتك', 'متوسط القطاع', 'الفرق']
-      : input.language === 'FR'
-        ? ['Metrique', 'Votre valeur', 'Mediane secteur', 'Ecart']
-        : ['Metric', 'Your Value', 'Sector Median', 'Delta'];
+    const headers =
+      input.language === 'AR'
+        ? ['المؤشر', 'قيمتك', 'متوسط القطاع', 'الفرق']
+        : input.language === 'FR'
+          ? ['Metrique', 'Votre valeur', 'Mediane secteur', 'Ecart']
+          : ['Metric', 'Your Value', 'Sector Median', 'Delta'];
 
     const orderedHeaders = isRTL ? [...headers].reverse() : headers;
 
     orderedHeaders.forEach((h, i) => {
       this.selectFontForText(doc, h, true, fonts);
-      doc.fontSize(9).fillColor(theme.textWhite)
-        .text(this.processText(h, isRTL), leftMargin + i * colWidth + 8, headerY + 8, {
-          width: colWidth - 16,
-          align: 'center',
-        });
+      doc
+        .fontSize(9)
+        .fillColor(theme.textWhite)
+        .text(
+          this.processText(h, isRTL),
+          leftMargin + i * colWidth + 8,
+          headerY + 8,
+          {
+            width: colWidth - 16,
+            align: 'center',
+          },
+        );
     });
 
     let rowY = headerY + 28;
     deltas.forEach((delta, idx) => {
       const isAlt = idx % 2 === 0;
-      doc.rect(leftMargin, rowY, contentW, 26).fill(isAlt ? theme.highlightBg : theme.pageBg);
-      doc.rect(leftMargin, rowY, contentW, 26).strokeColor(theme.borderLight).lineWidth(0.3).stroke();
+      doc
+        .rect(leftMargin, rowY, contentW, 26)
+        .fill(isAlt ? theme.highlightBg : theme.pageBg);
+      doc
+        .rect(leftMargin, rowY, contentW, 26)
+        .strokeColor(theme.borderLight)
+        .lineWidth(0.3)
+        .stroke();
 
-      const deltaColor = delta.interpretation === 'above' ? theme.success
-        : delta.interpretation === 'below' ? theme.danger : theme.textMuted;
-      const arrow = delta.interpretation === 'above' ? '+' : delta.interpretation === 'below' ? '' : '=';
+      const deltaColor =
+        delta.interpretation === 'above'
+          ? theme.success
+          : delta.interpretation === 'below'
+            ? theme.danger
+            : theme.textMuted;
+      const arrow =
+        delta.interpretation === 'above'
+          ? '+'
+          : delta.interpretation === 'below'
+            ? ''
+            : '=';
 
       const cells = [
         { text: delta.metric, font: fonts.body, color: theme.textPrimary },
-        { text: this.fmtNum(delta.companyValue), font: fonts.mono, color: theme.textSecondary },
-        { text: this.fmtNum(delta.sectorMedian), font: fonts.mono, color: theme.textSecondary },
-        { text: `${arrow}${delta.deltaPercent.toFixed(1)}%`, font: fonts.heading, color: deltaColor },
+        {
+          text: this.fmtNum(delta.companyValue),
+          font: fonts.mono,
+          color: theme.textSecondary,
+        },
+        {
+          text: this.fmtNum(delta.sectorMedian),
+          font: fonts.mono,
+          color: theme.textSecondary,
+        },
+        {
+          text: `${arrow}${delta.deltaPercent.toFixed(1)}%`,
+          font: fonts.heading,
+          color: deltaColor,
+        },
       ];
 
       const orderedCells = isRTL ? [...cells].reverse() : cells;
 
       orderedCells.forEach((cell, i) => {
         this.selectFontForText(doc, cell.text, false, fonts);
-        doc.fontSize(9).fillColor(cell.color)
-          .text(this.processText(cell.text, isRTL), leftMargin + i * colWidth + 8, rowY + 8, {
-            width: colWidth - 16,
-            align: 'center',
-          });
+        doc
+          .fontSize(9)
+          .fillColor(cell.color)
+          .text(
+            this.processText(cell.text, isRTL),
+            leftMargin + i * colWidth + 8,
+            rowY + 8,
+            {
+              width: colWidth - 16,
+              align: 'center',
+            },
+          );
       });
 
       rowY += 26;
@@ -619,28 +797,53 @@ export class PdfCoreService {
       doc.rect(0, 0, doc.page.width, 4).fill(theme.accent);
 
       this.selectFontForText(doc, input.branding.companyName, false, fonts);
-      doc.fontSize(7.5).fillColor(theme.textMuted)
-        .text(this.processText(input.branding.companyName, isRTL), leftMargin, 16, {
-          align: isRTL ? 'right' : 'left',
-          width: contentW / 2,
-        });
-      doc.font(fonts.body).fontSize(7.5).fillColor(theme.textMuted)
+      doc
+        .fontSize(7.5)
+        .fillColor(theme.textMuted)
+        .text(
+          this.processText(input.branding.companyName, isRTL),
+          leftMargin,
+          16,
+          {
+            align: isRTL ? 'right' : 'left',
+            width: contentW / 2,
+          },
+        );
+      doc
+        .font(fonts.body)
+        .fontSize(7.5)
+        .fillColor(theme.textMuted)
         .text('SmartBiz AI', leftMargin + contentW / 2, 16, {
           align: isRTL ? 'left' : 'right',
           width: contentW / 2,
         });
 
-      doc.moveTo(leftMargin, 32).lineTo(leftMargin + contentW, 32)
-        .strokeColor(theme.borderLight).lineWidth(0.5).stroke();
+      doc
+        .moveTo(leftMargin, 32)
+        .lineTo(leftMargin + contentW, 32)
+        .strokeColor(theme.borderLight)
+        .lineWidth(0.5)
+        .stroke();
 
       // ──────── Footer ────────
       const footerY = doc.page.height - 50;
-      doc.moveTo(leftMargin, footerY).lineTo(leftMargin + contentW, footerY)
-        .strokeColor(theme.borderLight).lineWidth(0.5).stroke();
+      doc
+        .moveTo(leftMargin, footerY)
+        .lineTo(leftMargin + contentW, footerY)
+        .strokeColor(theme.borderLight)
+        .lineWidth(0.5)
+        .stroke();
 
-      const confLabel = input.language === 'AR' ? 'سري' : input.language === 'FR' ? 'Confidentiel' : 'Confidential';
+      const confLabel =
+        input.language === 'AR'
+          ? 'سري'
+          : input.language === 'FR'
+            ? 'Confidentiel'
+            : 'Confidential';
       this.selectFontForText(doc, confLabel, false, fonts);
-      doc.fontSize(8).fillColor(theme.textMuted)
+      doc
+        .fontSize(8)
+        .fillColor(theme.textMuted)
         .text(this.processText(confLabel, isRTL), leftMargin, footerY + 10, {
           width: contentW / 3,
           align: isRTL ? 'right' : 'left',
@@ -648,12 +851,18 @@ export class PdfCoreService {
 
       const pageNum = `${i + 1}`;
       const totalPages = `${pages}`;
-      doc.font(fonts.heading).fontSize(9).fillColor(theme.primary)
+      doc
+        .font(fonts.heading)
+        .fontSize(9)
+        .fillColor(theme.primary)
         .text(pageNum, leftMargin + contentW / 3, footerY + 10, {
           width: contentW / 3,
           align: 'center',
         });
-      doc.font(fonts.body).fontSize(7).fillColor(theme.textMuted)
+      doc
+        .font(fonts.body)
+        .fontSize(7)
+        .fillColor(theme.textMuted)
         .text(`/ ${totalPages}`, leftMargin + contentW / 3 + 12, footerY + 11, {
           width: contentW / 3 - 12,
           align: 'center',
@@ -718,7 +927,10 @@ export class PdfCoreService {
   private adjustHex(hex: string, amount: number): string {
     let color = hex.replace('#', '');
     if (color.length === 3) {
-      color = color.split('').map((c) => c + c).join('');
+      color = color
+        .split('')
+        .map((c) => c + c)
+        .join('');
     }
     const num = parseInt(color, 16);
     let r = (num >> 16) + amount;

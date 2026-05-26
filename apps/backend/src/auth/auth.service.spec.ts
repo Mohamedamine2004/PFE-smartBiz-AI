@@ -47,12 +47,20 @@ describe('AuthService', () => {
 
   it('prevents ADMIN from deleting another ADMIN', async () => {
     prisma.user.findUnique
-      .mockResolvedValueOnce({ id: 'admin-1', role: UserRole.ADMIN, companyId: 'c1' })
-      .mockResolvedValueOnce({ id: 'admin-2', role: UserRole.ADMIN, companyId: 'c1' });
+      .mockResolvedValueOnce({
+        id: 'admin-1',
+        role: UserRole.ADMIN,
+        companyId: 'c1',
+      })
+      .mockResolvedValueOnce({
+        id: 'admin-2',
+        role: UserRole.ADMIN,
+        companyId: 'c1',
+      });
 
-    await expect(service.deleteTeamMember('admin-1', 'admin-2')).rejects.toBeInstanceOf(
-      ForbiddenException,
-    );
+    await expect(
+      service.deleteTeamMember('admin-1', 'admin-2'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('prevents OWNER self deletion without transfer', async () => {
@@ -62,14 +70,18 @@ describe('AuthService', () => {
       companyId: 'c1',
     });
 
-    await expect(service.deleteTeamMember('owner-1', 'owner-1')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.deleteTeamMember('owner-1', 'owner-1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('prevents changing OWNER role directly', async () => {
     prisma.user.findUnique
-      .mockResolvedValueOnce({ id: 'owner-1', role: UserRole.OWNER, companyId: 'c1' })
+      .mockResolvedValueOnce({
+        id: 'owner-1',
+        role: UserRole.OWNER,
+        companyId: 'c1',
+      })
       .mockResolvedValueOnce({
         id: 'owner-2',
         role: UserRole.OWNER,

@@ -2,6 +2,7 @@ import type {
   ReportAudience,
   ReportLanguage,
   ReportLengthProfile,
+  ReportSection,
   ReportType,
 } from '../../types/report';
 

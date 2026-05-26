@@ -1,99 +1,92 @@
 import { useTranslation } from 'react-i18next';
-import { BarChart3, TrendingUp, Megaphone, Settings, DollarSign } from 'lucide-react';
+import { BarChart3, TrendingUp, Megaphone, Settings, DollarSign, CheckCircle2 } from 'lucide-react';
 import { ReportType } from '../../../types/report';
 import type { WizardStepProps } from '../types';
 
 const REPORT_TYPES = [
-  {
-    value: ReportType.FINANCIAL,
-    icon: BarChart3,
-    color: 'from-blue-500 to-blue-600',
-    bg: 'bg-blue-50 border-blue-200',
-    activeBg: 'bg-blue-600',
-  },
-  {
-    value: ReportType.STRATEGIC,
-    icon: TrendingUp,
-    color: 'from-purple-500 to-purple-600',
-    bg: 'bg-purple-50 border-purple-200',
-    activeBg: 'bg-purple-600',
-  },
-  {
-    value: ReportType.MARKETING,
-    icon: Megaphone,
-    color: 'from-pink-500 to-rose-500',
-    bg: 'bg-pink-50 border-pink-200',
-    activeBg: 'bg-pink-600',
-  },
-  {
-    value: ReportType.OPERATIONAL,
-    icon: Settings,
-    color: 'from-orange-500 to-amber-500',
-    bg: 'bg-orange-50 border-orange-200',
-    activeBg: 'bg-orange-500',
-  },
-  {
-    value: ReportType.VALUATION,
-    icon: DollarSign,
-    color: 'from-emerald-500 to-green-600',
-    bg: 'bg-emerald-50 border-emerald-200',
-    activeBg: 'bg-emerald-600',
-  },
+  { value: ReportType.FINANCIAL,   icon: BarChart3,  accent: '#00d1ff', glow: 'rgba(0,209,255,0.08)', borderGlow: 'rgba(0,209,255,0.25)', desc: 'wizard.step1.types.FINANCIAL.desc', defDesc: 'Bilan de santé financière, marges, BFR & rentabilité.' },
+  { value: ReportType.STRATEGIC,   icon: TrendingUp, accent: '#6366f1', glow: 'rgba(99,102,241,0.08)', borderGlow: 'rgba(99,102,241,0.25)', desc: 'wizard.step1.types.STRATEGIC.desc', defDesc: 'Positionnement concurrentiel, SWOT & leviers de croissance.' },
+  { value: ReportType.MARKETING,   icon: Megaphone,  accent: '#f43f5e', glow: 'rgba(244,63,94,0.08)', borderGlow: 'rgba(244,63,94,0.25)', desc: 'wizard.step1.types.MARKETING.desc', defDesc: 'Stratégie d\'acquisition, entonnoir de conversion & ROI.' },
+  { value: ReportType.OPERATIONAL, icon: Settings,   accent: '#fb923c', glow: 'rgba(251,146,96,0.08)', borderGlow: 'rgba(251,146,96,0.25)', desc: 'wizard.step1.types.OPERATIONAL.desc', defDesc: 'Optimisation des flux de travail, goulots & productivité.' },
+  { value: ReportType.VALUATION,   icon: DollarSign, accent: '#10b981', glow: 'rgba(16,185,129,0.08)', borderGlow: 'rgba(16,185,129,0.25)', desc: 'wizard.step1.types.VALUATION.desc', defDesc: 'Multiples d\'EBITDA, DCF & valorisation de marché.' },
 ];
 
 export const Step1ReportType = ({ state, setState, errors }: WizardStepProps) => {
   const { t } = useTranslation();
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-slate-900 mb-2">
-        {t('wizard.step1.title', 'What type of report do you need?')}
-      </h2>
-      <p className="text-slate-500 mb-6">
-        {t('wizard.step1.subtitle', 'Select the primary analysis focus for this report.')}
-      </p>
+    <div className="space-y-4">
+      <div>
+        <p className="text-[11px] font-bold text-brand uppercase tracking-widest mb-1 font-mono">
+          {t('wizard.step', 'Étape')} 1 / 8
+        </p>
+        <h2 className="text-xl font-bold text-text-main">
+          {t('wizard.step1.title', 'Quel type de rapport souhaitez-vous ?')}
+        </h2>
+        <p className="text-xs text-text-muted mt-1">
+          {t('wizard.step1.subtitle', 'Sélectionnez le focus principal de votre analyse.')}
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 gap-3">
-        {REPORT_TYPES.map(({ value, icon: Icon, bg, activeBg }) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        {REPORT_TYPES.map(({ value, icon: Icon, accent, glow, borderGlow, desc, defDesc }, idx) => {
           const isActive = state.reportType === value;
+          const isLarge = idx === 0; // Financial has priority, make it span full-width
+          
           return (
             <button
               key={value}
               type="button"
               onClick={() => setState({ ...state, reportType: value })}
-              className={`group flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all duration-200 ${isActive
-                  ? `border-blue-500 bg-blue-50 shadow-md shadow-blue-100`
-                  : `border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm`
-                }`}
+              className={`group relative flex flex-col justify-between p-5 rounded-2xl text-left transition-all duration-300 border hover:-translate-y-1 hover:shadow-xl ${
+                isActive 
+                  ? 'border-brand/40 shadow-lg' 
+                  : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20'
+              } ${isLarge ? 'md:col-span-2' : ''}`}
+              style={{
+                background: isActive ? glow : 'var(--bg-elevated)',
+                boxShadow: isActive ? `0 10px 30px ${glow}` : 'none',
+              }}
             >
-              <div
-                className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${isActive ? activeBg : bg
-                  }`}
-              >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-600'}`} />
+              <div className="flex items-start justify-between w-full">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                  style={{
+                    background: isActive ? 'white' : 'var(--bg-surface)',
+                    border: `1px solid ${isActive ? accent : 'var(--border-color)'}`,
+                    boxShadow: isActive ? `0 0 15px ${borderGlow}` : 'none',
+                  }}
+                >
+                  <Icon
+                    className="w-5 h-5 transition-colors duration-200"
+                    style={{ color: isActive ? accent : 'var(--text-secondary)' }}
+                  />
+                </div>
+                {isActive && (
+                  <CheckCircle2
+                    className="w-5 h-5 shrink-0 animate-scale-up"
+                    style={{ color: accent }}
+                  />
+                )}
               </div>
-              <div>
-                <p className={`font-semibold text-sm ${isActive ? 'text-blue-700' : 'text-slate-800'}`}>
+
+              <div className="mt-4">
+                <p
+                  className="font-bold text-sm text-text-main transition-colors group-hover:text-brand"
+                >
                   {t(`wizard.step1.types.${value}.label`, value)}
                 </p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {t(`wizard.step1.types.${value}.desc`, '')}
+                <p className="text-xs text-text-muted mt-1 leading-relaxed">
+                  {t(desc, defDesc)}
                 </p>
               </div>
-              {isActive && (
-                <div className="ml-auto w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
             </button>
           );
         })}
       </div>
 
       {errors.reportType && (
-        <p className="mt-3 text-sm text-red-600">{errors.reportType}</p>
+        <p className="mt-3 text-xs text-red-500 font-semibold">{errors.reportType}</p>
       )}
     </div>
   );

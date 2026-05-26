@@ -13,7 +13,7 @@ export class LlmStrategyService {
 
   /** Track providers that are permanently blocked (limit: 0) this session */
   private blockedProviders = new Set<string>();
-  
+
   /** Track providers with quota exhaustion to fail fast */
   private quotaExhausted = new Map<string, number>();
 
@@ -54,7 +54,9 @@ export class LlmStrategyService {
     );
 
     if (providersToTry.length === 0) {
-      throw new Error('No LLM Provider available (all blocked or unconfigured)');
+      throw new Error(
+        'No LLM Provider available (all blocked or unconfigured)',
+      );
     }
 
     let globalLastError: Error | null = null;
@@ -89,7 +91,9 @@ export class LlmStrategyService {
             msg.includes('PERMISSION_DENIED')
           ) {
             this.blockedProviders.add(provider.name);
-            this.logger.error(`Provider ${provider.name} permanently blocked (auth error). Skipping.`);
+            this.logger.error(
+              `Provider ${provider.name} permanently blocked (auth error). Skipping.`,
+            );
             break;
           }
 
@@ -105,14 +109,17 @@ export class LlmStrategyService {
           // 404 = model not found, skip immediately
           if (msg.includes('404') || msg.includes('No endpoints found')) {
             this.blockedProviders.add(provider.name);
-            this.logger.error(`Provider ${provider.name} model not found (404). Skipping.`);
+            this.logger.error(
+              `Provider ${provider.name} model not found (404). Skipping.`,
+            );
             break;
           }
 
           // Rate limit / Quota exhaustion handling (fast failover)
           if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
             // Track quota exhaustion count
-            const quotaCount = (this.quotaExhausted.get(provider.name) || 0) + 1;
+            const quotaCount =
+              (this.quotaExhausted.get(provider.name) || 0) + 1;
             this.quotaExhausted.set(provider.name, quotaCount);
 
             // If quota exhausted twice, skip provider entirely (likely daily limit)
@@ -129,7 +136,7 @@ export class LlmStrategyService {
               `Rate limited on ${provider.name} (attempt ${attempt + 1}). Short wait before fallback (3s)...`,
             );
             await new Promise((r) => setTimeout(r, 3000));
-            
+
             // Skip remaining attempts, go to next provider
             break;
           }
@@ -153,7 +160,8 @@ export class LlmStrategyService {
     }
 
     throw (
-      globalLastError || new Error(`All LLM providers failed for section ${sectionKey}`)
+      globalLastError ||
+      new Error(`All LLM providers failed for section ${sectionKey}`)
     );
   }
 

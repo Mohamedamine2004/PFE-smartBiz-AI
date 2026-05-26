@@ -188,19 +188,40 @@ export class ReportPdfService {
 
         // Secondary Chart (Breakdown of top metrics for latest period)
         if (input.financialRows && input.financialRows.length > 0) {
-          const sorted = [...input.financialRows].sort((a, b) => new Date(b.period).getTime() - new Date(a.period).getTime());
+          const sorted = [...input.financialRows].sort(
+            (a, b) =>
+              new Date(b.period).getTime() - new Date(a.period).getTime(),
+          );
           const latestPeriod = sorted[0].period;
-          const latestRows = sorted.filter(r => new Date(r.period).getTime() === new Date(latestPeriod).getTime());
-          const nonRevenue = latestRows.filter(r => !r.metric.toLowerCase().includes('revenu') && !r.metric.toLowerCase().includes('chiffre'));
-          const topMetrics = nonRevenue.sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 5);
+          const latestRows = sorted.filter(
+            (r) =>
+              new Date(r.period).getTime() === new Date(latestPeriod).getTime(),
+          );
+          const nonRevenue = latestRows.filter(
+            (r) =>
+              !r.metric.toLowerCase().includes('revenu') &&
+              !r.metric.toLowerCase().includes('chiffre'),
+          );
+          const topMetrics = nonRevenue
+            .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
+            .slice(0, 5);
 
           if (topMetrics.length > 0) {
-            const secondarySeries = topMetrics.map(r => ({ label: r.metric.substring(0, 12), value: Math.abs(r.value) }));
+            const secondarySeries = topMetrics.map((r) => ({
+              label: r.metric.substring(0, 12),
+              value: Math.abs(r.value),
+            }));
             this.ensureSpace(doc, 220, () => {
               addPage();
             });
             doc.moveDown(1.5);
-            this.drawEnhancedBarChart(doc, secondarySeries, input.language === 'FR' ? 'Répartition (Dernière Période)' : 'Breakdown (Latest Period)');
+            this.drawEnhancedBarChart(
+              doc,
+              secondarySeries,
+              input.language === 'FR'
+                ? 'Répartition (Dernière Période)'
+                : 'Breakdown (Latest Period)',
+            );
           }
         }
       }
@@ -237,7 +258,9 @@ export class ReportPdfService {
       this.drawSectionPage(doc, localized.focusTitle, '', contentW);
       // Draw focus box
       const focusY = doc.y;
-      doc.roundedRect(56, focusY, contentW, 3, 1).fill(((doc as any).theme).accent);
+      doc
+        .roundedRect(56, focusY, contentW, 3, 1)
+        .fill((doc as any).theme.accent);
       doc.moveDown(0.5);
 
       const label =
@@ -250,7 +273,7 @@ export class ReportPdfService {
       doc
         .font(FONTS.heading)
         .fontSize(10)
-        .fillColor(((doc as any).theme).textSecondary)
+        .fillColor((doc as any).theme.textSecondary)
         .text(label, 56, doc.y);
       doc.moveDown(0.5);
 
@@ -324,69 +347,104 @@ export class ReportPdfService {
     pageW: number,
     pageH: number,
   ) {
-    // Full-page dark background
-    doc.rect(0, 0, pageW, pageH).fill(((doc as any).theme).coverBg);
+    // 1. Premium Linear Gradient Background
+    const bgGrad = doc.linearGradient(0, 0, pageW, pageH);
+    bgGrad.stop(0, (doc as any).theme.primaryDark || '#0F2137');
+    bgGrad.stop(1, (doc as any).theme.coverBg || '#1E3A5F');
+    doc.rect(0, 0, pageW, pageH).fill(bgGrad);
 
-    // Decorative accent stripe at top
-    doc.rect(0, 0, pageW, 6).fill(((doc as any).theme).accent);
-
-    // Decorative geometric elements
+    // 2. Technical Blueprint Grid Overlay (Subtle)
     doc.save();
-    doc.opacity(0.05);
-    doc.circle(pageW - 80, 120, 200).fill(((doc as any).theme).accentLight);
-    doc.circle(60, pageH - 100, 150).fill(((doc as any).theme).accentLight);
+    doc.opacity(0.03);
+    doc.strokeColor((doc as any).theme.accentLight || '#00d1ff');
+    doc.lineWidth(0.5);
+    for (let gx = 60; gx < pageW; gx += 60) {
+      doc.moveTo(gx, 0).lineTo(gx, pageH).stroke();
+    }
+    for (let gy = 60; gy < pageH; gy += 60) {
+      doc.moveTo(0, gy).lineTo(pageW, gy).stroke();
+    }
     doc.restore();
 
-    // Left accent bar
-    doc.rect(56, 160, 4, 80).fill(((doc as any).theme).accent);
+    // 3. Ambient Cockpit Neon Radial Glows
+    doc.save();
+    try {
+      // Top-right Cyan radial glow
+      const radialGlow1 = doc.radialGradient(pageW - 80, 120, 10, pageW - 80, 120, 250);
+      radialGlow1.stop(0, 'rgba(0, 209, 255, 0.15)');
+      radialGlow1.stop(1, 'rgba(0, 209, 255, 0)');
+      doc.circle(pageW - 80, 120, 250).fill(radialGlow1);
+
+      // Bottom-left Indigo radial glow
+      const radialGlow2 = doc.radialGradient(80, pageH - 120, 10, 80, pageH - 120, 200);
+      radialGlow2.stop(0, 'rgba(99, 102, 241, 0.15)');
+      radialGlow2.stop(1, 'rgba(99, 102, 241, 0)');
+      doc.circle(80, pageH - 120, 200).fill(radialGlow2);
+    } catch {
+      // safe fallback if gradients fail
+    }
+    doc.restore();
+
+    // 4. Top Accent Stripe
+    doc.rect(0, 0, pageW, 6).fill((doc as any).theme.accent);
+
+    // 5. Left Double Accent Stripes
+    doc.rect(56, 160, 4, 110).fill((doc as any).theme.accent);
+    doc.rect(64, 175, 1.5, 80).fill((doc as any).theme.accentLight);
 
     // Custom Logo or SmartBiz AI logo text
     if (input.logoBase64) {
       try {
-        const base64Data = input.logoBase64.replace(/^data:image\/\w+;base64,/, '');
+        const base64Data = input.logoBase64.replace(
+          /^data:image\/\w+;base64,/,
+          '',
+        );
         const logoBuffer = Buffer.from(base64Data, 'base64');
         // Draw at top right
-        doc.image(logoBuffer, pageW - 140, 56, { fit: [84, 84], align: 'right' });
+        doc.image(logoBuffer, pageW - 140, 56, {
+          fit: [84, 84],
+          align: 'right',
+        });
       } catch (e) {
         this.logger.error('Failed to draw cover logo', e);
       }
     } else {
       doc
         .font(FONTS.heading)
-        .fontSize(14)
-        .fillColor(((doc as any).theme).accentLight)
+        .fontSize(13)
+        .fillColor((doc as any).theme.accentLight)
         .text('SMARTBIZ AI', 56, 120, { characterSpacing: 4 });
     }
 
-    // Main title
+    // Main Title with slight shift
     doc
       .font(FONTS.heading)
       .fontSize(32)
-      .fillColor(((doc as any).theme).textWhite)
-      .text(localized.reportTitle, 72, 175, { width: pageW - 150 });
+      .fillColor((doc as any).theme.textWhite)
+      .text(localized.reportTitle, 76, 175, { width: pageW - 150 });
 
     // Subtitle
     doc.moveDown(0.5);
     doc
       .font(FONTS.body)
-      .fontSize(14)
-      .fillColor(((doc as any).theme).textOnDark)
-      .text(localized.reportSubtitle, 72, doc.y, { width: pageW - 150 });
+      .fontSize(13)
+      .fillColor((doc as any).theme.textOnDark)
+      .text(localized.reportSubtitle, 76, doc.y, { width: pageW - 150 });
 
-    // Divider line
+    // Elegant Divider Line
     doc
       .moveTo(56, 310)
       .lineTo(pageW - 56, 310)
-      .strokeColor(((doc as any).theme).primaryLight)
+      .strokeColor((doc as any).theme.primaryLight)
       .lineWidth(0.5)
       .stroke();
 
-    // Metadata section with cards
+    // Metadata section with glassmorphic cards
     const metaY = 340;
     doc
       .font(FONTS.heading)
       .fontSize(11)
-      .fillColor(((doc as any).theme).accentLight)
+      .fillColor((doc as any).theme.accentLight)
       .text(localized.metadata.toUpperCase(), 56, metaY, {
         characterSpacing: 2,
       });
@@ -402,26 +460,61 @@ export class ReportPdfService {
       ['Generated', this.formatDateTime(input.generatedAtIso)],
     ];
 
-    let metaRowY = metaY + 30;
-    doc.font(FONTS.body).fontSize(9);
-    for (const [label, value] of metaItems) {
+    // Render metadata as premium grids of 2-column cards
+    const cardW = (pageW - 132) / 2;
+    const cardH = 46;
+    const gapX = 20;
+    const startX = 56;
+    const cardY = metaY + 24;
+
+    metaItems.forEach(([label, value], index) => {
+      const col = index % 2;
+      const row = Math.floor(index / 2);
+      const cellX = startX + col * (cardW + gapX);
+      const cellY = cardY + row * (cardH + 12);
+
+      // Card Background (transparent glass-like box)
       doc
-        .fillColor(((doc as any).theme).textLight)
-        .text(`${label}:`, 72, metaRowY, { continued: true });
-      doc.fillColor(((doc as any).theme).textOnDark).text(`  ${value}`, { continued: false });
-      metaRowY += 18;
-    }
+        .roundedRect(cellX, cellY, cardW, cardH, 6)
+        .fill('rgba(255, 255, 255, 0.035)');
+      
+      // Thin outline for cards
+      doc
+        .roundedRect(cellX, cellY, cardW, cardH, 6)
+        .strokeColor('rgba(255, 255, 255, 0.05)')
+        .lineWidth(0.5)
+        .stroke();
+
+      // Card side neon indicator
+      doc
+        .roundedRect(cellX, cellY, 2.5, cardH, 1)
+        .fill(col === 0 ? (doc as any).theme.accent : (doc as any).theme.accentLight);
+
+      // Card label text
+      doc
+        .font(FONTS.heading)
+        .fontSize(7.5)
+        .fillColor((doc as any).theme.textLight)
+        .text(label.toUpperCase(), cellX + 12, cellY + 9, { characterSpacing: 0.5 });
+
+      // Card value text
+      doc
+        .font(FONTS.body)
+        .fontSize(9.5)
+        .fillColor((doc as any).theme.textWhite)
+        .text(value, cellX + 12, cellY + 23, { width: cardW - 20, ellipsis: true });
+    });
 
     // Bottom decorative bar
-    doc.rect(0, pageH - 40, pageW, 40).fill(((doc as any).theme).primaryDark);
-    doc.rect(0, pageH - 40, pageW, 2).fill(((doc as any).theme).accent);
+    doc.rect(0, pageH - 40, pageW, 40).fill((doc as any).theme.primaryDark);
+    doc.rect(0, pageH - 40, pageW, 2).fill((doc as any).theme.accent);
 
     // Bottom text
     const poweredByLabel = this.getPoweredByLabel(input.aiSource);
     doc
       .font(FONTS.body)
       .fontSize(8)
-      .fillColor(((doc as any).theme).textLight)
+      .fillColor((doc as any).theme.textLight)
       .text(`${poweredByLabel}  •  SmartBiz AI Platform`, 56, pageH - 26, {
         width: pageW - 112,
         align: 'center',
@@ -495,20 +588,20 @@ export class ReportPdfService {
     for (const item of tocItems) {
       // Item background stripe (alternating)
       if (tocItems.indexOf(item) % 2 === 0) {
-        doc.rect(56, tocY - 4, contentW, 28).fill(((doc as any).theme).sectionBg);
+        doc.rect(56, tocY - 4, contentW, 28).fill((doc as any).theme.sectionBg);
       }
 
       doc
         .font(FONTS.body)
         .fontSize(11)
-        .fillColor(((doc as any).theme).textPrimary)
+        .fillColor((doc as any).theme.textPrimary)
         .text(item.label, 66, tocY, { width: contentW - 60 });
 
       // Page number on right
       doc
         .font(FONTS.heading)
         .fontSize(11)
-        .fillColor(((doc as any).theme).accent)
+        .fillColor((doc as any).theme.accent)
         .text(`${item.page}`, 56, tocY, { width: contentW, align: 'right' });
 
       // Dotted line
@@ -517,7 +610,10 @@ export class ReportPdfService {
       const pageNumStart = 56 + contentW - 30;
       const dotStart = 66 + labelWidth + 8;
       if (dotStart < pageNumStart) {
-        doc.font(FONTS.body).fontSize(9).fillColor(((doc as any).theme).textLight);
+        doc
+          .font(FONTS.body)
+          .fontSize(9)
+          .fillColor((doc as any).theme.textLight);
         let dotX = dotStart;
         while (dotX < pageNumStart - 10) {
           doc.text('.', dotX, tocY + 1, { width: 6 });
@@ -540,23 +636,31 @@ export class ReportPdfService {
   ) {
     const startY = doc.y;
 
-    // Accent bar left of title
-    doc.rect(56, startY, 4, 28).fill(((doc as any).theme).accent);
+    // Subtle micro-category text above section
+    doc
+      .font(FONTS.heading)
+      .fontSize(7)
+      .fillColor((doc as any).theme.accent)
+      .text('SMARTBIZ STRATEGIC INTELLIGENCE', 56, startY - 14, { characterSpacing: 1 });
+
+    // Double Left Accent Stripes
+    doc.rect(56, startY, 4, 30).fill((doc as any).theme.primary);
+    doc.rect(64, startY + 4, 1.5, 22).fill((doc as any).theme.accent);
 
     // Title
     doc
       .font(FONTS.heading)
       .fontSize(20)
-      .fillColor(((doc as any).theme).primary)
-      .text(title, 70, startY + 2, { width: contentW - 20 });
+      .fillColor((doc as any).theme.primary)
+      .text(title, 74, startY + 2, { width: contentW - 24 });
 
     if (subtitle) {
       doc.moveDown(0.2);
       doc
         .font(FONTS.body)
-        .fontSize(10)
-        .fillColor(((doc as any).theme).textMuted)
-        .text(subtitle, 70);
+        .fontSize(9.5)
+        .fillColor((doc as any).theme.textMuted)
+        .text(subtitle, 74);
     }
 
     // Separator line
@@ -565,14 +669,14 @@ export class ReportPdfService {
     doc
       .moveTo(56, lineY)
       .lineTo(56 + contentW, lineY)
-      .strokeColor(((doc as any).theme).borderLight)
+      .strokeColor((doc as any).theme.borderLight)
       .lineWidth(1)
       .stroke();
     // Accent portion of line
     doc
       .moveTo(56, lineY)
       .lineTo(56 + 80, lineY)
-      .strokeColor(((doc as any).theme).accent)
+      .strokeColor((doc as any).theme.accent)
       .lineWidth(2)
       .stroke();
 
@@ -597,8 +701,8 @@ export class ReportPdfService {
 
       // Skip empty lines (add small spacing)
       if (!trimmed) {
-        doc.moveDown(0.3);
-        continue;
+         doc.moveDown(0.3);
+         continue;
       }
 
       // Check for page overflow
@@ -618,14 +722,16 @@ export class ReportPdfService {
       if (trimmed.startsWith('## ')) {
         doc.moveDown(0.6);
         const headingText = trimmed.replace(/^##\s+/, '');
-        // Draw heading background
-        doc.rect(leftMargin, doc.y - 2, contentW, 26).fill(((doc as any).theme).highlightBg);
-        doc.rect(leftMargin, doc.y - 2, 3, 26).fill(((doc as any).theme).accent);
+        // Draw elegant rounded heading background
+        doc
+          .roundedRect(leftMargin, doc.y - 2, contentW, 28, 4)
+          .fill((doc as any).theme.highlightBg);
+        doc.rect(leftMargin, doc.y - 2, 3.5, 28).fill((doc as any).theme.accent);
         doc
           .font(FONTS.heading)
-          .fontSize(14)
-          .fillColor(((doc as any).theme).primary)
-          .text(headingText, leftMargin + 12, doc.y + 4, {
+          .fontSize(13)
+          .fillColor((doc as any).theme.primary)
+          .text(headingText, leftMargin + 12, doc.y + 6, {
             width: contentW - 20,
           });
         doc.moveDown(0.8);
@@ -639,7 +745,7 @@ export class ReportPdfService {
         doc
           .font(FONTS.heading)
           .fontSize(12)
-          .fillColor(((doc as any).theme).primaryLight)
+          .fillColor((doc as any).theme.primaryLight)
           .text(headingText, leftMargin, doc.y, { width: contentW });
         doc.moveDown(0.4);
         continue;
@@ -652,7 +758,7 @@ export class ReportPdfService {
         doc
           .font(FONTS.heading)
           .fontSize(11)
-          .fillColor(((doc as any).theme).textSecondary)
+          .fillColor((doc as any).theme.textSecondary)
           .text(headingText, leftMargin, doc.y, { width: contentW });
         doc.moveDown(0.3);
         continue;
@@ -682,7 +788,9 @@ export class ReportPdfService {
         const bulletY = doc.y;
 
         // Bullet dot
-        doc.circle(leftMargin + 8, bulletY + 5, 2.5).fill(((doc as any).theme).accent);
+        doc
+          .circle(leftMargin + 8, bulletY + 5, 2.5)
+          .fill((doc as any).theme.accent);
 
         // Check for bold prefix (like **Key**: value)
         this.renderFormattedText(
@@ -702,7 +810,9 @@ export class ReportPdfService {
         );
         const bulletY = doc.y;
 
-        doc.circle(leftMargin + 24, bulletY + 5, 2).fill(((doc as any).theme).textMuted);
+        doc
+          .circle(leftMargin + 24, bulletY + 5, 2)
+          .fill((doc as any).theme.textMuted);
         this.renderFormattedText(
           doc,
           bulletText,
@@ -747,7 +857,7 @@ export class ReportPdfService {
       doc
         .font(FONTS.body)
         .fontSize(10)
-        .fillColor(((doc as any).theme).textPrimary)
+        .fillColor((doc as any).theme.textPrimary)
         .text(this.stripMarkdownFormatting(safe), x, doc.y, {
           width,
           lineGap: 3,
@@ -768,7 +878,11 @@ export class ReportPdfService {
         doc
           .font(isBold ? FONTS.heading : FONTS.body)
           .fontSize(10)
-          .fillColor(isBold ? ((doc as any).theme).primary : ((doc as any).theme).textPrimary)
+          .fillColor(
+            isBold
+              ? (doc as any).theme.primary
+              : (doc as any).theme.textPrimary,
+          )
           .text(cleanText, x, doc.y, {
             width,
             lineGap: 3,
@@ -779,7 +893,11 @@ export class ReportPdfService {
         doc
           .font(isBold ? FONTS.heading : FONTS.body)
           .fontSize(10)
-          .fillColor(isBold ? ((doc as any).theme).primary : ((doc as any).theme).textPrimary)
+          .fillColor(
+            isBold
+              ? (doc as any).theme.primary
+              : (doc as any).theme.textPrimary,
+          )
           .text(cleanText, {
             lineGap: 3,
             continued: parts.indexOf(part) < parts.length - 1,
@@ -838,12 +956,18 @@ export class ReportPdfService {
 
     if (isHeader) {
       // Header row with dark background
-      doc.rect(x, y, contentW, rowH).fill(((doc as any).theme).tableHeaderBg);
-      doc.font(FONTS.heading).fontSize(8.5).fillColor(((doc as any).theme).textWhite);
+      doc.rect(x, y, contentW, rowH).fill((doc as any).theme.tableHeaderBg);
+      doc
+        .font(FONTS.heading)
+        .fontSize(8.5)
+        .fillColor((doc as any).theme.textWhite);
     } else {
       // Alternating body rows
-      doc.rect(x, y, contentW, rowH).fill(((doc as any).theme).sectionBg);
-      doc.font(FONTS.body).fontSize(8.5).fillColor(((doc as any).theme).textPrimary);
+      doc.rect(x, y, contentW, rowH).fill((doc as any).theme.sectionBg);
+      doc
+        .font(FONTS.body)
+        .fontSize(8.5)
+        .fillColor((doc as any).theme.textPrimary);
     }
 
     cells.forEach((cell, colIdx) => {
@@ -867,8 +991,14 @@ export class ReportPdfService {
     w: number,
     type: 'warning' | 'success',
   ) {
-    const bgColor = type === 'warning' ? ((doc as any).theme).alertBg : ((doc as any).theme).alertBgGreen;
-    const borderColor = type === 'warning' ? ((doc as any).theme).warning : ((doc as any).theme).success;
+    const bgColor =
+      type === 'warning'
+        ? (doc as any).theme.alertBg
+        : (doc as any).theme.alertBgGreen;
+    const borderColor =
+      type === 'warning'
+        ? (doc as any).theme.warning
+        : (doc as any).theme.success;
     const cleanText = this.stripMarkdownFormatting(text);
 
     const y = doc.y;
@@ -880,7 +1010,7 @@ export class ReportPdfService {
     doc
       .font(FONTS.body)
       .fontSize(9.5)
-      .fillColor(((doc as any).theme).textPrimary)
+      .fillColor((doc as any).theme.textPrimary)
       .text(cleanText, x + 14, y + 10, { width: w - 24 });
 
     doc.y = y + boxH + 6;
@@ -901,7 +1031,7 @@ export class ReportPdfService {
     doc
       .font(FONTS.body)
       .fontSize(10.5)
-      .fillColor(((doc as any).theme).textSecondary)
+      .fillColor((doc as any).theme.textSecondary)
       .text(localized.predictionBody, x, doc.y, {
         width: contentW,
         lineGap: 4,
@@ -912,25 +1042,32 @@ export class ReportPdfService {
     // Prediction status card
     const cardY = doc.y;
     const cardH = 90;
-    doc.roundedRect(x, cardY, contentW, cardH, 6).fill(((doc as any).theme).highlightBg);
     doc
       .roundedRect(x, cardY, contentW, cardH, 6)
-      .strokeColor(((doc as any).theme).borderLight)
+      .fill((doc as any).theme.highlightBg);
+    doc
+      .roundedRect(x, cardY, contentW, cardH, 6)
+      .strokeColor((doc as any).theme.borderLight)
       .lineWidth(1)
       .stroke();
 
     // Status indicator
     const statusColor =
-      input.prediction.status === 'COMPLETED' ? ((doc as any).theme).success : ((doc as any).theme).warning;
+      input.prediction.status === 'COMPLETED'
+        ? (doc as any).theme.success
+        : (doc as any).theme.warning;
     doc.circle(x + 20, cardY + 20, 6).fill(statusColor);
 
     doc
       .font(FONTS.heading)
       .fontSize(11)
-      .fillColor(((doc as any).theme).primary)
+      .fillColor((doc as any).theme.primary)
       .text('Machine Learning Engine', x + 36, cardY + 14);
 
-    doc.font(FONTS.body).fontSize(10).fillColor(((doc as any).theme).textSecondary);
+    doc
+      .font(FONTS.body)
+      .fontSize(10)
+      .fillColor((doc as any).theme.textSecondary);
     doc.text(`Status: ${input.prediction.status ?? 'N/A'}`, x + 20, cardY + 38);
     doc.text(
       `Prediction Available: ${input.prediction.hasPrediction ? 'Yes' : 'No'}`,
@@ -963,10 +1100,10 @@ export class ReportPdfService {
 
     // Chart container with shadow effect
     doc.roundedRect(x + 2, y + 2, width, height, 6).fill('#F1F5F9'); // shadow
-    doc.roundedRect(x, y, width, height, 6).fill(((doc as any).theme).pageBg);
+    doc.roundedRect(x, y, width, height, 6).fill((doc as any).theme.pageBg);
     doc
       .roundedRect(x, y, width, height, 6)
-      .strokeColor(((doc as any).theme).borderLight)
+      .strokeColor((doc as any).theme.borderLight)
       .lineWidth(1)
       .stroke();
 
@@ -974,14 +1111,14 @@ export class ReportPdfService {
     doc
       .font(FONTS.heading)
       .fontSize(10)
-      .fillColor(((doc as any).theme).primary)
+      .fillColor((doc as any).theme.primary)
       .text(title || 'Revenue Trend', x + 16, y + 12);
 
     if (data.length === 0 || data.every((d) => d.value === 0)) {
       doc
         .font(FONTS.body)
         .fontSize(10)
-        .fillColor(((doc as any).theme).textMuted)
+        .fillColor((doc as any).theme.textMuted)
         .text('No revenue data available for chart rendering.', x + 16, y + 90);
       doc.y = y + height + 10;
       return;
@@ -1008,7 +1145,7 @@ export class ReportPdfService {
       doc
         .moveTo(chartLeft, gridY)
         .lineTo(chartRight, gridY)
-        .strokeColor(((doc as any).theme).borderLight)
+        .strokeColor((doc as any).theme.borderLight)
         .lineWidth(0.5)
         .dash(3, { space: 3 })
         .stroke();
@@ -1017,7 +1154,7 @@ export class ReportPdfService {
       doc
         .font(FONTS.body)
         .fontSize(7)
-        .fillColor(((doc as any).theme).textMuted)
+        .fillColor((doc as any).theme.textMuted)
         .text(this.formatNumber(gridValue), x + 8, gridY - 4, {
           width: 48,
           align: 'right',
@@ -1030,16 +1167,25 @@ export class ReportPdfService {
       const barX = chartLeft + i * (barWidth + barGap);
       const barY = chartBottom - barHeight;
 
-      // Bar gradient effect (darker at bottom)
-      doc.rect(barX, barY, barWidth, barHeight).fill(((doc as any).theme).chartBar);
-      doc.rect(barX, barY, barWidth, 3).fill(((doc as any).theme).accentLight); // highlight top
+      // Premium bar gradient (from accent to primaryLight)
+      const barGrad = doc.linearGradient(barX, barY, barX, barY + barHeight);
+      barGrad.stop(0, (doc as any).theme.accent || '#2563EB');
+      barGrad.stop(1, (doc as any).theme.primaryLight || '#1E3A5F');
+
+      doc
+        .roundedRect(barX, barY, barWidth, barHeight, 3)
+        .fill(barGrad);
+      
+      doc
+        .roundedRect(barX, barY, barWidth, Math.min(3, barHeight), 1)
+        .fill((doc as any).theme.accentLight); // highlight top
 
       // Value label on top
       if (point.value > 0) {
         doc
           .font(FONTS.heading)
           .fontSize(7)
-          .fillColor(((doc as any).theme).primary)
+          .fillColor((doc as any).theme.primary)
           .text(this.formatNumber(point.value), barX - 4, barY - 12, {
             width: barWidth + 8,
             align: 'center',
@@ -1050,7 +1196,7 @@ export class ReportPdfService {
       doc
         .font(FONTS.body)
         .fontSize(7.5)
-        .fillColor(((doc as any).theme).textSecondary)
+        .fillColor((doc as any).theme.textSecondary)
         .text(point.label, barX - 4, chartBottom + 6, {
           width: barWidth + 8,
           align: 'center',
@@ -1078,7 +1224,7 @@ export class ReportPdfService {
       doc
         .font(FONTS.body)
         .fontSize(10)
-        .fillColor(((doc as any).theme).textMuted)
+        .fillColor((doc as any).theme.textMuted)
         .text('No metrics available.');
       return;
     }
@@ -1093,8 +1239,13 @@ export class ReportPdfService {
     const rowH = 24;
 
     // Header row
-    doc.roundedRect(x, y, contentW, rowH, 3).fill(((doc as any).theme).tableHeaderBg);
-    doc.font(FONTS.heading).fontSize(9).fillColor(((doc as any).theme).textWhite);
+    doc
+      .roundedRect(x, y, contentW, rowH, 3)
+      .fill((doc as any).theme.tableHeaderBg);
+    doc
+      .font(FONTS.heading)
+      .fontSize(9)
+      .fillColor((doc as any).theme.textWhite);
     doc.text('Metric', x + 10, y + 7, { width: colWidths[0] - 15 });
     doc.text('Value', x + colWidths[0] + 8, y + 7, {
       width: colWidths[1] - 12,
@@ -1110,19 +1261,25 @@ export class ReportPdfService {
       if (y > doc.page.height - 80) return;
 
       // Alternating row colors
-      const bg = index % 2 === 0 ? ((doc as any).theme).pageBg : ((doc as any).theme).sectionBg;
+      const bg =
+        index % 2 === 0
+          ? (doc as any).theme.pageBg
+          : (doc as any).theme.sectionBg;
       doc.rect(x, y, contentW, rowH).fill(bg);
 
       // Metric name
       doc
-        .fillColor(((doc as any).theme).textPrimary)
+        .fillColor((doc as any).theme.textPrimary)
         .text(this.formatMetricName(row.metric), x + 10, y + 7, {
           width: colWidths[0] - 15,
         });
 
       // Value with color coding
       const numValue = Number(row.value) || 0;
-      const valueColor = numValue < 0 ? ((doc as any).theme).danger : ((doc as any).theme).textPrimary;
+      const valueColor =
+        numValue < 0
+          ? (doc as any).theme.danger
+          : (doc as any).theme.textPrimary;
       doc
         .fillColor(valueColor)
         .text(numValue.toLocaleString(), x + colWidths[0] + 8, y + 7, {
@@ -1131,7 +1288,7 @@ export class ReportPdfService {
 
       // Period
       doc
-        .fillColor(((doc as any).theme).textSecondary)
+        .fillColor((doc as any).theme.textSecondary)
         .text(
           new Date(row.period).toISOString().slice(0, 10),
           x + colWidths[0] + colWidths[1] + 8,
@@ -1148,7 +1305,7 @@ export class ReportPdfService {
     doc
       .moveTo(x, y)
       .lineTo(x + contentW, y)
-      .strokeColor(((doc as any).theme).borderMedium)
+      .strokeColor((doc as any).theme.borderMedium)
       .lineWidth(1)
       .stroke();
     doc.y = y + 8;
@@ -1162,7 +1319,7 @@ export class ReportPdfService {
   // ═══════════════════════════════════════════════════════════════
   private drawPageHeader(doc: PDFKit.PDFDocument, pageW: number) {
     // Thin accent line at top
-    doc.rect(0, 0, pageW, 3).fill(((doc as any).theme).accent);
+    doc.rect(0, 0, pageW, 3).fill((doc as any).theme.accent);
     // Reset position below header bar area
     doc.y = 60;
   }
@@ -1181,7 +1338,7 @@ export class ReportPdfService {
     doc
       .moveTo(56, footerY)
       .lineTo(pageW - 56, footerY)
-      .strokeColor(((doc as any).theme).borderLight)
+      .strokeColor((doc as any).theme.borderLight)
       .lineWidth(0.5)
       .stroke();
 
@@ -1189,7 +1346,7 @@ export class ReportPdfService {
     doc
       .font(FONTS.heading)
       .fontSize(7.5)
-      .fillColor(((doc as any).theme).textMuted)
+      .fillColor((doc as any).theme.textMuted)
       .text('SmartBiz AI', 56, footerY + 8);
 
     // Center: generation source
@@ -1197,7 +1354,7 @@ export class ReportPdfService {
     doc
       .font(FONTS.body)
       .fontSize(7.5)
-      .fillColor(((doc as any).theme).textLight)
+      .fillColor((doc as any).theme.textLight)
       .text(poweredByLabel, 56, footerY + 8, {
         width: pageW - 112,
         align: 'center',
@@ -1207,7 +1364,7 @@ export class ReportPdfService {
     doc
       .font(FONTS.heading)
       .fontSize(8)
-      .fillColor(((doc as any).theme).accent)
+      .fillColor((doc as any).theme.accent)
       .text(`${pageIndex + 1} / ${totalPages}`, 56, footerY + 8, {
         width: pageW - 112,
         align: 'right',

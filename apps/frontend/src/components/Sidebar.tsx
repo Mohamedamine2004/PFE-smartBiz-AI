@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, Users, Settings, Calculator, FileText, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, Calculator, FileText, ChevronRight, Zap } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { Logo } from './ui/Logo';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,6 +17,8 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'OWNER';
+
+  const [hoveredIndex, setHoveredIndex] = useState<string | null>(null);
 
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
     return {
@@ -90,12 +92,36 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
     <aside
       className={`
         fixed z-40 h-full lg:h-[calc(100vh-32px)] top-0 lg:top-4 ltr:left-0 rtl:right-0 ltr:lg:left-4 rtl:lg:right-4
-        flex flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+        flex flex-col transition-[width] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
         bg-surface/80 backdrop-blur-2xl lg:border border-white/10 dark:border-white/5
         lg:rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.1)]
-        ${isOpen ? 'w-[260px] translate-x-0' : 'w-[84px] ltr:-translate-x-full rtl:translate-x-full lg:translate-x-0 rtl:lg:translate-x-0'}
+        translate-x-0
+        ${isOpen ? 'w-[260px]' : 'w-[88px]'}
       `}
     >
+      {/* Top inner shimmer line */}
+      <div
+        className="absolute top-0 ltr:left-4 rtl:right-4 ltr:right-4 rtl:left-4 h-px pointer-events-none rounded-full z-10"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)' }}
+      />
+
+      {/* Brand glow orb — top corner */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="brand-glow"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+            className="absolute top-0 ltr:right-0 rtl:left-0 w-40 h-40 pointer-events-none rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(0,209,255,0.07) 0%, transparent 70%)',
+              filter: 'blur(24px)',
+            }}
+          />
+        )}
+      </AnimatePresence>
       {/* Mobile overlay */}
       <AnimatePresence>
         {isOpen && (
@@ -110,11 +136,14 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
       </AnimatePresence>
 
       {/* Sidebar Header */}
-      <div className="flex h-32 w-full items-center justify-center px-4 mb-4 relative">
+      <div className="flex h-24 w-full items-center justify-center px-4 mb-2 relative shrink-0">
         <Link to="/dashboard" onClick={onNavigate} className="flex items-center justify-center w-full h-full relative group">
           <div className="relative w-full h-full flex items-center justify-center p-2">
             <div className="absolute inset-0 bg-brand blur-2xl opacity-10 group-hover:opacity-30 transition-opacity rounded-[32px]"></div>
-            <Logo className={`relative z-10 drop-shadow-md object-contain transition-all duration-500 ease-out fill-current ${isOpen ? 'w-full max-h-20' : 'w-12 max-h-12'}`} />
+            <Logo 
+              className={`relative z-10 drop-shadow-md object-contain transition-all duration-500 ease-out fill-current ${isOpen ? 'w-full max-h-16' : 'w-9 max-h-9'}`} 
+              minimized={!isOpen}
+            />
           </div>
         </Link>
 
@@ -138,10 +167,12 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
           const showSubItems = hasSubItems && isExpanded && isOpen;
 
           return (
-            <div key={item.href} className="flex flex-col">
+            <div key={item.href} className="flex flex-col relative">
               <Link
                 to={item.href}
-                title={item.name}
+                title={isOpen ? "" : item.name}
+                onMouseEnter={() => !isOpen && setHoveredIndex(item.href)}
+                onMouseLeave={() => setHoveredIndex(null)}
                 onClick={(e) => {
                   if (hasSubItems && isOpen) {
                     if (isMainActive) {
@@ -158,7 +189,7 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                     onNavigate?.();
                   }
                 }}
-                className="relative flex items-center px-4 py-3 rounded-2xl group transition-colors z-10 cursor-pointer"
+                className={`relative flex items-center px-4 py-3 rounded-2xl group transition-all duration-300 z-10 cursor-pointer ${isOpen ? '' : 'justify-center px-0'}`}
               >
                 {/* Magnetic Active Pill Background using Framer Motion */}
                 {isMainActive && (
@@ -174,10 +205,23 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                   <div className="absolute inset-0 bg-elevated/50 border border-transparent opacity-0 group-hover:opacity-100 rounded-2xl -z-10 transition-all duration-300 group-hover:border-white/5" />
                 )}
 
-                <Icon
-                  className={`h-[22px] w-[22px] relative z-10 transition-all duration-300 ease-out ${isMainActive ? 'text-brand drop-shadow-[0_0_8px_rgba(0,158,135,0.5)]' : 'text-text-muted group-hover:text-text-main group-hover:scale-[1.15]'
+                {/* Glowing icon container */}
+                <div
+                  className={`relative shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300 ${isMainActive ? '' : 'group-hover:scale-105'}`}
+                  style={isMainActive ? {
+                    background: 'rgba(0,209,255,0.09)',
+                    boxShadow: '0 0 14px rgba(0,209,255,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+                  } : {}}
+                >
+                  <Icon
+                    className={`h-5 w-5 relative z-10 transition-all duration-300 ease-out ${
+                      isMainActive
+                        ? 'text-brand'
+                        : 'text-text-muted group-hover:text-text-main'
                     }`}
-                />
+                    style={isMainActive ? { filter: 'drop-shadow(0 0 6px rgba(0,209,255,0.6))' } : {}}
+                  />
+                </div>
 
                 {isOpen && (
                   <span className={`ml-3.5 text-[14px] font-semibold tracking-wide relative z-10 transition-all duration-300 ${isMainActive ? 'text-text-main drop-shadow-sm' : 'text-text-muted group-hover:text-text-main'
@@ -195,6 +239,23 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                 {hasSubItems && isOpen && (
                   <ChevronRight className={`absolute ltr:right-4 rtl:left-4 h-4 w-4 text-text-muted transition-transform duration-300 ${isExpanded ? 'rotate-90 text-brand' : 'rtl:rotate-180'}`} />
                 )}
+
+                {/* Floating Glassmorphic Tooltip Badge on Collapsed hover */}
+                <AnimatePresence>
+                  {!isOpen && hoveredIndex === item.href && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -8, scale: 0.95 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute ltr:left-[96px] rtl:right-[96px] py-2 px-3 bg-[#0a0f1d]/90 backdrop-blur-md border border-white/10 rounded-xl shadow-xl z-[9999] pointer-events-none whitespace-nowrap"
+                    >
+                      <span className="text-xs font-bold text-text-main font-sans tracking-wide">
+                        {item.name}
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </Link>
 
               {/* Dynamic Sub-Items Container */}
@@ -205,7 +266,7 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="ml-[26px] mt-2 mb-1 flex flex-col space-y-1 pl-4 border-l-2 border-brand/20 relative overflow-hidden"
+                    className="ml-[26px] mt-2 mb-1 flex flex-col space-y-1 pl-4 relative overflow-hidden"
                   >
                     {item.subItems?.map((subItem) => {
                       let isSubActive = false;
@@ -229,8 +290,7 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
                         const subTabMatch = subItem.href.match(/tab=([^&]*)/);
                         isSubActive = subTabMatch ? subTabMatch[1] === currentTab : false;
                       } else {
-                        // Fallback matching for other pages where simulated sub-pages are added
-                        isSubActive = subItem.name.includes('Nouvelle') || subItem.name.includes('Général') || subItem.name.includes('Générateur'); // naive hack to show one active
+                        isSubActive = subItem.name.includes('Nouvelle') || subItem.name.includes('Général') || subItem.name.includes('Générateur'); 
                       }
 
                       return (
@@ -256,28 +316,88 @@ export const Sidebar = ({ isOpen, onToggleSidebar, onNavigate }: SidebarProps) =
         })}
       </nav>
 
-      {/* Bottom Area: Server Status / App Info */}
-      {isOpen && (
-        <div className="p-4 mb-2">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-elevated to-background p-4 border border-white/5 shadow-inner"
+      {/* Bottom Area: User Profile & AI Status Card */}
+      <div className="px-3 pb-4 pt-1 shrink-0 mt-auto flex flex-col items-center justify-center relative z-20">
+        {/* Divider */}
+        <div
+          className="mb-4 h-px w-full"
+          style={{ background: 'linear-gradient(90deg, transparent, var(--border-color), transparent)' }}
+        />
+
+        {isOpen ? (
+          <Link to="/settings" onClick={onNavigate} className="w-full">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative overflow-hidden rounded-2xl p-3 border group cursor-pointer block"
+              style={{
+                background: 'var(--bg-elevated)',
+                borderColor: 'var(--border-color)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              }}
+            >
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Corner glow */}
+              <div
+                className="absolute -bottom-4 ltr:-right-4 rtl:-left-4 w-16 h-16 rounded-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{ background: 'radial-gradient(circle, rgba(0,209,255,0.2) 0%, transparent 70%)', filter: 'blur(10px)' }}
+              />
+
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="relative shrink-0 flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden bg-surface border border-border group-hover:border-brand/30 transition-colors duration-300">
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm font-bold text-text-main">
+                      {user?.firstName?.charAt(0) || 'U'}{user?.lastName?.charAt(0) || ''}
+                    </span>
+                  )}
+                  
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5">
+                    <div className="absolute w-full h-full rounded-full bg-brand animate-ping opacity-75" />
+                    <div className="absolute w-full h-full rounded-full bg-brand border border-background shadow-[0_0_8px_rgba(0,209,255,0.8)]" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col min-w-0 flex-1">
+                  <div className="text-sm font-bold text-text-main truncate group-hover:text-brand transition-colors duration-200">
+                    {user?.firstName || 'User'} {user?.lastName || ''}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <Zap className="w-3 h-3 text-brand shrink-0" />
+                    <span className="text-[10px] font-semibold text-text-muted truncate">
+                      {user?.role === 'OWNER' ? 'Owner' : user?.role === 'ADMIN' ? 'Admin' : 'Member'} • AI Active
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </Link>
+        ) : (
+          <Link 
+            to="/settings" 
+            onClick={onNavigate} 
+            title={t('sidebar.settings')}
+            className="relative shrink-0 flex items-center justify-center w-11 h-11 rounded-xl overflow-hidden bg-elevated border border-border hover:border-brand/40 shadow-lg cursor-pointer group transition-all duration-300"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-brand/20 rounded-full blur-2xl -mr-10 -mt-10" />
-            <div className="relative z-10 flex items-center gap-3">
-              <div className="relative flex items-center justify-center">
-                <div className="absolute w-4 h-4 bg-emerald-500/30 rounded-full animate-ping" />
-                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-text-muted tracking-widest">{t('sidebar.systemState', 'État du Système')}</span>
-                <span className="text-xs font-semibold text-text-main w-full truncate">{t('sidebar.telemetry', 'Télémétrie OP')}</span>
-              </div>
+            <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover relative z-10" />
+            ) : (
+              <span className="text-sm font-bold text-text-main relative z-10">
+                {user?.firstName?.charAt(0) || 'U'}{user?.lastName?.charAt(0) || ''}
+              </span>
+            )}
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 z-20">
+              <div className="absolute w-full h-full rounded-full bg-brand animate-ping opacity-75" />
+              <div className="absolute w-full h-full rounded-full bg-brand border border-background shadow-[0_0_8px_rgba(0,209,255,0.8)]" />
             </div>
-          </motion.div>
-        </div>
-      )}
+          </Link>
+        )}
+      </div>
     </aside>
   );
 };
