@@ -28,22 +28,22 @@
 
 ## 📋 Table of Contents
 
-- [🎯 Overview](#-overview)
-- [✨ Key Features](#-key-features)
-- [🏗️ Architecture](#️-architecture)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [📂 Project Structure](#-project-structure)
-- [⚡ Quick Start](#-quick-start)
-- [🔧 Manual Setup](#-manual-setup)
-- [🤖 ML Engine Deep Dive](#-ml-engine-deep-dive)
-- [📊 Data Model](#-data-model)
-- [🔐 Authentication & Multi-Tenancy](#-authentication--multi-tenancy)
-- [📡 API Documentation](#-api-documentation)
-- [🌍 Internationalization](#-internationalization)
-- [🧪 Testing](#-testing)
-- [🚢 Deployment](#-deployment)
-- [🗺️ Roadmap](#️-roadmap)
-- [👨‍💻 Author](#-author)
+- [🎯 Overview](#overview)
+- [✨ Key Features](#key-features)
+- [🏗️ Architecture](#architecture)
+- [🛠️ Tech Stack](#tech-stack)
+- [📂 Project Structure](#project-structure)
+- [⚡ Quick Start](#quick-start)
+- [🔧 Manual Setup](#manual-setup)
+- [🤖 ML Engine Deep Dive](#ml-engine-deep-dive)
+- [📊 Data Model](#data-model)
+- [🔐 Authentication & Multi-Tenancy](#authentication--multi-tenancy)
+- [📡 API Documentation](#api-documentation)
+- [🌍 Internationalization](#internationalization)
+- [🧪 Testing](#testing)
+- [🚢 Deployment](#deployment)
+- [🗺️ Roadmap](#roadmap)
+- [👨‍💻 Author](#author)
 
 ---
 
