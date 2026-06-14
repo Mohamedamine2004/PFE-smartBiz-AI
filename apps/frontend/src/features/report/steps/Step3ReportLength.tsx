@@ -55,17 +55,17 @@ export const Step3ReportLength = ({ state, setState, errors }: WizardStepProps) 
               onClick={() => setState({ ...state, lengthProfile: value })}
               className="flex items-center gap-5 p-5 rounded-xl text-left transition-all duration-200"
               style={{
-                background: isActive ? glow : 'var(--bg-elevated)',
-                border: `1.5px solid ${isActive ? accent.replace('0.9)', '0.35)') : 'var(--border-color)'}`,
-                boxShadow: isActive ? `0 4px 24px ${glow}` : 'none',
+                background: isActive ? `color-mix(in srgb, ${accent} 8%, var(--bg-elevated))` : 'var(--bg-elevated)',
+                border: `1.5px solid ${isActive ? accent : 'var(--border-color)'}`,
+                boxShadow: isActive ? `0 8px 24px ${glow}` : 'none',
               }}
             >
               {/* Icon + pages */}
               <div
                 className="shrink-0 w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-0.5"
                 style={{
-                  background: isActive ? glow : 'var(--bg-surface)',
-                  border: `1px solid ${isActive ? accent.replace('0.9)', '0.25)') : 'var(--border-color)'}`,
+                  background: isActive ? `color-mix(in srgb, ${accent} 16%, var(--bg-elevated))` : 'var(--bg-surface)',
+                  border: `1px solid ${isActive ? accent : 'var(--border-color)'}`,
                   boxShadow: isActive ? `0 0 16px ${glow}` : 'none',
                 }}
               >

@@ -23,6 +23,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import * as jwtPayloadInterface from './interfaces/jwt-payload.interface';
@@ -164,6 +165,16 @@ export class AuthController {
       currentPassword,
       newPassword,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Put('profile')
+  async updateProfile(
+    @CurrentUser() user: jwtPayloadInterface.JwtPayload,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return await this.authService.updateProfile(user.userId, dto);
   }
 
   @UseGuards(JwtAuthGuard)

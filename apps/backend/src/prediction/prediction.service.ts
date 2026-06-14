@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Prediction } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { firstValueFrom } from 'rxjs';
+import { NotificationService } from '../notification/notification.service';
 
 // Maps frontend sector names to 4-digit SIC codes (same mapping as financial.service.ts)
 const SECTOR_TO_SIC: Record<string, string> = {
@@ -30,6 +31,7 @@ export class PredictionService implements OnModuleInit {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   onModuleInit() {
@@ -143,6 +145,54 @@ export class PredictionService implements OnModuleInit {
       });
 
       this.logger.log(`Prediction ${prediction.id} completed successfully`);
+
+      // Notify all company members
+      try {
+        const members = await this.prisma.userCompany.findMany({
+          where: { companyId },
+          select: { userId: true },
+        });
+
+        // Send PREDICTION_READY notification
+        await Promise.all(
+          members.map((member) =>
+            this.notificationService.createNotification(
+              member.userId,
+              'PREDICTION_READY',
+              'Prévisions IA disponibles',
+              "Le modèle d'intelligence artificielle a généré de nouvelles prévisions stratégiques et financières pour votre entreprise.",
+              '/dashboard',
+            ),
+          ),
+        );
+
+        // Check for anomalies in the prediction result
+        const valuation = mlResult.valuations?.[0];
+        if (valuation) {
+          const currentRev = valuation.Current_Revenue;
+          const projectedRevY1 = valuation.Projected_Revenue_Y1;
+          
+          if (currentRev > 0 && projectedRevY1 < currentRev * 0.8) {
+            // Anomaly: Drop of more than 20% in revenue projected
+            const dropPct = Math.round(((currentRev - projectedRevY1) / currentRev) * 100);
+            
+            await Promise.all(
+              members.map((member) =>
+                this.notificationService.createNotification(
+                  member.userId,
+                  'ANOMALY_DETECTED',
+                  'Alerte : Baisse de revenus prévue',
+                  `L'IA a détecté une baisse anormale projetée de revenus de ${dropPct}% pour le prochain exercice.`,
+                  '/dashboard',
+                ),
+              ),
+            );
+          }
+        }
+      } catch (err) {
+        this.logger.error(`Error generating notification for prediction: ${err}`);
+      }
+
       return updated;
     } catch (error) {
       const errorMessage =

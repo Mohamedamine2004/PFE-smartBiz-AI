@@ -139,7 +139,10 @@ export const Team = () => {
       )}
 
       {/* Premium Animated Tabs */}
-      <div className="relative p-1.5 flex gap-1 rounded-2xl bg-surface/50 border border-border/50 backdrop-blur-md self-start w-fit mb-8">
+      <div
+        className="relative p-1.5 flex gap-1 rounded-2xl bg-surface border border-border/50 self-start w-fit mb-8"
+        style={{ backgroundColor: 'var(--bg-surface)' }}
+      >
         <button
           onClick={() => handleTabChange('members')}
           className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${

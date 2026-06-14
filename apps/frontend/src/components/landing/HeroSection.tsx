@@ -1,7 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, UserPlus, Star, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, type Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 interface HeroSectionProps {
@@ -12,6 +12,46 @@ export const HeroSection = ({ onOpenInvite }: HeroSectionProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Rotating words for line 2 of the hero section
+  const words = [
+    t('landing.hero.title2_1', 'nouvelle génération.'),
+    t('landing.hero.title2_2', "augmentée par l'IA."),
+    t('landing.hero.title2_3', 'précise & instantanée.'),
+    t('landing.hero.title2_4', 'prête pour les investisseurs.'),
+  ];
+
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % words.length);
+    }, 3500); // 3.5s for comfortable reading
+    return () => clearInterval(timer);
+  }, [words.length]);
+
+  const textRotatorVariants: Variants = {
+    enter: {
+      y: 40,
+      opacity: 0,
+    },
+    center: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        y: { type: 'spring', stiffness: 300, damping: 28 },
+        opacity: { duration: 0.35 },
+      },
+    },
+    exit: {
+      y: -40,
+      opacity: 0,
+      transition: {
+        y: { type: 'spring', stiffness: 300, damping: 28 },
+        opacity: { duration: 0.35 },
+      },
+    },
+  };
 
   // Scroll-driven parallax — read from the page container (closest scroll parent)
   const { scrollY } = useScroll();
@@ -31,6 +71,28 @@ export const HeroSection = ({ onOpenInvite }: HeroSectionProps) => {
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20, scale: 0.97 },
     visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }
+  };
+
+  const titleContainerVariants: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.15
+      }
+    }
+  };
+
+  const wordRevealVariants: Variants = {
+    hidden: { y: '100%', opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.85,
+        ease: [0.16, 1, 0.3, 1]
+      }
+    }
   };
 
   return (
@@ -121,17 +183,39 @@ export const HeroSection = ({ onOpenInvite }: HeroSectionProps) => {
         </motion.div>
 
         {/* Title */}
-        <motion.div variants={itemVariants} className="text-center mb-8">
-          <h1
-            className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tight text-text-main mb-5 leading-[1.04]"
+        <motion.div variants={itemVariants} className="text-center mb-8 flex flex-col items-center">
+          <motion.h1
+            variants={titleContainerVariants}
+            className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tight text-text-main mb-5 leading-[1.1] md:leading-[1.04] flex flex-col items-center select-none"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            {t('landing.hero.title1')}{' '}
-            <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand via-cyan-300 to-secondary bg-[length:200%_200%] animate-gradient">
-              {t('landing.hero.title2')}
+            {/* Line 1: Business valuation / Évaluation d'entreprise / تقييم الشركات */}
+            <span className="flex flex-wrap justify-center gap-x-[0.25em] gap-y-[0.15em] overflow-hidden py-1.5 px-1">
+              {t('landing.hero.title1').split(' ').map((word, idx) => (
+                <span key={`t1-${idx}`} className="inline-block overflow-hidden pb-1 md:pb-2">
+                  <motion.span variants={wordRevealVariants} className="inline-block">
+                    {word}
+                  </motion.span>
+                </span>
+              ))}
             </span>
-          </h1>
+
+            {/* Line 2: Rotating messages with animation */}
+            <span className="relative grid place-items-center overflow-hidden py-1.5 px-1 min-h-[1.2em] w-full">
+              <AnimatePresence>
+                <motion.span
+                  key={index}
+                  variants={textRotatorVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="col-start-1 row-start-1 text-transparent bg-clip-text bg-gradient-to-r from-brand via-cyan-300 to-secondary bg-[length:200%_200%] animate-gradient flex flex-wrap justify-center gap-x-[0.25em] pb-1 md:pb-2 text-center"
+                >
+                  {words[index]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </motion.h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-text-muted leading-relaxed">
             {t('landing.hero.subtitle')}
           </p>

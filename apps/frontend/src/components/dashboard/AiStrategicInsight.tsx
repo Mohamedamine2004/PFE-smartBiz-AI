@@ -37,7 +37,7 @@ export const AiStrategicInsight = ({ data }: AiStrategicInsightProps) => {
 
     // Calculate basic trajectory
     const recent = safeData.slice(Math.max(safeData.length - 3, 0));
-    
+
     let revGrowth = 0;
     let avgMargin = 0;
     let avgRetention = 0;
@@ -103,12 +103,12 @@ export const AiStrategicInsight = ({ data }: AiStrategicInsightProps) => {
       {/* Radial Health Score Chart */}
       <div className="relative w-40 h-40 flex-shrink-0 flex items-center justify-center">
         <ResponsiveContainer width="100%" height="100%">
-          <RadialBarChart 
-            cx="50%" cy="50%" 
-            innerRadius="75%" outerRadius="100%" 
-            barSize={12} 
-            data={chartData} 
-            startAngle={210} 
+          <RadialBarChart
+            cx="50%" cy="50%"
+            innerRadius="75%" outerRadius="100%"
+            barSize={12}
+            data={chartData}
+            startAngle={210}
             endAngle={-30}
           >
             <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
@@ -122,7 +122,7 @@ export const AiStrategicInsight = ({ data }: AiStrategicInsightProps) => {
             />
           </RadialBarChart>
         </ResponsiveContainer>
-        
+
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-3xl font-bold text-text-main tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
             {healthData.score.toFixed(0)}
@@ -144,7 +144,7 @@ export const AiStrategicInsight = ({ data }: AiStrategicInsightProps) => {
             {t('dashboard.aiInsight.title', 'SmartBiz AI Analysis')}
           </h2>
         </div>
-        
+
         <div className="grid grid-cols-1 gap-3">
           {healthData.insights.map((insight, idx) => (
             <div key={idx} className="flex items-start gap-3 p-3 bg-black/10 dark:bg-black/20 border border-white/5 rounded-xl transition-transform hover:translate-x-1 duration-300">

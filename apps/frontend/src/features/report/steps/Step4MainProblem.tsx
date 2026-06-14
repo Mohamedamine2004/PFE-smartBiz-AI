@@ -5,9 +5,9 @@ import type { WizardStepProps } from '../types';
 const MAX_CHARS = 2000;
 
 const EXAMPLES = [
-  'Notre taux de churn est élevé, nous souhaitons identifier les causes racines.',
-  'Nous cherchons à lever une Série A et avons besoin d\'une analyse prête pour les investisseurs.',
-  'Nos coûts opérationnels ont augmenté de 30% ce trimestre sans croissance du chiffre d\'affaires.',
+  { key: 'wizard.step4.examples.churn', fallback: 'Notre taux de churn est élevé, nous souhaitons identifier les causes racines.' },
+  { key: 'wizard.step4.examples.seriesA', fallback: 'Nous cherchons à lever une Série A et avons besoin d\'une analyse prête pour les investisseurs.' },
+  { key: 'wizard.step4.examples.opCost', fallback: 'Nos coûts opérationnels ont augmenté de 30% ce trimestre sans croissance du chiffre d\'affaires.' },
 ];
 
 export const Step4ProblemStatement = ({ state, setState, errors }: WizardStepProps) => {
@@ -66,8 +66,8 @@ export const Step4ProblemStatement = ({ state, setState, errors }: WizardStepPro
       <div
         className="p-4 rounded-xl"
         style={{
-          background: 'rgba(0,209,255,0.04)',
-          border: '1px solid rgba(0,209,255,0.12)',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
         }}
       >
         <div className="flex items-center gap-2 mb-3">
@@ -77,21 +77,24 @@ export const Step4ProblemStatement = ({ state, setState, errors }: WizardStepPro
           </p>
         </div>
         <div className="space-y-2">
-          {EXAMPLES.map((example) => (
-            <button
-              key={example}
-              type="button"
-              onClick={() => setState({ ...state, problemStatement: example })}
-              className="w-full text-left text-xs text-text-muted hover:text-text-main flex items-start gap-2 px-3 py-2 rounded-lg transition-colors duration-150"
-              style={{
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border-color)',
-              }}
-            >
-              <ArrowRight className="w-3 h-3 mt-0.5 shrink-0 text-brand" />
-              {example}
-            </button>
-          ))}
+          {EXAMPLES.map((example) => {
+            const exampleText = t(example.key, example.fallback);
+            return (
+              <button
+                key={example.key}
+                type="button"
+                onClick={() => setState({ ...state, problemStatement: exampleText })}
+                className="w-full text-left text-xs text-text-muted hover:text-text-main flex items-start gap-2 px-3 py-2 rounded-lg transition-colors duration-150"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-color)',
+                }}
+              >
+                <ArrowRight className="w-3 h-3 mt-0.5 shrink-0 text-brand" />
+                {exampleText}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

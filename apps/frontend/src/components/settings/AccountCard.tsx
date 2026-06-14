@@ -25,7 +25,7 @@ interface StrengthResult {
   width: string;
 }
 
-function getPasswordStrength(password: string): StrengthResult {
+function getPasswordStrength(password: string, t: any): StrengthResult {
   if (!password) return { score: 0, label: '', color: '', glow: '', width: '0%' };
   let score = 0;
   if (password.length >= 8)  score++;
@@ -35,10 +35,10 @@ function getPasswordStrength(password: string): StrengthResult {
 
   const map: StrengthResult[] = [
     { score: 0, label: '', color: '', glow: '', width: '0%' },
-    { score: 1, label: 'Faible',      color: '#ef4444', glow: 'rgba(239,68,68,0.35)',   width: '25%' },
-    { score: 2, label: 'Moyen',       color: '#f97316', glow: 'rgba(249,115,22,0.35)',  width: '50%' },
-    { score: 3, label: 'Fort',        color: '#22c55e', glow: 'rgba(34,197,94,0.35)',   width: '75%' },
-    { score: 4, label: 'Incassable',  color: '#00D1FF', glow: 'rgba(0,209,255,0.45)',   width: '100%' },
+    { score: 1, label: t('settings.account.strength.weak', 'Faible'),      color: '#ef4444', glow: 'rgba(239,68,68,0.35)',   width: '25%' },
+    { score: 2, label: t('settings.account.strength.medium', 'Moyen'),       color: '#f97316', glow: 'rgba(249,115,22,0.35)',  width: '50%' },
+    { score: 3, label: t('settings.account.strength.strong', 'Fort'),        color: '#22c55e', glow: 'rgba(34,197,94,0.35)',   width: '75%' },
+    { score: 4, label: t('settings.account.strength.secure', 'Incassable'),  color: '#00D1FF', glow: 'rgba(0,209,255,0.45)',   width: '100%' },
   ];
   return map[score] ?? map[0];
 }
@@ -63,9 +63,18 @@ export const AccountCard = () => {
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
 
+  const profileForm = useForm({
+    defaultValues: { firstName: user?.firstName || '', lastName: user?.lastName || '' },
+  });
+
+  const fetchUser = useAuthStore((state) => state.fetchUser);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
+
   const newPasswordValue     = form.watch('newPassword');
   const confirmPasswordValue = form.watch('confirmPassword');
-  const strength             = getPasswordStrength(newPasswordValue);
+  const strength             = getPasswordStrength(newPasswordValue, t);
   const passwordsMatch       = newPasswordValue.length > 0 && newPasswordValue === confirmPasswordValue;
 
   const handleSubmit = async (data: ChangePasswordInputs) => {
@@ -86,6 +95,21 @@ export const AccountCard = () => {
     }
   };
 
+  const handleProfileSubmit = async (data: { firstName: string; lastName: string }) => {
+    setProfileError('');
+    setProfileSuccess('');
+    setProfileLoading(true);
+    try {
+      await api.put('/auth/profile', data);
+      await fetchUser(); // Update global state
+      setProfileSuccess(t('settings.account.profileSuccess', 'Profil mis à jour avec succès.'));
+    } catch (err: unknown) {
+      setProfileError(axios.isAxiosError(err) ? err.response?.data?.message : t('settings.account.profileError', 'Erreur lors de la mise à jour.'));
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
   return (
     <div className="relative rounded-3xl p-6 md:p-8 border border-border/50 bg-surface/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] space-y-8">
       {/* Background Glow */}
@@ -98,20 +122,56 @@ export const AccountCard = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-text-main tracking-tight">{t('settings.account.heading')}</h2>
-          <p className="text-sm text-text-muted mt-0.5">Manage your personal information and security credentials.</p>
+          <p className="text-sm text-text-muted mt-0.5">{t('settings.account.subtitle', 'Manage your personal information and security credentials.')}</p>
         </div>
       </div>
 
-      {/* Profile Info (ReadOnly) */}
+      {/* Profile Info Form */}
       <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8 bg-elevated/10 border border-border/30 rounded-2xl p-6">
         <div className="shrink-0">
           <AvatarSelector />
         </div>
-        <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-5">
-          <ReadOnlyField label={t('auth.common.firstNameLabel')} value={user?.firstName || ''} />
-          <ReadOnlyField label={t('auth.common.lastNameLabel')}  value={user?.lastName  || ''} />
-          <ReadOnlyField label={t('auth.common.emailLabel')}     value={user?.email     || ''} className="md:col-span-2" />
-        </div>
+        <form className="flex-1 w-full space-y-5" onSubmit={profileForm.handleSubmit(handleProfileSubmit)}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-text-main block">{t('auth.common.firstNameLabel')}</label>
+              <input
+                type="text"
+                className="input w-full transition-all duration-300 focus:ring-1 focus:ring-secondary/30"
+                {...profileForm.register('firstName')}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-text-main block">{t('auth.common.lastNameLabel')}</label>
+              <input
+                type="text"
+                className="input w-full transition-all duration-300 focus:ring-1 focus:ring-secondary/30"
+                {...profileForm.register('lastName')}
+              />
+            </div>
+            <ReadOnlyField label={t('auth.common.emailLabel')} value={user?.email || ''} className="md:col-span-2" />
+          </div>
+
+          <Alert type="error" message={profileError} variant="inline" />
+          <Alert type="success" message={profileSuccess} variant="inline" />
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={profileLoading}
+              className="btn-premium group py-2.5 px-6 text-sm flex items-center gap-2"
+              style={{
+                background: 'linear-gradient(to right, var(--secondary), #4f46e5)',
+                boxShadow: '0 4px 20px rgba(99,102,241,0.25)',
+              }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <Save className="w-4 h-4" />
+                {profileLoading ? t('settings.account.saving', 'Enregistrement...') : t('settings.account.saveProfile', 'Sauvegarder le profil')}
+              </span>
+            </button>
+          </div>
+        </form>
       </div>
 
       <div className="relative z-10 h-px bg-gradient-to-r from-transparent via-border to-transparent my-2" />
@@ -131,7 +191,7 @@ export const AccountCard = () => {
               <input
                 type={showCurrent ? 'text' : 'password'}
                 placeholder="••••••••"
-                className={`input w-full pr-11 transition-all duration-300 focus:ring-1 focus:ring-secondary/30 ${
+                className={`input w-full ltr:pr-11 rtl:pl-11 rtl:pr-4 transition-all duration-300 focus:ring-1 focus:ring-secondary/30 ${
                   form.formState.errors.currentPassword ? 'border-error focus:border-error' : ''
                 }`}
                 {...form.register('currentPassword')}
@@ -139,7 +199,7 @@ export const AccountCard = () => {
               <button
                 type="button"
                 onClick={() => setShowCurrent((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                className="absolute ltr:right-3.5 rtl:left-3.5 rtl:right-auto top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
                 tabIndex={-1}
               >
                 {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -157,7 +217,7 @@ export const AccountCard = () => {
               <input
                 type={showNew ? 'text' : 'password'}
                 placeholder="••••••••"
-                className={`input w-full pr-11 transition-all duration-300 focus:ring-1 focus:ring-secondary/30 ${
+                className={`input w-full ltr:pr-11 rtl:pl-11 rtl:pr-4 transition-all duration-300 focus:ring-1 focus:ring-secondary/30 ${
                   form.formState.errors.newPassword ? 'border-error focus:border-error' : ''
                 }`}
                 {...form.register('newPassword')}
@@ -165,7 +225,7 @@ export const AccountCard = () => {
               <button
                 type="button"
                 onClick={() => setShowNew((v) => !v)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+                className="absolute ltr:right-3.5 rtl:left-3.5 rtl:right-auto top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
                 tabIndex={-1}
               >
                 {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -207,13 +267,13 @@ export const AccountCard = () => {
               <input
                 type={showConfirm ? 'text' : 'password'}
                 placeholder="••••••••"
-                className={`input w-full pr-20 transition-all duration-300 focus:ring-1 focus:ring-secondary/30 ${
+                className={`input w-full ltr:pr-20 rtl:pl-20 rtl:pr-4 transition-all duration-300 focus:ring-1 focus:ring-secondary/30 ${
                   form.formState.errors.confirmPassword ? 'border-error focus:border-error'
                   : passwordsMatch ? 'border-emerald-500/50' : ''
                 }`}
                 {...form.register('confirmPassword')}
               />
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <div className="absolute ltr:right-3.5 rtl:left-3.5 rtl:right-auto top-1/2 -translate-y-1/2 flex items-center gap-2">
                 {passwordsMatch && (
                   <CheckCheck
                     className="w-4 h-4 text-emerald-500 animate-scale-in"
@@ -250,7 +310,7 @@ export const AccountCard = () => {
             >
               <span className="relative z-10 flex items-center gap-2">
                 <Save className="w-4 h-4" />
-                {loading ? 'Saving...' : t('settings.account.savePassword')}
+                {loading ? t('settings.account.saving', 'Saving...') : t('settings.account.savePassword')}
               </span>
             </button>
           </div>

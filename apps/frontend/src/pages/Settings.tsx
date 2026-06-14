@@ -116,7 +116,10 @@ export const Settings = () => {
       )}
 
       {/* Premium Animated Tabs */}
-      <div className="relative p-1.5 flex gap-1 rounded-2xl bg-surface/50 border border-border/50 backdrop-blur-md self-start w-fit">
+      <div
+        className="relative p-1.5 flex gap-1 rounded-2xl bg-surface border border-border/50 self-start w-fit"
+        style={{ backgroundColor: 'var(--bg-surface)' }}
+      >
         {tabs.map(({ key, icon: Icon, labelKey }) => (
           <button
             key={key}

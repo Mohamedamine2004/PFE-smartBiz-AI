@@ -1,70 +1,119 @@
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
 
 export const EXPORT_REDIRECT = '/reports';
 
 /**
- * Exports a DOM element as PDF using html2canvas + jsPDF.
- * @param elementId - The ID of the DOM element to capture
- * @param filename - Optional filename for the PDF (default: dashboard-export)
+ * Captures a DOM element as a pixel-perfect PNG and embeds it into a
+ * PDF using dom-to-image-more + jsPDF. Preserves Tailwind v4 oklch/oklab
+ * colors, gradients, custom fonts, and charts exactly as they appear.
  */
 export const exportToPDF = async (
   elementId: string = 'dashboard-root-export',
   filename?: string,
 ): Promise<boolean> => {
-  try {
-    const element = document.getElementById(elementId);
-    
-    if (!element) {
-      console.error(`Element with id "${elementId}" not found`);
-      return false;
-    }
+  const element = document.getElementById(elementId);
 
-    // Capture the element as canvas
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
+  if (!element) {
+    console.error(`[exportToPDF] Element #${elementId} not found.`);
+    return false;
+  }
+
+  // 1. Show a premium full-screen loading overlay
+  const overlay = document.createElement('div');
+  overlay.id = '__pdf-export-overlay__';
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    inset: '0',
+    zIndex: '99999',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(15, 23, 42, 0.85)',
+    backdropFilter: 'blur(6px)',
+    color: '#fff',
+    fontFamily: 'Inter, sans-serif',
+    gap: '16px',
+  });
+  overlay.innerHTML = `
+    <div style="position:relative; width:50px; height:50px;">
+      <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg"
+           style="animation:spin 1s linear infinite">
+        <circle cx="25" cy="25" r="21" stroke="rgba(255,255,255,0.15)" stroke-width="4"/>
+        <path d="M25 4 A21 21 0 0 1 46 25" stroke="#00D1FF" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    <span style="font-size:15px;font-weight:600;letter-spacing:.5px;color:#E2E8F0">SmartBiz AI — Generating Premium PDF Report…</span>`;
+  document.body.appendChild(overlay);
+
+  try {
+    // 2. Capture using dom-to-image-more
+    // Fetch computed background color dynamically
+    const computedStyle = window.getComputedStyle(element);
+    const bgColor = computedStyle.backgroundColor && computedStyle.backgroundColor !== 'transparent' && computedStyle.backgroundColor !== 'rgba(0, 0, 0, 0)'
+      ? computedStyle.backgroundColor 
+      : '#0b0f19'; // fallback to dashboard premium dark cockpit bg
+
+    const dataUrl = await domtoimage.toPng(element, {
+      quality: 1,
+      bgcolor: bgColor,
+      style: {
+        transform: 'none',
+        borderRadius: '0',
+      },
     });
 
-    // Calculate PDF dimensions (A4 format)
-    const imgWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    // 3. Build landscape A4 PDF
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const img = new Image();
+    img.src = dataUrl;
+
+    await new Promise((resolve) => {
+      img.onload = resolve;
+    });
+
+    const pdfW = 297; // A4 landscape width
+    const pdfH = 210; // A4 landscape height
     
-    // Create PDF document
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    // Add image to PDF
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    
-    // Handle multi-page if content is longer than one page
-    let heightLeft = imgHeight - pageHeight;
-    let position = -pageHeight;
-    
-    while (heightLeft > 0) {
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      position -= pageHeight;
+    const ratio = img.width / img.height;
+    const imgH = pdfW / ratio;
+
+    let yOffset = 0;
+    let remaining = imgH;
+    let isFirstPage = true;
+
+    while (remaining > 0) {
+      if (!isFirstPage) {
+        pdf.addPage();
+      }
+      isFirstPage = false;
+
+      pdf.addImage(dataUrl, 'PNG', 0, -yOffset, pdfW, imgH, undefined, 'FAST');
+      yOffset += pdfH;
+      remaining -= pdfH;
     }
 
-    // Generate filename with date
-    const defaultFilename = `SmartBiz-Dashboard-${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(filename || defaultFilename);
-    
+    const defaultName = `SmartBiz-Dashboard-${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(filename || defaultName);
+
     return true;
-  } catch (error) {
-    console.error('PDF export failed:', error);
+  } catch (err) {
+    console.error('[exportToPDF] Export failed:', err);
     return false;
+  } finally {
+    overlay.remove();
   }
 };
 
 /**
- * Export utility for capturing dashboard charts as image.
- * This provides a fallback for charts that may not render well in canvas.
+ * Capture utility for single element PNG downloads using dom-to-image-more.
  */
 export const exportChartsAsImage = async (
   elementId: string,
@@ -72,25 +121,21 @@ export const exportChartsAsImage = async (
 ): Promise<boolean> => {
   try {
     const element = document.getElementById(elementId);
-    
-    if (!element) {
-      return false;
-    }
+    if (!element) return false;
 
-    const canvas = await html2canvas(element, {
-      scale: 3,
-      useCORS: true,
-      logging: false,
+    const dataUrl = await domtoimage.toPng(element, {
+      quality: 1,
+      bgcolor: 'transparent',
     });
 
     const link = document.createElement('a');
     link.download = filename || `chart-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href = dataUrl;
     link.click();
-    
+
     return true;
   } catch (error) {
-    console.error('Image export failed:', error);
+    console.error('[exportChartsAsImage] Export failed:', error);
     return false;
   }
 };

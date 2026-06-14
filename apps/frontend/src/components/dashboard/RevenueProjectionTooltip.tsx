@@ -24,7 +24,13 @@ export const RevenueProjectionTooltip = ({
   return (
     <div className="chart-tooltip bg-surface border border-border shadow-xl p-3 rounded-xl z-50 min-w-[200px]">
       <p className="text-sm font-bold text-text-primary mb-2">
-        {label}
+        {label === 'Year -2' ? t('dashboard.mlZone.years.yMinus2', 'An -2') :
+         label === 'Year -1' ? t('dashboard.mlZone.years.yMinus1', 'An -1') :
+         label === 'Current' ? t('dashboard.mlZone.years.current', 'Actuel') :
+         label === 'Year 1' ? t('dashboard.mlZone.years.yPlus1', 'An 1') :
+         label === 'Year 2' ? t('dashboard.mlZone.years.yPlus2', 'An 2') :
+         label === 'Year 3' ? t('dashboard.mlZone.years.yPlus3', 'An 3') :
+         label}
         {isHistory && (
           <span className="opacity-60 text-[10px] font-normal uppercase tracking-wider ml-2">
             ({label === 'Current' ? t('dashboard.mlZone.baseYear') : t('dashboard.mlZone.historical')})

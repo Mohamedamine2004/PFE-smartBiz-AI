@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ValuationController } from './valuation.controller';
 import { ValuationService } from './valuation.service';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
+  imports: [NotificationModule],
   controllers: [ValuationController],
   providers: [ValuationService],
   exports: [ValuationService],

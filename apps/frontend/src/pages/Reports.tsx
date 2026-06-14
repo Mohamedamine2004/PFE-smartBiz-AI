@@ -4,20 +4,26 @@ import { useTranslation } from 'react-i18next';
 import { ReportWizard, ReportLibrary } from '../features/report';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/axios';
+import { useAuthStore } from '../store/authStore';
 
 export const Reports = () => {
   const { t } = useTranslation();
+  const user = useAuthStore(state => state.user);
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
   const [reportCount, setReportCount] = useState<number | null>(null);
-  
+
   const [activeTab, setActiveTab] = useState<'wizard' | 'library'>(
-    tabParam === 'library' ? 'library' : 'wizard'
+    (tabParam === 'library' || user?.role === 'READER') ? 'library' : 'wizard'
   );
 
   useEffect(() => {
-    setActiveTab(tabParam === 'library' ? 'library' : 'wizard');
-  }, [tabParam]);
+    if (user?.role === 'READER') {
+      setActiveTab('library');
+    } else {
+      setActiveTab(tabParam === 'library' ? 'library' : 'wizard');
+    }
+  }, [tabParam, user?.role]);
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -48,11 +54,10 @@ export const Reports = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.5 }}
-            className={`absolute -top-12 -left-12 w-64 h-64 rounded-full blur-[80px] pointer-events-none transition-colors duration-500 -z-10 ${
-              activeTab === 'wizard' 
-                ? 'bg-brand/10 dark:bg-brand/15' 
+            className={`absolute -top-12 -left-12 w-64 h-64 rounded-full blur-[80px] pointer-events-none transition-colors duration-500 -z-10 ${activeTab === 'wizard'
+                ? 'bg-brand/10 dark:bg-brand/15'
                 : 'bg-secondary/10 dark:bg-secondary/15'
-            }`}
+              }`}
           />
         </AnimatePresence>
 
@@ -72,27 +77,30 @@ export const Reports = () => {
       </div>
 
       {/* Premium Animated Tabs */}
-      <div className="relative p-1.5 flex gap-1 rounded-2xl bg-surface/50 border border-border/50 backdrop-blur-md self-start w-fit mb-8">
-        <button
-          onClick={() => handleTabChange('wizard')}
-          className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${
-            activeTab === 'wizard' ? 'text-text-main' : 'text-text-muted hover:text-text-main'
-          }`}
-        >
-          {activeTab === 'wizard' && (
-            <motion.div
-              layoutId="reportsActiveTab"
-              className="absolute inset-0 bg-elevated border border-border/80 rounded-xl shadow-sm -z-10"
-              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-            />
-          )}
-          {t('reports.tabs.wizard')}
-        </button>
+      <div
+        className="relative p-1.5 flex gap-1 rounded-2xl bg-surface border border-border/50 self-start w-fit mb-8"
+        style={{ backgroundColor: 'var(--bg-surface)' }}
+      >
+        {user?.role !== 'READER' && (
+          <button
+            onClick={() => handleTabChange('wizard')}
+            className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${activeTab === 'wizard' ? 'text-text-main' : 'text-text-muted hover:text-text-main'
+              }`}
+          >
+            {activeTab === 'wizard' && (
+              <motion.div
+                layoutId="reportsActiveTab"
+                className="absolute inset-0 bg-elevated border border-border/80 rounded-xl shadow-sm -z-10"
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+              />
+            )}
+            {t('reports.tabs.wizard')}
+          </button>
+        )}
         <button
           onClick={() => handleTabChange('library')}
-          className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${
-            activeTab === 'library' ? 'text-text-main' : 'text-text-muted hover:text-text-main'
-          }`}
+          className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 ${activeTab === 'library' ? 'text-text-main' : 'text-text-muted hover:text-text-main'
+            }`}
         >
           {activeTab === 'library' && (
             <motion.div
@@ -114,9 +122,11 @@ export const Reports = () => {
 
       {/* Content wrapper */}
       <div className="relative">
-        <div style={{ display: activeTab === 'wizard' ? 'block' : 'none' }}>
-          <ReportWizard />
-        </div>
+        {user?.role !== 'READER' && (
+          <div style={{ display: activeTab === 'wizard' ? 'block' : 'none' }}>
+            <ReportWizard />
+          </div>
+        )}
         <div style={{ display: activeTab === 'library' ? 'block' : 'none' }}>
           <ReportLibrary />
         </div>

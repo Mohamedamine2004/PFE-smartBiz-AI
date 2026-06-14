@@ -9,7 +9,7 @@ import { Button, Alert } from '../components/ui';
 
 
 export const AcceptInvite = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
@@ -88,13 +88,14 @@ export const AcceptInvite = () => {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-main mb-1">{t('auth.common.newPasswordLabel')}</label>
+          <label className={`block text-sm font-medium text-text-main mb-1 ${i18n.language === 'ar' ? 'text-right' : ''}`}>{t('auth.common.newPasswordLabel')}</label>
           <div className="relative">
             <input 
               type={showPassword ? 'text' : 'password'} 
               required 
               minLength={8}
-              className="input w-full pr-11" 
+              dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
+              className={`input w-full ${i18n.language === 'ar' ? 'pl-11 pr-4' : 'pr-11 pl-4'}`} 
               value={password} 
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
@@ -102,7 +103,7 @@ export const AcceptInvite = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
+              className={`absolute top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors ${i18n.language === 'ar' ? 'left-3' : 'right-3'}`}
               tabIndex={-1}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

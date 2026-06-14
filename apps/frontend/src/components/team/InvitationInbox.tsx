@@ -190,13 +190,13 @@ export const InvitationInbox = () => {
                               onClick={() => handleUpdateStatus(req.id, 'ACCEPTED')}
                               className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold text-xs shadow-[0_4px_12px_rgba(16,185,129,0.15)] transition-all active:scale-95 duration-200"
                             >
-                              Accepter
+                              {t('common.accept', 'Accepter')}
                             </button>
                             <button
                               onClick={() => handleUpdateStatus(req.id, 'REJECTED')}
                               className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-bold text-xs shadow-[0_4px_12px_rgba(244,63,94,0.15)] transition-all active:scale-95 duration-200"
                             >
-                              Rejeter
+                              {t('common.reject', 'Rejeter')}
                             </button>
                           </>
                         )}

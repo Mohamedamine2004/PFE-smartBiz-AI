@@ -184,9 +184,9 @@ export const ReportLibrary = () => {
   return (
     <div className="space-y-6">
       {/* Preview Panel Wrapper */}
-      {previewId && (
+      {previewId && reports.find(r => r.id === previewId) && (
         <ReportPdfViewer
-          reportId={previewId}
+          report={reports.find(r => r.id === previewId)!}
           onClose={() => setPreviewId(null)}
           className="min-h-[650px] mb-6"
         />
@@ -215,7 +215,7 @@ export const ReportLibrary = () => {
                 }`}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
-                Grille Bento
+                {t('reports.library.viewModeBento', 'Grille Bento')}
               </button>
               <button
                 onClick={() => setViewMode('table')}
@@ -226,7 +226,7 @@ export const ReportLibrary = () => {
                 }`}
               >
                 <TableIcon className="w-3.5 h-3.5" />
-                Tableau
+                {t('reports.library.viewModeTable', 'Tableau')}
               </button>
             </div>
 

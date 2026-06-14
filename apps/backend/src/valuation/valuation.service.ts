@@ -5,6 +5,7 @@ import {
   ValuationMethod,
 } from './dto/calculate-valuation.dto';
 import { SaveValuationDto } from './dto/save-valuation.dto';
+import { NotificationService } from '../notification/notification.service';
 
 export interface ValuationResult {
   method: ValuationMethod;
@@ -36,9 +37,13 @@ export interface ValuationMethodInfo {
   requiredFields: string[];
 }
 
+
 @Injectable()
 export class ValuationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
   getMethods(): ValuationMethodInfo[] {
     return [
       {
@@ -223,6 +228,31 @@ export class ValuationService {
         label: dto.label ?? null,
       },
     });
+
+    // Notify all members of the company
+    try {
+      const members = await this.prisma.userCompany.findMany({
+        where: { companyId },
+        select: { userId: true },
+      });
+
+      const labelString = dto.label ? ` ("${dto.label}")` : '';
+
+      await Promise.all(
+        members.map((member) =>
+          this.notificationService.createNotification(
+            member.userId,
+            'VALUATION_COMPLETE',
+            'Nouvelle évaluation enregistrée',
+            `Une évaluation avec la méthode ${dto.method}${labelString} a été calculée et enregistrée pour votre entreprise.`,
+            '/valuation',
+          ),
+        ),
+      );
+    } catch (err) {
+      // Fail silently to not block the main workflow
+      console.error('Error generating notification for valuation:', err);
+    }
 
     return saved;
   }

@@ -24,7 +24,7 @@ const KpiCard = ({ kpi, index }: { kpi: KpiItem; index: number }) => {
   const displayValue = kpi.isPercentage
     ? `${animatedNum.toFixed(1)}%`
     : kpi.formatFn ? kpi.formatFn(animatedNum)
-    : kpi.value;
+      : kpi.value;
 
   return (
     <div
@@ -106,7 +106,7 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
           setCurrencySymbol(getCurrencySymbol(res.data.currency, i18n.resolvedLanguage));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [i18n.resolvedLanguage]);
 
   const formatWithCurrency = (value: number) => formatWithSymbol(value, currencySymbol);
@@ -119,12 +119,25 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
   const secondLastRevenue = secondLastPoint ? Number(getMetricByAliases(secondLastPoint, ['Gross_Revenue', 'Revenue', 'revenue']) ?? 0) : 0;
 
   const lastExpenses = lastPoint ? Number(getMetricByAliases(lastPoint, ['Operating_Expenses_Total', 'Expenses', 'expenses']) ?? 0) : 0;
-  const lastCash = lastPoint ? Number(getMetricByAliases(lastPoint, ['Cash_Balance', 'Cash', 'cash', 'CashAndEquivalents_N']) ?? 45000) : 45000;
 
-  const mrrGrowth = secondLastRevenue > 0 ? ((lastRevenue - secondLastRevenue) / secondLastRevenue) * 100 : 6.4;
+  // Cash balance — null when the metric is absent (avoids silent 45 000 fallback)
+  const rawLastCash = lastPoint
+    ? getMetricByAliases(lastPoint, ['Ending_Cash_Balance', 'Cash_Balance', 'Cash', 'cash', 'CashAndEquivalents_N'])
+    : 0;
+  const lastCash: number | null = rawLastCash > 0 ? rawLastCash : null;
+
+  // MRR growth — null when there is only 1 period (avoids silent +6.4 % fallback)
+  const mrrGrowth: number | null =
+    secondLastRevenue > 0 ? ((lastRevenue - secondLastRevenue) / secondLastRevenue) * 100 : null;
+
   const netBurn = Math.max(0, lastExpenses - lastRevenue);
   const grossProfit = Math.max(0, lastRevenue - lastExpenses);
-  const grossMargin = lastRevenue > 0 ? (grossProfit / lastRevenue) * 100 : 81.5;
+  const grossMargin = lastRevenue > 0 ? (grossProfit / lastRevenue) * 100 : 0;
+
+  // Churn Rate — computed from real DB data (Customers_Churned / New_Customers_Acquired)
+  const totalChurned = chartData.reduce((acc, d) => acc + getMetricByAliases(d, ['Customers_Churned']), 0);
+  const totalAcquired = chartData.reduce((acc, d) => acc + getMetricByAliases(d, ['New_Customers_Acquired']), 0);
+  const churnRate: number | null = totalAcquired > 0 ? (totalChurned / totalAcquired) * 100 : null;
 
   const cacVal = data?.cac || 0;
   const ltvVal = data?.ltv || 0;
@@ -136,8 +149,8 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
         return [
           {
             label: t('dashboard.kpis.cashBalance', 'Trésorerie Actuelle'),
-            value: formatWithCurrency(lastCash),
-            rawValue: lastCash,
+            value: lastCash !== null ? formatWithCurrency(lastCash) : '—',
+            rawValue: lastCash ?? 0,
             formatFn: formatWithCurrency,
             icon: Coins,
             color: 'from-[#00D1FF]/20 to-blue-500/0',
@@ -175,7 +188,7 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
           },
           {
             label: t('dashboard.kpis.marketShare', 'Part de marché'),
-            value: data?.marketShare != null ? `${data.marketShare.toFixed(1)}%` : 'NaN',
+            value: data?.marketShare != null ? `${data.marketShare.toFixed(1)}%` : '—',
             rawValue: data?.marketShare ?? 0,
             isPercentage: true,
             icon: PieChart,
@@ -192,7 +205,7 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
         return [
           {
             label: t('dashboard.kpis.cac', "Coût d'acquisition (CAC)"),
-            value: data?.cac != null ? formatWithCurrency(data.cac) : 'NaN',
+            value: data?.cac != null ? formatWithCurrency(data.cac) : '—',
             rawValue: data?.cac ?? 0,
             formatFn: formatWithCurrency,
             icon: Users,
@@ -205,7 +218,7 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
           },
           {
             label: t('dashboard.kpis.ltv', 'Valeur vie client (LTV)'),
-            value: data?.ltv != null ? formatWithCurrency(data.ltv) : 'NaN',
+            value: data?.ltv != null ? formatWithCurrency(data.ltv) : '—',
             rawValue: data?.ltv ?? 0,
             formatFn: formatWithCurrency,
             icon: Target,
@@ -214,26 +227,34 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
             iconBg: 'bg-[#00D1FF]/10 border border-[#00D1FF]/20',
             alert: ltvCacRatio > 0
               ? {
-                  type: ltvCacRatio >= 3 ? 'success' : 'warning',
-                  text: `Ratio LTV:CAC = ${ltvCacRatio.toFixed(1)}x`,
-                  icon: ltvCacRatio >= 3 ? TrendingUp : AlertTriangle,
-                }
+                type: ltvCacRatio >= 3 ? 'success' : 'warning',
+                text: `Ratio LTV:CAC = ${ltvCacRatio.toFixed(1)}x`,
+                icon: ltvCacRatio >= 3 ? TrendingUp : AlertTriangle,
+              }
               : undefined,
           },
           {
             label: t('dashboard.kpis.churnRate', 'Attrition Mensuelle (Churn)'),
-            value: '2.4%',
-            rawValue: 2.4,
-            isPercentage: true,
+            value: churnRate !== null ? `${churnRate.toFixed(1)}%` : '—',
+            rawValue: churnRate ?? 0,
+            isPercentage: churnRate !== null,
             icon: Activity,
             color: 'from-indigo-500/20 to-blue-500/0',
             iconColor: 'text-indigo-400',
             iconBg: 'bg-indigo-500/10 border border-indigo-500/20',
-            alert: { type: 'success', text: t('dashboard.kpis.churnHealthy', 'Sain < 3%'), icon: TrendingDown },
+            alert: churnRate !== null
+              ? {
+                type: churnRate < 3 ? 'success' : 'warning',
+                text: churnRate < 3
+                  ? t('dashboard.kpis.churnHealthy', 'Sain < 3%')
+                  : t('dashboard.kpis.churnHigh', 'Élevé > 3%'),
+                icon: TrendingDown,
+              }
+              : { type: 'neutral', text: t('dashboard.kpis.noChurnData', 'Données absentes'), icon: Activity },
           },
           {
             label: t('dashboard.kpis.marketShare', 'Part de marché'),
-            value: data?.marketShare != null ? `${data.marketShare.toFixed(1)}%` : 'NaN',
+            value: data?.marketShare != null ? `${data.marketShare.toFixed(1)}%` : '—',
             rawValue: data?.marketShare ?? 0,
             isPercentage: true,
             icon: PieChart,
@@ -256,7 +277,9 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
             color: 'from-[#00D1FF]/20 to-blue-500/0',
             iconColor: 'text-[#00D1FF]',
             iconBg: 'bg-[#00D1FF]/10 border border-[#00D1FF]/20',
-            alert: { type: 'success', text: t('dashboard.kpis.mrrGrowthText', '{{sign}}{{value}}% MoM', { sign: mrrGrowth >= 0 ? '+' : '', value: mrrGrowth.toFixed(1) }), icon: TrendingUp },
+            alert: mrrGrowth !== null
+              ? { type: mrrGrowth >= 0 ? 'success' : 'warning', text: t('dashboard.kpis.mrrGrowthText', '{{sign}}{{value}}% MoM', { sign: mrrGrowth >= 0 ? '+' : '', value: mrrGrowth.toFixed(1) }), icon: TrendingUp }
+              : { type: 'neutral', text: t('dashboard.kpis.mrrGrowthNA', '— MoM'), icon: TrendingUp },
           },
           {
             label: t('dashboard.kpis.ltvCacRatio', 'Ratio Efficacité LTV:CAC'),
@@ -274,7 +297,7 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
           },
           {
             label: t('dashboard.kpis.tam', 'Marché adressable (TAM)'),
-            value: data?.tam != null ? formatWithCurrency(data.tam) : 'NaN',
+            value: data?.tam != null ? formatWithCurrency(data.tam) : '—',
             rawValue: data?.tam ?? 0,
             formatFn: formatWithCurrency,
             icon: Globe,
@@ -285,7 +308,7 @@ export const StrategicKpisGrid = ({ data, activeTab = 'strategic', chartData = [
           },
           {
             label: t('dashboard.kpis.marketShare', 'Part de marché'),
-            value: data?.marketShare != null ? `${data.marketShare.toFixed(1)}%` : 'NaN',
+            value: data?.marketShare != null ? `${data.marketShare.toFixed(1)}%` : '—',
             rawValue: data?.marketShare ?? 0,
             isPercentage: true,
             icon: PieChart,

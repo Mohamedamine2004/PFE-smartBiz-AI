@@ -44,8 +44,8 @@ export const Step5Sections = ({ state, setState, errors, setErrors }: WizardStep
               onClick={() => toggleSection(section.value)}
               className="w-full flex items-start gap-3 p-4 rounded-xl text-left transition-all duration-200"
               style={{
-                background: isSelected ? 'rgba(0,209,255,0.06)' : 'var(--bg-elevated)',
-                border: `1.5px solid ${isSelected ? 'rgba(0,209,255,0.3)' : 'var(--border-color)'}`,
+                background: isSelected ? 'color-mix(in srgb, var(--brand) 8%, var(--bg-elevated))' : 'var(--bg-elevated)',
+                border: `1.5px solid ${isSelected ? 'var(--brand)' : 'var(--border-color)'}`,
               }}
             >
               {/* Custom checkbox */}
@@ -53,7 +53,7 @@ export const Step5Sections = ({ state, setState, errors, setErrors }: WizardStep
                 className="mt-0.5 w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all duration-200"
                 style={{
                   background: isSelected ? 'var(--brand)' : 'var(--bg-surface)',
-                  border: `1.5px solid ${isSelected ? 'var(--brand)' : 'var(--border-color)'}`,
+                  border: `1px solid ${isSelected ? 'var(--brand)' : 'var(--border-color)'}`,
                   boxShadow: isSelected ? '0 0 8px rgba(0,209,255,0.4)' : 'none',
                 }}
               >

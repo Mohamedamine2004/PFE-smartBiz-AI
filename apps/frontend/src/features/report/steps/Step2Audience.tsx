@@ -66,19 +66,20 @@ export const Step2Audience = ({ state, setState, errors }: WizardStepProps) => {
               onClick={() => setState({ ...state, audience: value })}
               className={`group relative flex flex-col justify-between p-5 rounded-2xl text-left transition-all duration-300 border hover:-translate-y-1 hover:shadow-xl ${
                 isActive 
-                  ? 'border-brand/40 shadow-lg' 
+                  ? 'shadow-lg font-semibold' 
                   : 'border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/25'
               }`}
               style={{
-                background: isActive ? glow : 'var(--bg-elevated)',
-                boxShadow: isActive ? `0 10px 30px ${glow}` : 'none',
+                background: isActive ? `color-mix(in srgb, ${accent} 8%, var(--bg-elevated))` : 'var(--bg-elevated)',
+                borderColor: isActive ? accent : 'var(--border-color)',
+                boxShadow: isActive ? `0 8px 24px ${borderGlow}` : 'none',
               }}
             >
               <div className="flex items-start justify-between w-full">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
                   style={{
-                    background: isActive ? 'white' : 'var(--bg-surface)',
+                    background: isActive ? `color-mix(in srgb, ${accent} 16%, var(--bg-elevated))` : 'var(--bg-surface)',
                     border: `1px solid ${isActive ? accent : 'var(--border-color)'}`,
                     boxShadow: isActive ? `0 0 15px ${borderGlow}` : 'none',
                   }}

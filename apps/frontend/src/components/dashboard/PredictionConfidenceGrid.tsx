@@ -26,7 +26,7 @@ export const PredictionConfidenceGrid = ({ confidence }: PredictionConfidenceGri
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-text-main tabular-nums" style={{ fontFamily: 'var(--font-display)' }}>
-                ±12.0%
+                ±{(band.mae * 100).toFixed(1)}%
               </span>
               <span className="text-[10px] text-text-muted uppercase">{t('dashboard.prediction.maeLabel')}</span>
             </div>

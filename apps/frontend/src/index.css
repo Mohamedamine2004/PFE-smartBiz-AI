@@ -142,32 +142,32 @@
   position: relative;
 }
 
-/* Layer 1: fine grain */
+/* Layer 1: fine grain (High-performance static noise PNG) */
 #dashboard-root-export::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.015;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.16;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADt2CnHAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RSTlMAoKCgoKCgp6V9pQAAAFRJREFUeNqV0LENwDAMA0FzgcwGsYHMBrODzB2xA6hEivw8B1H0Yv9Qy4sLh/x1d1+O1cTj8o4v6hH/KkdxUo7iJE7iJE7iJE7iJE7iJE7iJE7iJE7iJE7i9ANo9Xf1797kXgAAAABJRU5ErkJggg==");
   background-repeat: repeat;
-  background-size: 128px 128px;
+  background-size: 64px 64px;
   mask-image: radial-gradient(at 50% 30%, black 40%, transparent 80%);
   -webkit-mask-image: radial-gradient(at 50% 30%, black 40%, transparent 80%);
 }
 
-/* Layer 2: coarse grain */
+/* Layer 2: coarse grain (High-performance static noise PNG) */
 #dashboard-root-export::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.008;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.25' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+  opacity: 0.09;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADt2CnHAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RSTlMAoKCgoKCgp6V9pQAAAFRJREFUeNqV0LENwDAMA0FzgcwGsYHMBrODzB2xA6hEivw8B1H0Yv9Qy4sLh/x1d1+O1cTj8o4v6hH/KkdxUo7iJE7iJE7iJE7iJE7iJE7iJE7iJE7iJE7i9ANo9Xf1797kXgAAAABJRU5ErkJggg==");
   background-repeat: repeat;
-  background-size: 256px 256px;
+  background-size: 192px 192px;
   mask-image: radial-gradient(at 50% 30%, black 30%, transparent 70%);
   -webkit-mask-image: radial-gradient(at 50% 30%, black 30%, transparent 70%);
 }
@@ -304,7 +304,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
   transform: scale(0);
   opacity: 0;
   transition: transform 0.5s, opacity 0.3s;
@@ -333,6 +333,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -344,6 +345,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -355,6 +357,7 @@
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -366,6 +369,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -389,12 +393,29 @@
 }
 
 /* Stagger delays */
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.1s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
-.stagger-6 { animation-delay: 0.3s; }
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+
+.stagger-4 {
+  animation-delay: 0.2s;
+}
+
+.stagger-5 {
+  animation-delay: 0.25s;
+}
+
+.stagger-6 {
+  animation-delay: 0.3s;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* SCROLL REVEAL ANIMATIONS                                              */
@@ -467,8 +488,15 @@
 }
 
 @keyframes focus-ring-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
@@ -483,18 +511,21 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      transparent 100%);
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes skeleton-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Cartes Standards (Premium) */
@@ -726,12 +757,13 @@
   @apply relative bg-surface rounded-2xl overflow-hidden transition-all duration-500;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-card);
+  z-index: 1;
 }
 
 .dashboard-card:hover {
   transform: translateY(-4px) scale(1.005);
   box-shadow: var(--shadow-card-hover), 0 0 15px rgba(0, 209, 255, 0.08), 0 0 0 1px rgba(0, 209, 255, 0.1);
-  border-color: color-mix(in srgb, var(--brand) 30%, var(--border-color)) !important;
+  border-color: transparent !important;
 }
 
 /* Animated gradient accent line at top of card */
@@ -746,6 +778,7 @@
   background-size: 200% 100%;
   opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 3;
 }
 
 .dashboard-card:hover::before {
@@ -753,11 +786,86 @@
   animation: shimmer 2s ease infinite;
 }
 
+/* Dynamic Active Flow Border Overlay */
+.dashboard-card::after {
+  content: '';
+  position: absolute;
+  inset: 0px;
+  border-radius: inherit;
+  padding: 1.2px; /* 1.2px border glow */
+  background: linear-gradient(90deg, var(--brand), var(--secondary), var(--brand));
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dashboard-card:hover::after {
+  opacity: 1;
+  animation: border-flow-glow 3s linear infinite;
+}
+
+/* High-performance GPU Keyframe Animations */
+@keyframes border-flow-glow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes slow-drift-one {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, -4vh, 0) scale(1.1);
+  }
+}
+
+@keyframes slow-drift-two {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-7vw, 5vh, 0) scale(0.92);
+  }
+}
+
+.animate-drift-one {
+  animation: slow-drift-one 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-drift-two {
+  animation: slow-drift-two 24s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Chart container — consistent wrapper with hover lift */
 .chart-container {
   @apply relative bg-surface rounded-2xl p-5 overflow-hidden transition-all duration-500;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-card);
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.015) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(0, 0, 0, 0.015) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dark .chart-container {
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 80%),
+    linear-gradient(rgba(0, 209, 255, 0.025) 1px, transparent 1px), 
+    linear-gradient(90deg, rgba(0, 209, 255, 0.025) 1px, transparent 1px);
 }
 
 .chart-container:hover {
@@ -811,8 +919,7 @@
 
 .table-pro thead th {
   @apply px-4 py-3 text-left text-[11px] font-semibold text-text-muted uppercase tracking-wider;
-  background: color-mix(in srgb, var(--bg-elevated) 60%, var(--bg-surface));
-  backdrop-filter: blur(8px);
+  background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -979,7 +1086,7 @@
 
 /* --- Gradient Mesh Backgrounds --- */
 .gradient-mesh {
-  background: 
+  background:
     radial-gradient(at 40% 20%, rgba(0, 209, 255, 0.15) 0px, transparent 50%),
     radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
     radial-gradient(at 0% 50%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
@@ -988,7 +1095,7 @@
 }
 
 .gradient-mesh-subtle {
-  background: 
+  background:
     radial-gradient(at 30% 20%, rgba(0, 209, 255, 0.08) 0px, transparent 40%),
     radial-gradient(at 70% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 40%),
     radial-gradient(at 100% 80%, rgba(16, 185, 129, 0.05) 0px, transparent 40%);
@@ -1017,8 +1124,15 @@
 }
 
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 /* --- Noise Texture Overlay --- */
@@ -1030,21 +1144,23 @@
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.25;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADt2CnHAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RSTlMAoKCgoKCgp6V9pQAAAFRJREFUeNqV0LENwDAMA0FzgcwGsYHMBrODzB2xA6hEivw8B1H0Yv9Qy4sLh/x1d1+O1cTj8o4v6hH/KkdxUo7iJE7iJE7iJE7iJE7iJE7iJE7iJE7iJE7i9ANo9Xf1797kXgAAAABJRU5ErkJggg==");
+  background-repeat: repeat;
+  background-size: 128px 128px;
   pointer-events: none;
   z-index: 1;
 }
 
-/* --- Glassmorphic Card --- */
+/* --- Glassmorphic Card (Made Solid for readability) --- */
 .glass-card {
-  @apply bg-surface/60 backdrop-blur-xl border border-border/50 rounded-2xl;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  @apply bg-surface border border-border/50 rounded-2xl;
+  background: var(--bg-surface);
   transition: border-color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
 }
 
 .dark .glass-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.4) 100%);
+  background: var(--bg-surface);
 }
 
 .glass-card:hover {
@@ -1088,8 +1204,15 @@
 
 /* --- Floating Animation --- */
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(2deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
 }
 
 .float-animation {
@@ -1142,12 +1265,29 @@
 }
 
 /* --- Staggered Animation Delays --- */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-.stagger-6 { animation-delay: 0.6s; }
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+
+.stagger-5 {
+  animation-delay: 0.5s;
+}
+
+.stagger-6 {
+  animation-delay: 0.6s;
+}
 
 /* --- Hero Specific --- */
 .hero-gradient-orb {
@@ -1168,7 +1308,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -1282,7 +1422,7 @@
 
 /* --- CTA Section --- */
 .cta-gradient {
-  background: 
+  background:
     radial-gradient(at 20% 50%, rgba(0, 209, 255, 0.1) 0%, transparent 50%),
     radial-gradient(at 80% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
     linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%);
@@ -1309,8 +1449,17 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 /* --- How It Works Steps --- */
@@ -1331,7 +1480,7 @@
 /* --- Navigation Enhancement --- */
 .nav-glass {
   @apply bg-surface/80 backdrop-blur-xl border border-border/50;
-  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
 }
 
 .dark .nav-glass {
@@ -1340,40 +1489,61 @@
 
 /* --- Enhanced Gradient Animation for Hero --- */
 @keyframes gradient-xy {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes gradient-shift {
-  0%, 100% { 
+
+  0%,
+  100% {
     background-position: 0% 50%;
     filter: hue-rotate(0deg);
   }
-  25% { 
+
+  25% {
     background-position: 50% 100%;
     filter: hue-rotate(20deg);
   }
-  50% { 
+
+  50% {
     background-position: 100% 50%;
     filter: hue-rotate(0deg);
   }
-  75% { 
+
+  75% {
     background-position: 50% 0%;
     filter: hue-rotate(-20deg);
   }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes float-glow {
-  0%, 100% { 
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(0, 209, 255, 0.3), 0 0 40px rgba(0, 209, 255, 0.1);
   }
-  50% { 
+
+  50% {
     box-shadow: 0 0 30px rgba(0, 209, 255, 0.5), 0 0 60px rgba(0, 209, 255, 0.2);
   }
 }
@@ -1389,12 +1559,10 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.1) 50%,
-    rgba(255,255,255,0) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -1405,10 +1573,23 @@
 
 /* ─── Holographic Neural Network Scan Loading Styles ─── */
 @keyframes scan-laser {
-  0% { top: 0%; opacity: 0; }
-  5% { opacity: 0.8; }
-  95% { opacity: 0.8; }
-  100% { top: 100%; opacity: 0; }
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 0.8;
+  }
+
+  95% {
+    opacity: 0.8;
+  }
+
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 .animate-scan-laser {
@@ -1417,7 +1598,7 @@
 
 .bg-grid-pattern {
   background-size: 24px 24px;
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(0, 209, 255, 0.08) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(0, 209, 255, 0.08) 1px, transparent 1px);
 }
@@ -1427,13 +1608,27 @@
 /* ═══════════════════════════════════════════════════════════════════════ */
 
 @keyframes scaleIn {
-  from { transform: scale(0.5); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -1447,67 +1642,102 @@
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* 9. PRINT / PDF EXPORT STYLES                                          */
 /* ═══════════════════════════════════════════════════════════════════════ */
+/* --- Hide scrollbar utility --- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  /* IE and Edge */
+  scrollbar-width: none !important;
+  /* Firefox */
+}
 
 @media print {
+
   /* --- Hide all UI chrome --- */
   .no-print,
+  aside,
+  header,
+  nav,
   .sidebar-container,
   .topbar-container,
-  nav,
-  header {
+  button:not(.print-visible),
+  .no-print * {
     display: none !important;
     visibility: hidden !important;
   }
 
   /* --- Reset body for print --- */
-  body, html {
-    background: #ffffff !important;
-    color: #000000 !important;
-    margin: 0;
-    padding: 0;
+  body,
+  html,
+  #root {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* --- Remove padding injected by PrivateLayout --- */
-  .transition-all {
+  /* --- Completely strip all layout side padding from wrapper --- */
+  div[class*="pl-"],
+  div[class*="pr-"],
+  div[class*="lg:pl-"],
+  div[class*="lg:pr-"],
+  div[class*="ltr:pl-"],
+  div[class*="rtl:pr-"] {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    transition: none !important;
+    padding-inline-start: 0 !important;
+    padding-inline-end: 0 !important;
   }
 
   main {
-    padding-top: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
     overflow: visible !important;
   }
 
   /* --- Dashboard content fills full page --- */
   #dashboard-root-export {
     width: 100% !important;
-    padding: 16px !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
   }
 
-  /* --- Cards & charts: avoid page breaks inside --- */
+  /* --- Keep dashboard cards responsive and clean --- */
   .bento-card,
   .chart-container,
-  .dashboard-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  .dashboard-card,
+  .glass-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
     box-shadow: none !important;
-    border: 1px solid #e2e8f0 !important;
-    background: #ffffff !important;
-    color: #000000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* --- Keep charts clear and preserve styles --- */
+  svg {
+    max-width: 100% !important;
   }
 
   /* --- Kill all animations --- */
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
   }
 
-  /* --- Page setup --- */
+  /* --- Landscape A4 Setup --- */
   @page {
     size: A4 landscape;
-    margin: 12mm;
+    margin: 8mm 12mm;
   }
 }

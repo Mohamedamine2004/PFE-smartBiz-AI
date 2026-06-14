@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, Building, Lock, Leaf, Gem, Factory, Truck, Package, ShoppingCart, Briefcase, Cpu, Coins, Activity, Globe } from 'lucide-react';
+import { Save, Building, Lock, Leaf, Gem, Factory, Truck, Package, ShoppingCart, Briefcase, Cpu, Coins, Activity, Globe, Trash2, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -64,12 +64,21 @@ interface CompanyCardProps {
 export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { setCompanyStatus } = useAuthStore();
+  const { user, myCompanies, fetchMyCompanies, logout, setCompanyStatus } = useAuthStore();
 
   const [readOnly, setReadOnly] = useState({ name: '', registrationNumber: '' });
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    fetchMyCompanies();
+  }, [fetchMyCompanies]);
+
+  const activeCompany = myCompanies.find((c) => c.companyId === user?.companyId);
+  const userRole = activeCompany?.role || user?.role;
 
   const form = useForm<CompanyProfileInputs>({
     resolver: zodResolver(companyProfileSchema(t)),
@@ -118,11 +127,24 @@ export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
     }
   };
 
+  const handleDeleteCompany = async () => {
+    setDeleteLoading(true);
+    try {
+      await api.delete('/company');
+      // After deleting the company, log the user out so they can log back in with their new context (or be fully removed if it was their only company)
+      logout();
+    } catch (err: unknown) {
+      setError(axios.isAxiosError(err) ? err.response?.data?.message : t('settings.company.deleteError', 'Erreur lors de la suppression.'));
+      setDeleteLoading(false);
+    }
+  };
+
   return (
-    <form 
-      className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-border/50 bg-surface/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] space-y-8 animate-fade-in"
-      onSubmit={form.handleSubmit(handleSubmit)}
-    >
+    <div className="space-y-6">
+      <form 
+        className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-border/50 bg-surface/40 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] space-y-8 animate-fade-in"
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand/5 rounded-full blur-[80px] pointer-events-none" />
 
@@ -132,7 +154,7 @@ export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-text-main tracking-tight">{t('settings.company.heading')}</h2>
-          <p className="text-sm text-text-muted mt-0.5">Manage your corporate identity and localization settings.</p>
+          <p className="text-sm text-text-muted mt-0.5">{t('settings.company.subtitle', 'Gérez l’identité et les paramètres de localisation de votre entreprise.')}</p>
         </div>
       </div>
 
@@ -145,7 +167,7 @@ export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-bold shadow-[0_0_10px_rgba(245,158,11,0.05)]">
             <Lock className="w-3 h-3" />
-            <span>Vérifié</span>
+            <span>{t('settings.company.verified', 'Vérifié')}</span>
           </div>
         </div>
 
@@ -156,7 +178,7 @@ export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-bold shadow-[0_0_10px_rgba(245,158,11,0.05)]">
             <Lock className="w-3 h-3" />
-            <span>Verrouillé</span>
+            <span>{t('settings.company.locked', 'Verrouillé')}</span>
           </div>
         </div>
       </div>
@@ -293,11 +315,61 @@ export const CompanyCard = ({ isOnboarding }: CompanyCardProps) => {
           >
             <span className="relative z-10 flex items-center gap-2">
               <Save className="w-4 h-4" />
-              {loading ? 'Saving...' : t('settings.company.save')}
+              {loading ? t('settings.company.saving', 'Saving...') : t('settings.company.save')}
             </span>
           </button>
         </div>
       </div>
-    </form>
+      </form>
+
+      {/* Danger Zone */}
+      {userRole === 'OWNER' && (
+        <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-error/30 bg-error/5 backdrop-blur-xl animate-fade-in">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-error/20 bg-error/10 text-error shadow-[0_0_20px_rgba(239,68,68,0.15)]">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-error tracking-tight">{t('settings.company.dangerZone.title', 'Zone de Danger')}</h2>
+              <p className="text-sm text-text-muted mt-0.5">{t('settings.company.dangerZone.subtitle', 'Cette action est irréversible et supprimera toutes les données de l\'entreprise.')}</p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            {!showConfirmDelete ? (
+              <button
+                type="button"
+                onClick={() => setShowConfirmDelete(true)}
+                className="btn-danger group py-2.5 px-6 text-sm flex items-center gap-2 bg-error text-white hover:bg-error/90 rounded-xl font-bold transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                {t('settings.company.dangerZone.deleteBtn', 'Supprimer l\'entreprise')}
+              </button>
+            ) : (
+              <div className="p-4 border border-error/50 bg-error/10 rounded-xl space-y-4">
+                <p className="text-sm font-semibold text-error">{t('settings.company.dangerZone.confirmHeading', 'Êtes-vous absolument sûr de vouloir supprimer cette entreprise ?')}</p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleDeleteCompany}
+                    disabled={deleteLoading}
+                    className="py-2 px-4 bg-error text-white text-sm font-bold rounded-lg hover:bg-error/90 transition-all flex items-center gap-2"
+                  >
+                    {deleteLoading ? t('settings.company.dangerZone.deleting', 'Suppression...') : t('settings.company.dangerZone.confirmYes', 'Oui, supprimer définitivement')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="py-2 px-4 bg-surface text-text-main text-sm font-bold rounded-lg border border-border/50 hover:bg-elevated transition-all"
+                  >
+                    {t('settings.company.dangerZone.confirmNo', 'Annuler')}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

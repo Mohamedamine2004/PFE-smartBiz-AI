@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { ChartDataPoint } from '../../types/dashboard';
+import { ChartHeader } from '../ui/ChartHeader';
 
 interface RevenuePieChartProps {
   data: ChartDataPoint[];
@@ -35,15 +36,11 @@ export const RevenuePieChart = ({ data }: RevenuePieChartProps) => {
   ].filter(item => item.value > 0);
 
   return (
-    <div className="card w-full">
-      <div className="mb-4 space-y-1 text-left">
-        <h3 className="text-2xl font-extrabold text-text-primary tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-          {t('dashboard.charts.expenseAllocation', 'Expenses Allocation')}
-        </h3>
-        <p className="text-sm font-medium text-text-muted">
-          {t('dashboard.charts.expenseAllocationSubtitle', 'Distribution of operating expenses (Aggregated)')}
-        </p>
-      </div>
+    <div className="chart-container w-full">
+      <ChartHeader
+        title={t('dashboard.charts.expenseAllocation', 'Expenses Allocation')}
+        subtitle={t('dashboard.charts.expenseAllocationSubtitle', 'Distribution of operating expenses (Aggregated)')}
+      />
 
       {safeData.length === 0 || seriesData.length === 0 ? (
         <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-[#3c494e]/15 rounded-xl bg-surface">

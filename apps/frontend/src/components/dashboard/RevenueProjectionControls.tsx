@@ -118,9 +118,9 @@ export const RevenueProjectionControls = ({
                 className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-border accent-brand"
               />
               <div className="flex justify-between text-[9px] font-bold text-text-muted">
-                <span>-20% (Récession)</span>
-                <span>Neutre</span>
-                <span>+50% (Hypercroissance)</span>
+                <span>{t('dashboard.mlZone.scenarios.recession', '-20% (Récession)')}</span>
+                <span>{t('dashboard.mlZone.scenarios.neutral', 'Neutre')}</span>
+                <span>{t('dashboard.mlZone.scenarios.hypergrowth', '+50% (Hypercroissance)')}</span>
               </div>
             </label>
 
@@ -145,9 +145,9 @@ export const RevenueProjectionControls = ({
                 className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-border accent-[#00D1FF]"
               />
               <div className="flex justify-between text-[9px] font-bold text-text-muted">
-                <span>2% (Certitude)</span>
-                <span>Standard</span>
-                <span>30% (Haute Incertitude)</span>
+                <span>{t('dashboard.mlZone.volatility.certitude', '2% (Certitude)')}</span>
+                <span>{t('dashboard.mlZone.volatility.standard', 'Standard')}</span>
+                <span>{t('dashboard.mlZone.volatility.highUncertainty', '30% (Haute Incertitude)')}</span>
               </div>
             </label>
           </div>

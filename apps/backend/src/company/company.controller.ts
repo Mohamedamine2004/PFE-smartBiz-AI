@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Put,
+  Delete,
   Body,
   UseGuards,
   HttpCode,
@@ -39,5 +40,13 @@ export class CompanyController {
       user.role,
       dto,
     );
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.OWNER)
+  @HttpCode(HttpStatus.OK)
+  @Delete()
+  async deleteCompany(@CurrentUser() user: JwtPayload) {
+    return await this.companyService.deleteCompany(user.companyId, user.userId);
   }
 }

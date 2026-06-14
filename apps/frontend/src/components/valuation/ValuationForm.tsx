@@ -297,7 +297,7 @@ export const ValuationForm = ({ method, onSubmit, loading, importedMetrics }: Pr
           {/* Sector suggestion chips */}
           {f.key === 'multiple' && method === ValuationMethod.EV_EBITDA && (
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider self-center mr-1">Multiples Sectoriels :</span>
+              <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider self-center mr-1">{t('valuation.sectorMultiples', 'Multiples Sectoriels :')}</span>
               {[
                 { label: 'SaaS', val: '8.0' },
                 { label: 'Tech', val: '6.5' },
@@ -318,7 +318,7 @@ export const ValuationForm = ({ method, onSubmit, loading, importedMetrics }: Pr
 
           {f.key === 'multiple' && method === ValuationMethod.EV_REVENUE && (
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider self-center mr-1">Multiples Sectoriels :</span>
+              <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider self-center mr-1">{t('valuation.sectorMultiples', 'Multiples Sectoriels :')}</span>
               {[
                 { label: 'SaaS', val: '6.0' },
                 { label: 'Tech', val: '4.0' },
@@ -339,7 +339,7 @@ export const ValuationForm = ({ method, onSubmit, loading, importedMetrics }: Pr
 
           {f.key === 'peRatio' && method === ValuationMethod.PE_RATIO && (
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider self-center mr-1">Ratios Sectoriels :</span>
+              <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider self-center mr-1">{t('valuation.sectorRatios', 'Ratios Sectoriels :')}</span>
               {[
                 { label: 'SaaS', val: '30.0' },
                 { label: 'Tech', val: '22.0' },

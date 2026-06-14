@@ -97,6 +97,9 @@ export class TeamManagementService {
         isEmailVerified: false,
         inviteToken: hashedInviteToken,
         inviteTokenExpires: expires,
+        preference: {
+          create: {},
+        },
       },
     });
 

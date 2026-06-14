@@ -28,6 +28,11 @@ export class InvitationRequestController {
     return this.invitationRequestService.create(createDto);
   }
 
+  @Get('cleanup-orphaned')
+  cleanupOrphaned() {
+    return this.invitationRequestService.cleanupOrphaned();
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get()

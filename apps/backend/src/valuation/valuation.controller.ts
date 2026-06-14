@@ -24,7 +24,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('valuation')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN)
+@Roles(UserRole.ADMIN, UserRole.COLLAB)
 export class ValuationController {
   constructor(private readonly valuationService: ValuationService) {}
 

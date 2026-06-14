@@ -3,6 +3,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 import { Eye, EyeOff, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -24,6 +25,9 @@ export const FormInput = ({
   validateOn = 'blur',
   ...props 
 }: FormInputProps) => {
+  const { i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -56,8 +60,8 @@ export const FormInput = ({
 
   return (
     <div className="relative">
-      <div className={`flex items-center ${headerRight ? 'justify-between' : ''} mb-2`}>
-        <label className="block text-sm font-medium text-text-main relative">
+      <div className={`flex items-center ${headerRight ? 'justify-between' : ''} mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <label className={`block text-sm font-medium text-text-main relative ${isRTL ? 'text-right' : ''}`}>
           <span className={isFocused ? 'text-brand opacity-100 transition-colors' : 'opacity-80'}>
             {label}
           </span>
@@ -80,9 +84,10 @@ export const FormInput = ({
             }
             register.onChange && register.onChange(e);
           }}
+          dir={isRTL ? 'rtl' : 'ltr'}
           className={`
             input-floating
-            w-full rounded-xl px-4 py-3 
+            w-full rounded-xl py-3 
             transition-all duration-300 ease-out
             bg-surface/80 backdrop-blur-sm
             ${error 
@@ -91,7 +96,9 @@ export const FormInput = ({
                 ? 'border-success focus:border-success ring-2 ring-success/20'
                 : 'border-slate-200 dark:border-white/10 focus:border-brand'
             }
-            ${isPassword ? 'pr-14' : ''} 
+            ${(isPassword || error || isValidating || (showSuccess && !isFocused)) 
+              ? (isRTL ? 'pl-14 pr-4' : 'pr-14 pl-4') 
+              : 'px-4'} 
             ${isFocused ? 'shadow-lg ring-2 ring-brand/15 -translate-y-0.5' : 'shadow-sm'}
             ${className}
           `}
@@ -104,7 +111,7 @@ export const FormInput = ({
             initial={{ opacity: 0, rotate: -90 }}
             animate={{ opacity: 1, rotate: 0 }}
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-brand transition-colors p-1"
+            className={`absolute top-1/2 -translate-y-1/2 text-text-muted hover:text-brand transition-colors p-1 ${isRTL ? 'left-4' : 'right-4'}`}
             tabIndex={-1}
           >
             <motion.div
@@ -117,7 +124,7 @@ export const FormInput = ({
         )}
 
         {/* Validation icons */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+        <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${isRTL ? 'left-4' : 'right-4'}`}>
           <AnimatePresence mode="wait">
             {error ? (
               <motion.div

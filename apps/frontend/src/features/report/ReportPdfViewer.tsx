@@ -21,22 +21,16 @@ import api from '../../lib/axios';
 import toast from 'react-hot-toast';
 
 interface ReportPdfViewerProps {
-  reportId: string;
+  report: {
+    id: string;
+    reportTypes: string[];
+    language: string;
+  };
   onClose?: () => void;
   className?: string;
 }
 
-const CHAPTERS = [
-  { title: 'Page de Garde', page: 1, desc: 'Branding & Titre officiel' },
-  { title: 'Sommaire & Introduction', page: 2, desc: 'Objectifs & Cadrage' },
-  { title: 'Analyse de Marché & SWOT', page: 3, desc: 'Diagnostic & Benchmark' },
-  { title: 'Analyse Opérationnelle', page: 4, desc: 'Processus & Rentabilité' },
-  { title: 'Projections Financières', page: 5, desc: 'Gains & Modèle de coûts' },
-  { title: 'Recommandations de l\'IA', page: 6, desc: 'Plan d\'action & Feuille de route' },
-  { title: 'Conclusion & Annexes', page: 7, desc: 'Méthodologie & Synthèse' },
-];
-
-export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdfViewerProps) => {
+export const ReportPdfViewer = ({ report, onClose, className = '' }: ReportPdfViewerProps) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -48,17 +42,46 @@ export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdf
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [dynamicChapters, setDynamicChapters] = useState<{title: string, page: number, desc: string}[]>([]);
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
+    if (!report?.reportTypes) return;
+    // Construct dynamic chapters based on report types
+    let page = 3;
+    const chapters = [
+      { title: t('report.chapters.cover', 'Page de Garde'), page: 1, desc: 'Branding & Titre officiel' },
+      { title: t('report.chapters.toc', 'Sommaire'), page: 2, desc: 'Table des matières' },
+      { title: t('report.chapters.exec', 'Synthèse Exécutive'), page: page++, desc: 'Résumé & Objectifs' },
+    ];
+
+    report.reportTypes.forEach((type) => {
+      let title = type.replace(/_/g, ' ');
+      let desc = 'Analyse détaillée';
+      if (type === 'FINANCIAL') { title = 'Analyse Financière'; desc = 'Performance & Métriques'; }
+      if (type === 'STRATEGIC') { title = 'Stratégie & Marché'; desc = 'Positionnement & SWOT'; }
+      if (type === 'OPERATIONAL') { title = 'Opérations'; desc = 'Processus & Efficacité'; }
+      if (type === 'MARKETING') { title = 'Marketing & Ventes'; desc = 'Acquisition & Canaux'; }
+      
+      chapters.push({ title, page: page++, desc });
+    });
+
+    chapters.push({ title: 'Projections IA', page: page++, desc: 'Prédictions & ML' });
+    chapters.push({ title: 'Annexes', page: page++, desc: 'Données détaillées' });
+
+    setDynamicChapters(chapters);
+  }, [report?.reportTypes, t]);
+
+  useEffect(() => {
+    if (!report?.id) return;
     let objectUrl: string | null = null;
     let isMounted = true;
 
     const fetchPdf = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/report/jobs/${reportId}/preview`, {
+        const response = await api.get(`/report/jobs/${report.id}/preview`, {
           responseType: 'blob',
         });
 
@@ -83,13 +106,11 @@ export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdf
         window.URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [reportId]);
+  }, [report?.id]);
 
   const handleChapterClick = (pageNum: number) => {
     setActivePage(pageNum);
-    if (pdfUrl && iframeRef.current) {
-      // Native PDF page jump using URL hash anchor
-      iframeRef.current.src = `${pdfUrl}#page=${pageNum}&zoom=${zoomLevel}`;
+    if (pdfUrl) {
       toast.success(t('report.scrollingToPage', { defaultValue: `Défilement vers la page ${pageNum}...`, page: pageNum }), {
         duration: 1000,
         position: 'bottom-center',
@@ -107,18 +128,15 @@ export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdf
   const handleZoom = (amount: number) => {
     const nextZoom = Math.min(Math.max(zoomLevel + amount, 50), 200);
     setZoomLevel(nextZoom);
-    if (pdfUrl && iframeRef.current) {
-      iframeRef.current.src = `${pdfUrl}#page=${activePage}&zoom=${nextZoom}`;
-    }
   };
 
   const handleDownload = async () => {
     try {
-      const response = await api.get(`/report/jobs/${reportId}/download`, { responseType: 'blob' });
+      const response = await api.get(`/report/jobs/${report.id}/download`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `report-${reportId}.pdf`);
+      link.setAttribute('download', `report-${report.id}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
@@ -217,7 +235,7 @@ export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdf
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-1">
-            {CHAPTERS.map((chapter) => {
+            {dynamicChapters.map((chapter) => {
               const isActive = activePage === chapter.page;
               return (
                 <button
@@ -279,6 +297,7 @@ export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdf
           {/* PDF iFrame with night mode CSS filter applied */}
           {!loading && !error && pdfUrl && (
             <iframe
+              key={`${pdfUrl}-${activePage}-${zoomLevel}`}
               ref={iframeRef}
               src={`${pdfUrl}#page=${activePage}&zoom=${zoomLevel}`}
               title="PDF Report Preview"
@@ -328,12 +347,12 @@ export const ReportPdfViewer = ({ reportId, onClose, className = '' }: ReportPdf
               </button>
 
               <span className="font-semibold px-1 select-none">
-                Page <span className="text-[#00d1ff] font-bold font-mono">{activePage}</span> sur <span className="font-mono">{CHAPTERS.length}</span>
+                Page <span className="text-[#00d1ff] font-bold font-mono">{activePage}</span> sur <span className="font-mono">{dynamicChapters.length}</span>
               </span>
 
               <button
-                onClick={() => activePage < CHAPTERS.length && handleChapterClick(activePage + 1)}
-                disabled={activePage >= CHAPTERS.length}
+                onClick={() => activePage < dynamicChapters.length && handleChapterClick(activePage + 1)}
+                disabled={activePage >= dynamicChapters.length}
                 className="p-1 hover:bg-white/10 rounded transition-colors disabled:opacity-40"
                 title="Page suivante"
               >

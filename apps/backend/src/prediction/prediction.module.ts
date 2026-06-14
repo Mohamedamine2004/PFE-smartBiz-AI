@@ -3,6 +3,7 @@ import { HttpModule } from '@nestjs/axios';
 import { PredictionController } from './prediction.controller';
 import { PredictionService } from './prediction.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PrismaModule } from '../prisma/prisma.module';
       maxRedirects: 3,
     }),
     PrismaModule,
+    NotificationModule,
   ],
   controllers: [PredictionController],
   providers: [PredictionService],

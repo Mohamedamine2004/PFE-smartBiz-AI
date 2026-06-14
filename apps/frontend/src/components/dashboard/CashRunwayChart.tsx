@@ -4,7 +4,7 @@ import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, ReferenceLine
 } from 'recharts';
-import { Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
+import { Activity, Clock, ShieldCheck, Sparkles, AlertTriangle } from 'lucide-react';
 import type { ChartDataPoint } from '../../types/dashboard';
 import { getMetricNumber, getCurrencySymbol } from '../../lib/format.utils';
 import { ChartHeader } from '../ui/ChartHeader';
@@ -56,16 +56,21 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
           setCurrencySymbol(getCurrencySymbol(res.data.currency, i18n.resolvedLanguage));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [i18n.resolvedLanguage]);
 
   const safeData = data || [];
 
   const chartData = useMemo(() => {
     return safeData.map((d) => {
-      const balance = getMetricNumber(d as Record<string, unknown>, 'Ending_Cash_Balance') || getMetricNumber(d as Record<string, unknown>, 'Cash_Balance') || 45000;
-      const burn = getMetricNumber(d as Record<string, unknown>, 'Net_Cash_Burn') || getMetricNumber(d as Record<string, unknown>, 'Net_Burn') || 0;
-      
+      // No silent 45 000 fallback — if field is absent, treat as 0
+      const balance = getMetricNumber(d as Record<string, unknown>, 'Ending_Cash_Balance')
+        || getMetricNumber(d as Record<string, unknown>, 'Cash_Balance')
+        || 0;
+      const burn = getMetricNumber(d as Record<string, unknown>, 'Net_Cash_Burn')
+        || getMetricNumber(d as Record<string, unknown>, 'Net_Burn')
+        || 0;
+
       // If burn is <= 0, it means we are cash positive (generating cash), so runway is infinite
       const runwayMonths = (burn <= 0) ? 999 : Math.abs(balance / burn);
 
@@ -94,8 +99,25 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
   const zeroCashPeriod = useMemo(() => {
     if (isProfitable || currentRunway >= 999 || !latestData) return null;
     const months = Math.ceil(currentRunway);
+
+    // Parse period (e.g., "2023-12" or "2023-12-01")
+    const parts = latestData.period.split('-');
+    if (parts.length >= 2) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
+
+      const date = new Date(year, month, 1);
+      date.setMonth(date.getMonth() + months);
+
+      // Capitalize first letter of month
+      const formatted = date.toLocaleDateString(i18n.resolvedLanguage || 'fr-FR', {
+        month: 'long',
+        year: 'numeric',
+      });
+      return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    }
     return `+ ${months} Mo.`;
-  }, [isProfitable, currentRunway, latestData]);
+  }, [isProfitable, currentRunway, latestData, i18n.resolvedLanguage]);
 
   return (
     <div className="chart-container">
@@ -151,7 +173,7 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
                 <div className="w-px h-8 bg-border/40 hidden sm:block"></div>
                 <div className="flex items-center gap-3 animate-pulse">
                   <div className="p-2 bg-rose-500/10 rounded-xl text-rose-500">
-                    <Activity className="w-4.5 h-4.5" />
+                    <AlertTriangle className="w-4.5 h-4.5" />
                   </div>
                   <div>
                     <p className="text-[9px] uppercase tracking-wider text-rose-400 font-bold">
@@ -203,14 +225,14 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
                   <stop offset="100%" stopColor="#6366F1" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              
+
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="var(--border-color)"
                 strokeOpacity={0.3}
                 vertical={false}
               />
-              
+
               <XAxis
                 dataKey="period"
                 tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 700 }}
@@ -218,7 +240,7 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
                 tickLine={false}
                 dy={10}
               />
-              
+
               <YAxis
                 yAxisId="left"
                 tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }}
@@ -226,7 +248,7 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
                 tickLine={false}
                 tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K ${currencySymbol}` : `${v} ${currencySymbol}`}
               />
-              
+
               <YAxis
                 yAxisId="right"
                 orientation="right"
@@ -293,10 +315,11 @@ export const CashRunwayChart = ({ data }: CashRunwayChartProps) => {
                 dot={false}
                 activeDot={false}
                 isAnimationActive={false}
+                legendType="none"
               />
             </ComposedChart>
           </ResponsiveContainer>
-          
+
           {/* Scientific confidence disclaimer */}
           <p className="text-[10px] text-text-muted font-bold text-center flex items-center justify-center gap-1.5 mt-2">
             <Sparkles className="w-3.5 h-3.5 text-brand" />

@@ -40,19 +40,19 @@ interface ReportWizardProps {
 }
 
 const STEPS = [
-  { key: 'wizard.steps.type',          icon: BarChart3,      labelKey: 'wizard.steps.type' },
-  { key: 'wizard.steps.audience',      icon: Users,          labelKey: 'wizard.steps.audience' },
-  { key: 'wizard.steps.language',      icon: Globe,          labelKey: 'wizard.steps.language' },
-  { key: 'wizard.steps.length',        icon: AlignJustify,   labelKey: 'wizard.steps.length' },
-  { key: 'wizard.steps.sections',      icon: Layers,         labelKey: 'wizard.steps.sections' },
-  { key: 'wizard.steps.customization', icon: Palette,        labelKey: 'wizard.steps.customization' },
-  { key: 'wizard.steps.problem',       icon: MessageSquare,  labelKey: 'wizard.steps.problem' },
-  { key: 'wizard.steps.confirm',       icon: CheckCircle2,   labelKey: 'wizard.steps.confirm' },
+  { key: 'wizard.steps.type', icon: BarChart3, labelKey: 'wizard.steps.type' },
+  { key: 'wizard.steps.audience', icon: Users, labelKey: 'wizard.steps.audience' },
+  { key: 'wizard.steps.language', icon: Globe, labelKey: 'wizard.steps.language' },
+  { key: 'wizard.steps.length', icon: AlignJustify, labelKey: 'wizard.steps.length' },
+  { key: 'wizard.steps.sections', icon: Layers, labelKey: 'wizard.steps.sections' },
+  { key: 'wizard.steps.customization', icon: Palette, labelKey: 'wizard.steps.customization' },
+  { key: 'wizard.steps.problem', icon: MessageSquare, labelKey: 'wizard.steps.problem' },
+  { key: 'wizard.steps.confirm', icon: CheckCircle2, labelKey: 'wizard.steps.confirm' },
 ];
 
 const LANG_LABELS: Record<string, string> = { FR: 'Français', EN: 'English', AR: 'العربية' };
-const AUD_LABELS: Record<string, string>  = { INTERNAL: 'Interne', INVESTORS: 'Investisseurs', BANK: 'Banque' };
-const LEN_LABELS: Record<string, string>  = { SHORT: 'Court ~5p', MEDIUM: 'Moyen ~10p', LONG: 'Complet ~18p' };
+const AUD_LABELS: Record<string, string> = { INTERNAL: 'Interne', INVESTORS: 'Investisseurs', BANK: 'Banque' };
+const LEN_LABELS: Record<string, string> = { SHORT: 'Court ~5p', MEDIUM: 'Moyen ~10p', LONG: 'Complet ~18p' };
 
 /* ─── Book Cover 3D ──────────────────────────────────────────────────── */
 const BookCover3D = ({ state }: { state: WizardFormState }) => {
@@ -80,7 +80,7 @@ const BookCover3D = ({ state }: { state: WizardFormState }) => {
   const secondaryCol = state.secondaryColor || '#1e293b';
 
   return (
-    <div 
+    <div
       className="py-2 flex justify-center items-center cursor-pointer select-none"
       style={{ perspective: '1000px' }}
       onMouseMove={handleMouseMove}
@@ -96,7 +96,7 @@ const BookCover3D = ({ state }: { state: WizardFormState }) => {
         }}
       >
         {/* Pronounced sliding reflection sheen */}
-        <div 
+        <div
           className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none transition-transform duration-1000 ease-out"
           style={{
             transform: isHovered ? 'translate3d(100%, 100%, 0) rotate(45deg)' : 'translate3d(-100%, -100%, 0) rotate(45deg)',
@@ -106,10 +106,10 @@ const BookCover3D = ({ state }: { state: WizardFormState }) => {
 
         {/* Book Spine Overlay */}
         <div className="absolute top-0 left-0 w-3.5 h-full bg-gradient-to-r from-black/30 via-black/15 to-transparent backdrop-blur-[1px] shadow-[inset_-2px_0_5px_rgba(0,0,0,0.3)] border-r border-white/5 pointer-events-none" />
-        
+
         {/* Decorative Grid Patterns */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none"
           style={{
             backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
@@ -126,10 +126,10 @@ const BookCover3D = ({ state }: { state: WizardFormState }) => {
         {/* Dynamic Title / Content */}
         <div className="my-auto text-left pl-3.5" style={{ transform: 'translateZ(30px)' }}>
           {state.logo && (
-            <img 
-              src={state.logo} 
-              alt="Brand Logo" 
-              className="max-h-7 max-w-[80px] object-contain mb-3 rounded p-1 bg-white/10 backdrop-blur-sm border border-white/10" 
+            <img
+              src={state.logo}
+              alt="Brand Logo"
+              className="max-h-7 max-w-[80px] object-contain mb-3 rounded p-1 bg-white/10 backdrop-blur-sm border border-white/10"
             />
           )}
           <span className="text-[8px] font-black uppercase tracking-widest text-[#00d1ff] bg-black/45 px-2 py-0.5 rounded border border-white/5 font-mono">
@@ -151,14 +151,14 @@ const BookCover3D = ({ state }: { state: WizardFormState }) => {
 };
 
 /* ─── Live Preview Panel ─────────────────────────────────────────────── */
-const PreviewPanel = ({ 
-  state, 
-  currentStep, 
-  onStepClick 
-}: { 
-  state: WizardFormState; 
-  currentStep: number; 
-  onStepClick?: (step: number) => void; 
+const PreviewPanel = ({
+  state,
+  currentStep,
+  onStepClick
+}: {
+  state: WizardFormState;
+  currentStep: number;
+  onStepClick?: (step: number) => void;
 }) => {
   const { t } = useTranslation();
 
@@ -166,42 +166,42 @@ const PreviewPanel = ({
     {
       icon: BarChart3,
       label: t('wizard.steps.type', 'Type'),
-      value: state.reportType ? state.reportType.replace(/_/g, ' ') : '—',
+      value: state.reportType ? t(`wizard.step1.types.${state.reportType}.label`, state.reportType) : '—',
       done: !!state.reportType,
       stepIndex: 1,
     },
     {
       icon: Users,
       label: t('wizard.steps.audience', 'Audience'),
-      value: state.audience ? AUD_LABELS[state.audience] ?? state.audience : '—',
+      value: state.audience ? t(`wizard.confirmation.audiences.${state.audience.toLowerCase()}`, state.audience) : '—',
       done: !!state.audience,
       stepIndex: 2,
     },
     {
       icon: Globe,
       label: t('wizard.steps.language', 'Langue'),
-      value: state.language ? LANG_LABELS[state.language] ?? state.language : '—',
+      value: state.language ? t(`reports.languages.${state.language.toLowerCase()}`, state.language) : '—',
       done: !!state.language,
       stepIndex: 3,
     },
     {
       icon: AlignJustify,
       label: t('wizard.steps.length', 'Longueur'),
-      value: state.lengthProfile ? LEN_LABELS[state.lengthProfile] ?? state.lengthProfile : '—',
+      value: state.lengthProfile ? `${t(`wizard.confirmation.lengths.${state.lengthProfile.toLowerCase()}.label`, state.lengthProfile)} ~${state.lengthProfile === 'SHORT' ? '5' : state.lengthProfile === 'MEDIUM' ? '10' : '18'}p` : '—',
       done: !!state.lengthProfile,
       stepIndex: 4,
     },
     {
       icon: Layers,
       label: t('wizard.steps.sections', 'Sections'),
-      value: state.sections.length > 0 ? `${state.sections.length} sélectionnée(s)` : 'Auto',
+      value: state.sections.length > 0 ? `${state.sections.length} ${t('wizard.preview.selected', 'sélectionnée(s)')}` : t('wizard.confirmation.auto', 'Auto'),
       done: true,
       stepIndex: 5,
     },
     {
       icon: Palette,
       label: t('wizard.steps.customization', 'Branding'),
-      value: state.logo ? 'Logo chargé' : 'Par défaut',
+      value: state.logo ? t('wizard.preview.logoLoaded', 'Logo chargé') : t('wizard.preview.defaultBranding', 'Par défaut'),
       done: true,
       stepIndex: 6,
     },
@@ -213,8 +213,8 @@ const PreviewPanel = ({
       <div
         className="relative overflow-hidden rounded-2xl p-5 border flex flex-col gap-4"
         style={{
-          background: 'linear-gradient(135deg, rgba(0,209,255,0.07) 0%, rgba(99,102,241,0.05) 100%)',
-          borderColor: 'rgba(0,209,255,0.15)',
+          background: 'var(--bg-surface)',
+          borderColor: 'var(--border-color)',
         }}
       >
         <div
@@ -258,14 +258,13 @@ const PreviewPanel = ({
             const isClickable = isFilled && onStepClick;
 
             return (
-              <div 
-                key={label} 
+              <div
+                key={label}
                 onClick={() => isClickable && onStepClick(stepIndex)}
-                className={`flex items-center gap-3 px-4 py-3 transition-all ${
-                  isClickable 
-                    ? 'cursor-pointer hover:bg-brand/5 active:scale-98' 
+                className={`flex items-center gap-3 px-4 py-3 transition-all ${isClickable
+                    ? 'cursor-pointer hover:bg-brand/5 active:scale-98'
                     : ''
-                }`}
+                  }`}
                 title={isClickable ? 'Retourner à cette étape' : undefined}
               >
                 <div
@@ -296,8 +295,8 @@ const PreviewPanel = ({
       <div
         className="rounded-2xl p-4 border text-center"
         style={{
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.05) 0%, rgba(0,209,255,0.04) 100%)',
-          borderColor: 'rgba(16,185,129,0.15)',
+          background: 'var(--bg-surface)',
+          borderColor: 'var(--border-color)',
         }}
       >
         <p className="text-[11px] text-text-muted">
@@ -449,7 +448,7 @@ export const ReportWizard = ({ onSuccess }: ReportWizardProps) => {
         <div
           className="relative overflow-hidden rounded-2xl p-6 border"
           style={{
-            background: 'linear-gradient(135deg, var(--bg-surface) 0%, rgba(0,209,255,0.03) 100%)',
+            background: 'var(--bg-surface)',
             borderColor: 'var(--border-color)',
           }}
         >
@@ -492,28 +491,27 @@ export const ReportWizard = ({ onSuccess }: ReportWizardProps) => {
         >
           <div className="flex items-center justify-between relative">
             {STEPS.map(({ key, icon: StepIcon, labelKey }, idx) => {
-              const stepNum   = idx + 1;
-              const isDone    = stepNum < currentStep;
+              const stepNum = idx + 1;
+              const isDone = stepNum < currentStep;
               const isCurrent = stepNum === currentStep;
-              
+
               return (
                 <div key={key} className="flex items-center flex-1 last:flex-initial">
                   <div className="flex flex-col items-center gap-2 relative z-10 flex-1">
                     <div
-                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 relative ${
-                        isCurrent ? 'ring-4 ring-brand/20 animate-[pulse_2s_infinite]' : ''
-                      }`}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 relative ${isCurrent ? 'ring-4 ring-brand/20 animate-[pulse_2s_infinite]' : ''
+                        }`}
                       style={{
                         background: isDone
                           ? 'rgba(0,209,255,0.15)'
                           : isCurrent
-                          ? 'var(--brand)'
-                          : 'var(--bg-elevated)',
+                            ? 'var(--brand)'
+                            : 'var(--bg-elevated)',
                         border: isDone
                           ? '1px solid rgba(0,209,255,0.3)'
                           : isCurrent
-                          ? '1px solid var(--brand)'
-                          : '1px solid var(--border-color)',
+                            ? '1px solid var(--brand)'
+                            : '1px solid var(--border-color)',
                         boxShadow: isCurrent ? '0 0 16px rgba(0,209,255,0.4)' : 'none',
                       }}
                     >
@@ -526,10 +524,9 @@ export const ReportWizard = ({ onSuccess }: ReportWizardProps) => {
                       )}
                     </div>
                     {/* Label below the step */}
-                    <span 
-                      className={`hidden md:block text-[10px] font-extrabold uppercase tracking-wider text-center max-w-[80px] truncate transition-colors duration-300 ${
-                        isCurrent ? 'text-brand' : isDone ? 'text-text-main/80' : 'text-text-muted/40'
-                      }`}
+                    <span
+                      className={`hidden md:block text-[10px] font-extrabold uppercase tracking-wider text-center max-w-[80px] truncate transition-colors duration-300 ${isCurrent ? 'text-brand' : isDone ? 'text-text-main/80' : 'text-text-muted/40'
+                        }`}
                     >
                       {t(labelKey)}
                     </span>
@@ -566,9 +563,9 @@ export const ReportWizard = ({ onSuccess }: ReportWizardProps) => {
           {/* Subtle upper-right ambient glow */}
           <div
             className="absolute -top-16 -right-16 w-32 h-32 pointer-events-none rounded-full"
-            style={{ 
-              background: 'radial-gradient(circle, rgba(0,209,255,0.06) 0%, transparent 70%)', 
-              filter: 'blur(16px)' 
+            style={{
+              background: 'radial-gradient(circle, rgba(0,209,255,0.06) 0%, transparent 70%)',
+              filter: 'blur(16px)'
             }}
           />
           {renderStep()}
@@ -587,8 +584,8 @@ export const ReportWizard = ({ onSuccess }: ReportWizardProps) => {
           </Button>
 
           {currentStep < TOTAL_STEPS ? (
-            <Button 
-              onClick={handleNext} 
+            <Button
+              onClick={handleNext}
               className="flex items-center gap-1.5 px-8 py-2.5 rounded-xl bg-brand text-white hover:brightness-110 shadow-md shadow-brand/10 transition-all duration-300 active:scale-98"
             >
               {t('wizard.next', 'Suivant')}

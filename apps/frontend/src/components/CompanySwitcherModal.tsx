@@ -11,7 +11,7 @@ interface CompanySwitcherModalProps {
 }
 
 export const CompanySwitcherModal = ({ isOpen, onClose }: CompanySwitcherModalProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, myCompanies, fetchMyCompanies, switchCompany } = useAuthStore();
   
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
@@ -216,6 +216,7 @@ export const CompanySwitcherModal = ({ isOpen, onClose }: CompanySwitcherModalPr
                     required
                     autoFocus
                     placeholder="••••••••"
+                    dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="input w-full py-3.5 px-4 rounded-xl border border-border/80 bg-surface/40 focus:border-brand outline-none focus:ring-1 focus:ring-brand/35 text-center text-sm"

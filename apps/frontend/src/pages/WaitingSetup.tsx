@@ -99,9 +99,10 @@ export const WaitingSetup = () => {
         }}
       />
       <div
-        className="absolute inset-0 opacity-[0.012] pointer-events-none z-0"
+        className="absolute inset-0 opacity-[0.1] pointer-events-none z-0"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADt2CnHAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RSTlMAoKCgoKCgp6V9pQAAAFRJREFUeNqV0LENwDAMA0FzgcwGsYHMBrODzB2xA6hEivw8B1H0Yv9Qy4sLh/x1d1+O1cTj8o4v6hH/KkdxUo7iJE7iJE7iJE7iJE7iJE7iJE7iJE7iJE7i9ANo9Xf1797kXgAAAABJRU5ErkJggg==")`,
+          backgroundSize: '128px 128px',
         }}
       />
 
@@ -114,9 +115,9 @@ export const WaitingSetup = () => {
         {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-600" />}
       </button>
 
-      {/* 5. Center Glassmorphic Card Container */}
+      {/* 5. Center Solid Card Container (Made solid for readability) */}
       <div className="w-full max-w-[450px] relative z-10 transition-all duration-500
-        bg-white/70 dark:bg-[#0a0f1d]/70 backdrop-blur-3xl border border-slate-200/80 dark:border-white/10
+        bg-white dark:bg-[#0a0f1d] border border-slate-200/80 dark:border-white/10
         shadow-[0_40px_80px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.7)]
         dark:shadow-[0_40px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]
         rounded-3xl p-8 md:p-10 text-center space-y-6"

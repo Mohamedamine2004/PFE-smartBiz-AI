@@ -1,21 +1,75 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HelpCircle, Sparkles } from 'lucide-react';
+import { HelpCircle, Sparkles, Database } from 'lucide-react';
 import { motion } from 'framer-motion';
+import type { ChartDataPoint } from '../../types/dashboard';
+import { getMetricNumber } from '../../lib/format.utils';
 
-// Mock high-fidelity cohort retention data
-const COHORT_DATA = [
-  { monthKey: 'dashboard.cohorts.months.jan', monthDefault: 'Janvier 2026', size: 120, retention: [100, 94, 88, 83, 79, 74] },
-  { monthKey: 'dashboard.cohorts.months.feb', monthDefault: 'Février 2026', size: 145, retention: [100, 96, 91, 86, 81, null] },
-  { monthKey: 'dashboard.cohorts.months.mar', monthDefault: 'Mars 2026', size: 168, retention: [100, 93, 89, 84, null, null] },
-  { monthKey: 'dashboard.cohorts.months.apr', monthDefault: 'Avril 2026', size: 195, retention: [100, 97, 92, null, null, null] },
-  { monthKey: 'dashboard.cohorts.months.may', monthDefault: 'Mai 2026', size: 220, retention: [100, 95, null, null, null, null] },
-  { monthKey: 'dashboard.cohorts.months.jun', monthDefault: 'Juin 2026', size: 250, retention: [100, null, null, null, null, null] },
-];
+interface CohortRetentionGridProps {
+  data: ChartDataPoint[];
+}
 
-export const CohortRetentionGrid = () => {
+/** Build per-cohort retention from raw monthly time-series */
+interface CohortRow {
+  period: string;
+  size: number;
+  /** retention[0] is always 100 (month-0), subsequent entries are cumulative % */
+  retention: (number | null)[];
+}
+
+function buildCohortRows(data: ChartDataPoint[]): CohortRow[] {
+  if (!data || data.length === 0) return [];
+
+  // We take up to the last 6 months of data
+  const slice = data.slice(Math.max(0, data.length - 6));
+
+  return slice.map((point, idx) => {
+    const acquired = getMetricNumber(point as Record<string, unknown>, 'New_Customers_Acquired');
+    const churned = getMetricNumber(point as Record<string, unknown>, 'Customers_Churned');
+
+    // Month-0 is always 100 %.
+    // For subsequent months we can only compute values for data points that
+    // appeared AFTER this cohort's entry month — so months after idx are null.
+    const monthsAvailable = slice.length - idx; // 1..6
+
+    // Use a plain for-loop so we can safely read retention[m-1] from the
+    // already-populated array (Array.from with a self-referencing closure
+    // causes a Temporal Dead Zone ReferenceError).
+    const retention: (number | null)[] = [];
+    for (let m = 0; m < 6; m++) {
+      if (m === 0) { retention.push(100); continue; }
+      if (m >= monthsAvailable) { retention.push(null); continue; }
+
+      const futurePeriod = slice[idx + m];
+      if (!futurePeriod || acquired <= 0) { retention.push(null); continue; }
+
+      const periodChurned = getMetricNumber(futurePeriod as Record<string, unknown>, 'Customers_Churned');
+      const periodAcquired = getMetricNumber(futurePeriod as Record<string, unknown>, 'New_Customers_Acquired') || 1;
+      const monthlyChurnRate = periodChurned / periodAcquired;
+
+      // Compound from previous month (already in the array at this point)
+      const prevRetention = retention[m - 1];
+      if (prevRetention === null) { retention.push(null); continue; }
+
+      const newRetention = Math.max(0, prevRetention * (1 - monthlyChurnRate));
+      retention.push(Math.round(newRetention));
+    }
+
+    return {
+      period: String(point.period || ''),
+      size: Math.round(acquired),
+      retention,
+    };
+  });
+}
+
+export const CohortRetentionGrid = ({ data }: CohortRetentionGridProps) => {
   const { t } = useTranslation();
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
+
+  const cohortRows = useMemo(() => buildCohortRows(data), [data]);
+
+  const hasRealData = cohortRows.length > 0 && cohortRows.some(r => r.size > 0);
 
   // Return background color based on retention rate
   const getCellColor = (val: number | null) => {
@@ -43,9 +97,14 @@ export const CohortRetentionGrid = () => {
               <Sparkles className="w-2.5 h-2.5" />
               {t('dashboard.cohorts.badge', 'AI Core')}
             </span>
+            {/* Live data badge */}
+            <span className="flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">
+              <Database className="w-2.5 h-2.5" />
+              {t('dashboard.cohorts.liveData', 'Live')}
+            </span>
           </div>
           <p className="text-xs text-text-muted mt-0.5">
-            {t('dashboard.cohorts.subtitle', 'Suivi de l\'engagement et de l\'attrition des utilisateurs par date d\'inscription')}
+            {t('dashboard.cohorts.subtitle', "Suivi de l'engagement et de l'attrition des utilisateurs par date d'inscription")}
           </p>
         </div>
 
@@ -74,66 +133,80 @@ export const CohortRetentionGrid = () => {
         </div>
       </div>
 
-      {/* Cohorts Heatmap Grid Table */}
-      <div className="overflow-x-auto scrollbar-hide relative z-10 rounded-xl border border-border/40">
-        <table className="w-full text-center table-fixed min-w-[700px]">
-          <thead>
-            <tr className="bg-elevated/50">
-              <th className="w-32 px-4 py-3 text-start text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/40">
-                {t('dashboard.cohorts.cohort', 'Cohorte')}
-              </th>
-              <th className="w-24 px-4 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/40">
-                {t('dashboard.cohorts.size', 'Taille')}
-              </th>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <th key={i} className="px-4 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/40">
-                  {t('dashboard.cohorts.monthIndex', 'M{{index}}', { index: i })}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/20">
-            {COHORT_DATA.map((row, rIdx) => (
-              <tr key={rIdx} className="hover:bg-elevated/20 transition-colors">
-                <td className="px-4 py-3.5 text-start text-xs font-semibold text-text-main">
-                  {t(row.monthKey, row.monthDefault)}
-                </td>
-                <td className="px-4 py-3.5 text-xs text-text-secondary font-medium">
-                  {t('dashboard.cohorts.clients', '{{count}} clients', { count: row.size })}
-                </td>
-                {row.retention.map((val, cIdx) => {
-                  const isHovered = hoveredCell && hoveredCell.row === rIdx && hoveredCell.col === cIdx;
-                  return (
-                    <td
-                      key={cIdx}
-                      className="p-1 cursor-pointer"
-                      onMouseEnter={() => val !== null && setHoveredCell({ row: rIdx, col: cIdx })}
-                      onMouseLeave={() => setHoveredCell(null)}
-                    >
-                      <motion.div
-                        className={`py-3 rounded-lg border text-xs font-medium tabular-nums transition-all duration-200 ${getCellColor(val)}`}
-                        animate={{
-                          scale: isHovered ? 1.05 : 1,
-                          boxShadow: isHovered ? '0 4px 12px rgba(0,209,255,0.15)' : 'none',
-                        }}
-                      >
-                        {val !== null ? `${val}%` : '-'}
-                      </motion.div>
+      {/* Empty state */}
+      {!hasRealData ? (
+        <div className="h-48 flex flex-col items-center justify-center gap-3 border border-dashed border-border/40 rounded-2xl bg-elevated/10">
+          <Database className="w-7 h-7 text-text-muted/40" />
+          <p className="text-sm font-semibold text-text-muted">
+            {t('dashboard.cohorts.noData', 'Importez des données incluant New_Customers_Acquired et Customers_Churned pour afficher la rétention par cohortes.')}
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Cohorts Heatmap Grid Table */}
+          <div className="overflow-x-auto scrollbar-hide relative z-10 rounded-xl border border-border/40">
+            <table className="w-full text-center table-fixed min-w-[700px]">
+              <thead>
+                <tr className="bg-elevated/50">
+                  <th className="w-32 px-4 py-3 text-start text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/40">
+                    {t('dashboard.cohorts.cohort', 'Cohorte')}
+                  </th>
+                  <th className="w-24 px-4 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/40">
+                    {t('dashboard.cohorts.size', 'Taille')}
+                  </th>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <th key={i} className="px-4 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider border-b border-border/40">
+                      {t('dashboard.cohorts.monthIndex', 'M{{index}}', { index: i })}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/20">
+                {cohortRows.map((row, rIdx) => (
+                  <tr key={rIdx} className="hover:bg-elevated/20 transition-colors">
+                    <td className="px-4 py-3.5 text-start text-xs font-semibold text-text-main">
+                      {row.period}
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <td className="px-4 py-3.5 text-xs text-text-secondary font-medium">
+                      {row.size > 0
+                        ? t('dashboard.cohorts.clients', '{{count}} clients', { count: row.size })
+                        : '—'}
+                    </td>
+                    {row.retention.map((val, cIdx) => {
+                      const isHovered = hoveredCell && hoveredCell.row === rIdx && hoveredCell.col === cIdx;
+                      return (
+                        <td
+                          key={cIdx}
+                          className="p-1 cursor-pointer"
+                          onMouseEnter={() => val !== null && setHoveredCell({ row: rIdx, col: cIdx })}
+                          onMouseLeave={() => setHoveredCell(null)}
+                        >
+                          <motion.div
+                            className={`py-3 rounded-lg border text-xs font-medium tabular-nums transition-all duration-200 ${getCellColor(val)}`}
+                            animate={{
+                              scale: isHovered ? 1.05 : 1,
+                              boxShadow: isHovered ? '0 4px 12px rgba(0,209,255,0.15)' : 'none',
+                            }}
+                          >
+                            {val !== null ? `${val}%` : '—'}
+                          </motion.div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      <div className="flex items-center gap-2 mt-4 text-[10px] text-text-muted">
-        <HelpCircle className="w-3.5 h-3.5 text-[#00D1FF]" />
-        <span>
-          {t('dashboard.cohorts.help', 'Explication : M0 correspond au mois d\'inscription (100% actifs). Chaque mois M1-M5 montre le pourcentage de cette cohorte qui est resté engagé.')}
-        </span>
-      </div>
+          <div className="flex items-center gap-2 mt-4 text-[10px] text-text-muted">
+            <HelpCircle className="w-3.5 h-3.5 text-[#00D1FF]" />
+            <span>
+              {t('dashboard.cohorts.help', "Explication : M0 correspond au mois d'inscription (100% actifs). Chaque mois M1–M5 montre le pourcentage de cette cohorte qui est resté engagé, calculé depuis vos données importées.")}
+            </span>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { FinancialRowDto, StrategicKpiDto } from './dto/import-data.dto';
 import * as XLSX from 'xlsx';
+import { NotificationService } from '../notification/notification.service';
 
 /**
  * Maps each frontend sector to a representative SIC code.
@@ -34,7 +35,10 @@ const SECTOR_TO_SIC: Record<string, number> = {
 
 @Injectable()
 export class FinancialService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async processBimodalImport(fileBuffer: Buffer, companyId: string) {
     const workbook = XLSX.read(fileBuffer, { type: 'buffer', cellDates: true });
@@ -51,7 +55,7 @@ export class FinancialService {
       }
     });
 
-    return await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       // 2. Parse and Validate Sheet 3: Strategic KPIs
       const rawKPIs = XLSX.utils.sheet_to_json(
         workbook.Sheets['Strategic_KPIs'],
@@ -150,6 +154,37 @@ export class FinancialService {
         message: 'Data imported successfully',
       };
     });
+
+    // Notify all members of the company after successful transaction commit
+    try {
+      const members = await this.prisma.userCompany.findMany({
+        where: { companyId },
+        select: { userId: true },
+      });
+
+      const companyInfo = await this.prisma.company.findUnique({
+        where: { id: companyId },
+        select: { name: true },
+      });
+
+      const companyName = companyInfo?.name || 'votre entreprise';
+
+      await Promise.all(
+        members.map((member) =>
+          this.notificationService.createNotification(
+            member.userId,
+            'IMPORT_SUCCESS',
+            'Données importées avec succès',
+            `Un nouveau lot de ${result.recordsProcessed} données financières a été importé avec succès pour ${companyName}.`,
+            '/import-history',
+          ),
+        ),
+      );
+    } catch (err) {
+      console.error('Error generating notification for financial import:', err);
+    }
+
+    return result;
   }
   generateTemplate(): Buffer {
     const workbook = XLSX.utils.book_new();

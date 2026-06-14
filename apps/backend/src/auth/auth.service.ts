@@ -6,10 +6,12 @@ import {
   ForbiddenException,
   BadRequestException,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
@@ -49,7 +51,7 @@ function isUniqueOwnerConstraintError(error: unknown): boolean {
 }
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -57,6 +59,55 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly postLoginService: PostLoginService,
   ) {}
+
+  async onModuleInit() {
+    await this.healCompanyOwners();
+  }
+
+  private async healCompanyOwners() {
+    try {
+      const activeOwners = await this.prisma.user.findMany({
+        where: { role: UserRole.OWNER },
+        select: { id: true, companyId: true },
+      });
+
+      for (const owner of activeOwners) {
+        // Ensure this active owner has an OWNER membership in UserCompany
+        await this.prisma.userCompany.upsert({
+          where: {
+            userId_companyId: {
+              userId: owner.id,
+              companyId: owner.companyId,
+            },
+          },
+          create: {
+            userId: owner.id,
+            companyId: owner.companyId,
+            role: UserRole.OWNER,
+            password: '', 
+          },
+          update: {
+            role: UserRole.OWNER,
+          },
+        });
+
+        // Demote anyone else who is marked as OWNER in UserCompany for this company
+        await this.prisma.userCompany.updateMany({
+          where: {
+            companyId: owner.companyId,
+            userId: { not: owner.id },
+            role: UserRole.OWNER,
+          },
+          data: {
+            role: UserRole.ADMIN,
+          },
+        });
+      }
+      console.log('Company owners roles healed successfully.');
+    } catch (error) {
+      console.error('Error healing company owners:', error);
+    }
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // REGISTRATION — creator becomes OWNER automatically
@@ -83,118 +134,170 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-      if (existingUser) {
-        // Active/Switch this user immediately to the new company
-        const company = await this.prisma.company.create({
-          data: {
-            name: dto.companyName,
-            registrationNumber: dto.registrationNumber,
-          },
-        });
+      const result = await this.prisma.$transaction(async (tx) => {
+        if (existingUser) {
+          // Active/Switch this user immediately to the new company
+          const company = await tx.company.create({
+            data: {
+              name: dto.companyName,
+              registrationNumber: dto.registrationNumber,
+            },
+          });
 
-        await this.prisma.userCompany.create({
-          data: {
-            userId: existingUser.id,
-            companyId: company.id,
-            role: UserRole.OWNER,
-            password: hashedPassword,
-          },
-        });
+          await tx.userCompany.create({
+            data: {
+              userId: existingUser.id,
+              companyId: company.id,
+              role: UserRole.OWNER,
+              password: hashedPassword,
+            },
+          });
 
-        const updatedUser = await this.prisma.user.update({
-          where: { id: existingUser.id },
-          data: {
-            companyId: company.id,
-            role: UserRole.OWNER,
-          },
-        });
+          // Ensure user has preference
+          await tx.userPreference.upsert({
+            where: { userId: existingUser.id },
+            create: { userId: existingUser.id },
+            update: {},
+          });
 
-        const userWithoutSecrets = { ...updatedUser };
-        delete (userWithoutSecrets as Record<string, unknown>).password;
-        delete (userWithoutSecrets as Record<string, unknown>).refreshToken;
-        delete (userWithoutSecrets as Record<string, unknown>).verifyEmailToken;
+          // Ensure user has superAdmin
+          const superAdmin = await tx.superAdmin.upsert({
+            where: { userId: existingUser.id },
+            create: { userId: existingUser.id, promotedBy: 'System' },
+            update: {},
+          });
+
+          // Connect company to superAdmin
+          await tx.company.update({
+            where: { id: company.id },
+            data: { superAdminId: superAdmin.id },
+          });
+
+          const updatedUser = await tx.user.update({
+            where: { id: existingUser.id },
+            data: {
+              companyId: company.id,
+              role: UserRole.OWNER,
+            },
+          });
+
+          const userWithoutSecrets = { ...updatedUser };
+          delete (userWithoutSecrets as Record<string, unknown>).password;
+          delete (userWithoutSecrets as Record<string, unknown>).refreshToken;
+          delete (userWithoutSecrets as Record<string, unknown>).verifyEmailToken;
+
+          return {
+            message:
+              "L'entreprise a été créée avec succès et associée à votre compte existant.",
+            company: {
+              id: company.id,
+              name: company.name,
+              registrationNumber: company.registrationNumber,
+            },
+            admin: userWithoutSecrets,
+            verifyToken: null,
+          };
+        }
+
+        // Generate email verification token for brand-new user
+        const verifyToken = crypto.randomBytes(32).toString('hex');
+        const hashedVerifyToken = crypto
+          .createHash('sha256')
+          .update(verifyToken)
+          .digest('hex');
+
+        let company;
+        try {
+          company = await tx.company.create({
+            data: {
+              name: dto.companyName,
+              registrationNumber: dto.registrationNumber,
+              users: {
+                create: {
+                  firstName: dto.firstName,
+                  lastName: dto.lastName,
+                  email: dto.email,
+                  password: hashedPassword,
+                  role: UserRole.OWNER,
+                  isEmailVerified: false,
+                  verifyEmailToken: hashedVerifyToken,
+                  preference: {
+                    create: {},
+                  },
+                  superAdmin: {
+                    create: {
+                      promotedBy: 'System',
+                    },
+                  },
+                },
+              },
+            },
+            include: { users: true },
+          });
+
+          // Also create the membership entry in UserCompany!
+          const ownerUser = company.users[0];
+          await tx.userCompany.create({
+            data: {
+              userId: ownerUser.id,
+              companyId: company.id,
+              role: UserRole.OWNER,
+              password: hashedPassword,
+            },
+          });
+
+          // Connect company to superAdmin
+          const superAdmin = await tx.superAdmin.findUnique({
+            where: { userId: ownerUser.id },
+          });
+          if (superAdmin) {
+            await tx.company.update({
+              where: { id: company.id },
+              data: { superAdminId: superAdmin.id },
+            });
+          }
+        } catch (error) {
+          if (isUniqueOwnerConstraintError(error)) {
+            throw new ConflictException(
+              'Conflit de role detecte: un seul Super Administrateur est autorise par entreprise.',
+            );
+          }
+          throw error;
+        }
+
+        const ownerUser = company.users[0];
+        const ownerWithoutSecrets = { ...ownerUser };
+        delete (ownerWithoutSecrets as Record<string, unknown>).password;
+        delete (ownerWithoutSecrets as Record<string, unknown>).refreshToken;
+        delete (ownerWithoutSecrets as Record<string, unknown>).verifyEmailToken;
 
         return {
           message:
-            "L'entreprise a été créée avec succès et associée à votre compte existant.",
+            'Compte créé avec succès. Un email de vérification a été envoyé à votre adresse. Veuillez cliquer sur le lien pour activer votre compte.',
           company: {
             id: company.id,
             name: company.name,
             registrationNumber: company.registrationNumber,
           },
-          admin: userWithoutSecrets,
+          admin: ownerWithoutSecrets,
+          verifyToken,
         };
+      });
+
+      // Send verification email (non-blocking, outside of database transaction)
+      if (result.verifyToken) {
+        this.mailService
+          .sendUserConfirmation(dto.email, result.verifyToken)
+          .catch(() => {});
       }
 
-      // Generate email verification token for brand-new user
-      const verifyToken = crypto.randomBytes(32).toString('hex');
-      const hashedVerifyToken = crypto
-        .createHash('sha256')
-        .update(verifyToken)
-        .digest('hex');
+      // Cleanup response object
+      const responsePayload = { ...result };
+      delete (responsePayload as any).verifyToken;
 
-      let company;
-      try {
-        company = await this.prisma.company.create({
-          data: {
-            name: dto.companyName,
-            registrationNumber: dto.registrationNumber,
-            users: {
-              create: {
-                firstName: dto.firstName,
-                lastName: dto.lastName,
-                email: dto.email,
-                password: hashedPassword,
-                role: UserRole.OWNER,
-                isEmailVerified: false,
-                verifyEmailToken: hashedVerifyToken,
-              },
-            },
-          },
-          include: { users: true },
-        });
-
-        // Also create the membership entry in UserCompany!
-        const ownerUser = company.users[0];
-        await this.prisma.userCompany.create({
-          data: {
-            userId: ownerUser.id,
-            companyId: company.id,
-            role: UserRole.OWNER,
-            password: hashedPassword,
-          },
-        });
-      } catch (error) {
-        if (isUniqueOwnerConstraintError(error)) {
-          throw new ConflictException(
-            'Conflit de role detecte: un seul Super Administrateur est autorise par entreprise.',
-          );
-        }
-        throw error;
-      }
-
-      const ownerUser = company.users[0];
-      const ownerWithoutSecrets = { ...ownerUser };
-      delete (ownerWithoutSecrets as Record<string, unknown>).password;
-      delete (ownerWithoutSecrets as Record<string, unknown>).refreshToken;
-      delete (ownerWithoutSecrets as Record<string, unknown>).verifyEmailToken;
-
-      // Send verification email (non-blocking)
-      this.mailService
-        .sendUserConfirmation(dto.email, verifyToken)
-        .catch(() => {});
-
-      return {
-        message:
-          'Compte créé avec succès. Un email de vérification a été envoyé à votre adresse. Veuillez cliquer sur le lien pour activer votre compte.',
-        company: {
-          id: company.id,
-          name: company.name,
-          registrationNumber: company.registrationNumber,
-        },
-        admin: ownerWithoutSecrets,
-      };
+      return responsePayload;
     } catch (error) {
+      console.error('Registration error detailed log:', error);
       if (error instanceof ConflictException) throw error;
       throw new InternalServerErrorException(
         "Une erreur est survenue lors de l'inscription.",
@@ -391,14 +494,21 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        resetPasswordToken: null,
-        resetPasswordExpires: null,
-      },
-    });
+    // Update User.password AND all UserCompany.password entries so login stays in sync
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          resetPasswordToken: null,
+          resetPasswordExpires: null,
+        },
+      }),
+      this.prisma.userCompany.updateMany({
+        where: { userId: user.id },
+        data: { password: hashedPassword },
+      }),
+    ]);
 
     return { message: 'Votre mot de passe a été réinitialisé avec succès.' };
   }
@@ -505,10 +615,18 @@ export class AuthService {
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { password: hashedNewPassword },
-    });
+
+    // Keep User.password and UserCompany.password in sync
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { password: hashedNewPassword },
+      }),
+      this.prisma.userCompany.updateMany({
+        where: { userId },
+        data: { password: hashedNewPassword },
+      }),
+    ]);
 
     return { message: 'Mot de passe modifié avec succès.' };
   }
@@ -569,7 +687,8 @@ export class AuthService {
     const expires = new Date();
     expires.setDate(expires.getDate() + 7);
 
-    await this.prisma.user.create({
+    // Create User AND UserCompany atomically so login can find the membership
+    const newUser = await this.prisma.user.create({
       data: {
         firstName: 'En attente',
         lastName: 'En attente',
@@ -580,6 +699,19 @@ export class AuthService {
         isEmailVerified: false,
         inviteToken: hashedInviteToken,
         inviteTokenExpires: expires,
+        preference: {
+          create: {},
+        },
+      },
+    });
+
+    // Create the UserCompany membership entry with the same dummy password
+    await this.prisma.userCompany.create({
+      data: {
+        userId: newUser.id,
+        companyId: inviter.companyId,
+        role,
+        password: dummyPassword,
       },
     });
 
@@ -622,17 +754,24 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        firstName,
-        lastName,
-        password: hashedPassword,
-        isEmailVerified: true,
-        inviteToken: null,
-        inviteTokenExpires: null,
-      },
-    });
+    // Update User and the UserCompany membership password atomically
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          firstName,
+          lastName,
+          password: hashedPassword,
+          isEmailVerified: true,
+          inviteToken: null,
+          inviteTokenExpires: null,
+        },
+      }),
+      this.prisma.userCompany.updateMany({
+        where: { userId: user.id },
+        data: { password: hashedPassword },
+      }),
+    ]);
 
     return {
       message:
@@ -746,10 +885,21 @@ export class AuthService {
       );
     }
 
-    await this.prisma.user.update({
-      where: { id: targetUserId },
-      data: { role: newRole },
-    });
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: targetUserId },
+        data: { role: newRole },
+      }),
+      this.prisma.userCompany.update({
+        where: {
+          userId_companyId: {
+            userId: targetUserId,
+            companyId: requester.companyId,
+          },
+        },
+        data: { role: newRole },
+      }),
+    ]);
 
     return {
       message: `Rôle mis à jour avec succès vers ${newRole}.`,
@@ -798,11 +948,32 @@ export class AuthService {
           );
         }
 
-        // Demote first then promote to satisfy the unique OWNER index.
+        // Demote first in both tables then promote to satisfy the unique OWNER index.
+        await tx.userCompany.update({
+          where: {
+            userId_companyId: {
+              userId: ownerId,
+              companyId: owner.companyId,
+            },
+          },
+          data: { role: UserRole.ADMIN },
+        });
+
         await tx.user.update({
           where: { id: ownerId },
           data: { role: UserRole.ADMIN },
         });
+
+        await tx.userCompany.update({
+          where: {
+            userId_companyId: {
+              userId: newOwnerId,
+              companyId: owner.companyId,
+            },
+          },
+          data: { role: UserRole.OWNER },
+        });
+
         await tx.user.update({
           where: { id: newOwnerId },
           data: { role: UserRole.OWNER },
@@ -983,6 +1154,42 @@ export class AuthService {
       redirect: postLoginInfo.redirect,
       onboardingComplete: postLoginInfo.onboardingComplete,
       hasFinancialData: postLoginInfo.hasFinancialData,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PROFILE UPDATE
+  // ─────────────────────────────────────────────────────────────────────────────
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Utilisateur introuvable.');
+
+    const dataToUpdate: any = {};
+    if (dto.firstName !== undefined) dataToUpdate.firstName = dto.firstName;
+    if (dto.lastName !== undefined) dataToUpdate.lastName = dto.lastName;
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: dataToUpdate,
+    });
+
+    const userWithoutSecrets = { ...updatedUser };
+    const secretsToRemove = [
+      'password',
+      'refreshToken',
+      'verifyEmailToken',
+      'resetPasswordToken',
+      'resetPasswordExpires',
+      'inviteToken',
+      'inviteTokenExpires',
+    ];
+    for (const key of secretsToRemove) {
+      delete (userWithoutSecrets as Record<string, unknown>)[key];
+    }
+
+    return {
+      message: 'Profil mis à jour avec succès.',
+      user: userWithoutSecrets,
     };
   }
 }

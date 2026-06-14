@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Sparkles, Check, RefreshCw, X, User } from 'lucide-react';
@@ -9,9 +10,19 @@ import toast from 'react-hot-toast';
 /*  Avatar Gallery — curated Dicebear styles                           */
 /* ------------------------------------------------------------------ */
 
-type CategoryKey = '3D Robots' | 'Avatars' | 'Célébrités' | 'Philosophes' | 'Programmeurs' | 'Animaux' | 'Pixel Art' | 'Fun Emoji';
+import mascotGnu from '../../assets/mascot_gnu.png';
+import mascotTux from '../../assets/mascot_tux.png';
+import mascotFerris from '../../assets/mascot_ferris.png';
+import mascotPython from '../../assets/mascot_python.png';
+import mascotDocker from '../../assets/mascot_docker.png';
+import mascotGithub from '../../assets/mascot_github.png';
+import mascotAndroid from '../../assets/mascot_android.png';
+import mascotPostgres from '../../assets/mascot_postgres.png';
+
+type CategoryKey = 'Mascottes' | '3D Robots' | 'Avatars' | 'Célébrités' | 'Philosophes' | 'Programmeurs' | 'Animaux' | 'Pixel Art' | 'Fun Emoji';
 
 const CATEGORIES: CategoryKey[] = [
+  'Mascottes',
   '3D Robots',
   'Avatars',
   'Célébrités',
@@ -21,6 +32,16 @@ const CATEGORIES: CategoryKey[] = [
 ];
 
 const AVATAR_GALLERY: Record<CategoryKey, string[]> = {
+  'Mascottes': [
+    mascotGnu,
+    mascotTux,
+    mascotFerris,
+    mascotPython,
+    mascotDocker,
+    mascotGithub,
+    mascotAndroid,
+    mascotPostgres,
+  ],
   '3D Robots': [
     'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Aria',
     'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Leo',
@@ -96,9 +117,10 @@ const CUSTOM_STYLES = [
 /* ------------------------------------------------------------------ */
 
 export const AvatarSelector = () => {
+  const { t } = useTranslation();
   const { user, updateAvatar } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<CategoryKey>('3D Robots');
+  const [activeCategory, setActiveCategory] = useState<CategoryKey>('Mascottes');
   const [customSeed, setCustomSeed] = useState(user?.firstName || 'SmartBiz');
   const [customStyle, setCustomStyle] = useState<string>('lorelei');
   const [previewKey, setPreviewKey] = useState(0); // force re-render of custom preview
@@ -122,7 +144,7 @@ export const AvatarSelector = () => {
 
   const handleSelect = (url: string) => {
     updateAvatar(url);
-    toast.success('Avatar mis à jour !');
+    toast.success(t('settings.avatar.successToast', 'Avatar mis à jour !'));
     setIsOpen(false);
   };
 
@@ -164,10 +186,10 @@ export const AvatarSelector = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-text-main leading-tight">
-                      Choisir un Avatar
+                      {t('settings.avatar.title', 'Choisir un Avatar')}
                     </h3>
                     <p className="text-[11px] text-text-muted">
-                      Sélectionnez ou générez votre personnage.
+                      {t('settings.avatar.subtitle', 'Sélectionnez ou générez votre personnage.')}
                     </p>
                   </div>
                 </div>
@@ -195,33 +217,45 @@ export const AvatarSelector = () => {
                       msOverflowStyle: 'none',
                     }}
                   >
-                    {[...CATEGORIES, 'Générateur' as const].map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => {
-                          if (cat === 'Générateur') {
-                            setActiveCategory(null as unknown as CategoryKey);
-                          } else {
-                            setActiveCategory(cat as CategoryKey);
-                          }
-                        }}
-                        className="py-2 px-3.5 text-[11px] font-bold rounded-xl transition-all cursor-pointer shrink-0"
-                        style={{
-                          background:
-                            (cat === 'Générateur' && !CATEGORIES.includes(activeCategory)) ||
-                            activeCategory === cat
-                              ? 'var(--brand)'
-                              : 'transparent',
-                          color:
-                            (cat === 'Générateur' && !CATEGORIES.includes(activeCategory)) ||
-                            activeCategory === cat
-                              ? '#0f172a'
-                              : 'var(--text-secondary)',
-                        }}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                    {[...CATEGORIES, 'Générateur' as const].map((cat) => {
+                      let label = cat;
+                      if (cat === 'Mascottes')    label = t('settings.avatar.categories.mascots', 'Mascottes') as any;
+                      else if (cat === '3D Robots')   label = t('settings.avatar.categories.bots', 'Robots') as any;
+                      else if (cat === 'Avatars')     label = t('settings.avatar.categories.avatars', 'Portraits') as any;
+                      else if (cat === 'Célébrités')  label = t('settings.avatar.categories.celebs', 'Aventuriers') as any;
+                      else if (cat === 'Animaux')     label = t('settings.avatar.categories.animals', 'Animaux') as any;
+                      else if (cat === 'Pixel Art')   label = t('settings.avatar.categories.pixel', 'Pixel') as any;
+                      else if (cat === 'Fun Emoji')   label = t('settings.avatar.categories.emoji', 'Emojis') as any;
+                      else if (cat === 'Générateur')  label = t('settings.avatar.tabGenerator', 'Générateur') as any;
+
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => {
+                            if (cat === 'Générateur') {
+                              setActiveCategory(null as unknown as CategoryKey);
+                            } else {
+                              setActiveCategory(cat as CategoryKey);
+                            }
+                          }}
+                          className="py-2 px-3.5 text-[11px] font-bold rounded-xl transition-all cursor-pointer shrink-0"
+                          style={{
+                            background:
+                              (cat === 'Générateur' && !CATEGORIES.includes(activeCategory)) ||
+                              activeCategory === cat
+                                ? 'var(--brand)'
+                                : 'transparent',
+                            color:
+                              (cat === 'Générateur' && !CATEGORIES.includes(activeCategory)) ||
+                              activeCategory === cat
+                                ? '#0f172a'
+                                : 'var(--text-secondary)',
+                          }}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -332,7 +366,10 @@ export const AvatarSelector = () => {
                               borderColor: customStyle === s.id ? 'var(--brand)' : 'var(--border-color)',
                             }}
                           >
-                            {s.label}
+                            {s.id === 'lorelei' ? t('settings.avatar.styles.portrait', 'Portrait')
+                             : s.id === 'bottts-neutral' ? t('settings.avatar.styles.robot', 'Robot')
+                             : s.id === 'pixel-art' ? t('settings.avatar.styles.pixel', 'Pixel')
+                             : t('settings.avatar.styles.emoji', 'Emoji')}
                           </button>
                         ))}
                       </div>
@@ -360,7 +397,7 @@ export const AvatarSelector = () => {
                             e.currentTarget.style.borderColor = 'var(--border-color)';
                             e.currentTarget.style.boxShadow = 'none';
                           }}
-                          placeholder="Tapez un mot clé..."
+                          placeholder={t('settings.avatar.placeholderSeed', 'Tapez un mot clé...')}
                         />
                         <button
                           type="button"
@@ -378,7 +415,7 @@ export const AvatarSelector = () => {
                             e.currentTarget.style.borderColor = 'var(--border-color)';
                             e.currentTarget.style.color = 'var(--text-secondary)';
                           }}
-                          title="Mot aléatoire"
+                          title={t('settings.avatar.titleRandom', 'Mot aléatoire')}
                         >
                           <RefreshCw className="w-4 h-4" />
                         </button>
@@ -395,7 +432,7 @@ export const AvatarSelector = () => {
                           boxShadow: '0 4px 16px rgba(0,209,255,0.2)',
                         }}
                       >
-                        Utiliser cet avatar
+                        {t('settings.avatar.btnUse', 'Utiliser cet avatar')}
                       </button>
                     </div>
                   )}
@@ -416,7 +453,7 @@ export const AvatarSelector = () => {
           type="button"
           onClick={() => setIsOpen(true)}
           className="relative cursor-pointer group focus:outline-none"
-          title="Modifier l'avatar"
+          title={t('settings.avatar.btnEdit', 'Modifier l\'avatar')}
         >
           {/* Glow */}
           <div
@@ -431,7 +468,11 @@ export const AvatarSelector = () => {
             {user?.avatarUrl ? (
               <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-10 h-10 text-brand" />
+              <div className="w-full h-full bg-gradient-to-br from-brand via-brand/80 to-secondary flex items-center justify-center">
+                <span className="text-2xl font-extrabold text-white">
+                  {user?.firstName?.charAt(0) || 'U'}{user?.lastName?.charAt(0) || ''}
+                </span>
+              </div>
             )}
           </div>
           {/* Edit badge */}
@@ -452,7 +493,7 @@ export const AvatarSelector = () => {
           onClick={() => setIsOpen(true)}
           className="text-[11px] text-brand hover:text-secondary font-bold cursor-pointer transition-colors"
         >
-          Modifier l'avatar
+          {t('settings.avatar.btnEdit', 'Modifier l\'avatar')}
         </button>
       </div>
 

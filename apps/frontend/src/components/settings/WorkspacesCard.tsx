@@ -63,10 +63,10 @@ export const WorkspacesCard = () => {
                 <div>
                   <h4 className="text-lg font-bold text-text-main">{activeCompany.companyName}</h4>
                   <p className="text-xs text-text-muted mt-0.5">
-                    Matricule Fiscal : <span className="font-mono text-text-main font-semibold">{activeCompany.registrationNumber}</span>
+                    {t('settings.workspaces.fiscalId', 'Matricule Fiscal : ')}<span className="font-mono text-text-main font-semibold">{activeCompany.registrationNumber}</span>
                   </p>
                   <p className="text-xs text-text-muted mt-1">
-                    Secteur d’activité : <span className="text-brand font-semibold capitalize">{activeCompany.sector || '—'}</span> • Pays : <span className="text-text-main font-semibold">{activeCompany.country || '—'}</span>
+                    {t('settings.workspaces.sector', 'Secteur d’activité : ')}<span className="text-brand font-semibold capitalize">{activeCompany.sector || '—'}</span>{t('settings.workspaces.country', ' • Pays : ')}<span className="text-text-main font-semibold">{activeCompany.country || '—'}</span>
                   </p>
                 </div>
               </div>
@@ -74,10 +74,10 @@ export const WorkspacesCard = () => {
               <div className="flex flex-col items-end gap-2 shrink-0">
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/15 text-brand border border-brand/25 text-xs font-bold shadow-inner">
                   <CheckCircle className="w-3.5 h-3.5" />
-                  <span>Session Active</span>
+                  <span>{t('settings.workspaces.activeSession', 'Session Active')}</span>
                 </span>
                 <span className="text-[10px] font-bold text-text-muted tracking-wide">
-                  Rôle : {activeCompany.role}
+                  {t('settings.workspaces.role', 'Rôle : ')}{activeCompany.role === 'OWNER' ? t('topbar.roleOwner', 'Super Administrateur') : activeCompany.role === 'ADMIN' ? t('topbar.roleAdmin', 'Administrateur') : t('topbar.roleUser', 'Utilisateur')}
                 </span>
               </div>
             </div>
@@ -115,10 +115,10 @@ export const WorkspacesCard = () => {
                         {c.companyName}
                       </h4>
                       <p className="text-[11px] text-text-muted">
-                        Matricule : {c.registrationNumber}
+                        {t('settings.workspaces.regNum', 'Matricule : ')}{c.registrationNumber}
                       </p>
                       <p className="text-[10px] text-brand/80 font-bold mt-1 uppercase tracking-wide">
-                        {c.role}
+                        {c.role === 'OWNER' ? t('topbar.roleOwner', 'Super Administrateur') : c.role === 'ADMIN' ? t('topbar.roleAdmin', 'Administrateur') : t('topbar.roleUser', 'Utilisateur')}
                       </p>
                     </div>
                   </div>
@@ -128,7 +128,7 @@ export const WorkspacesCard = () => {
                       setIsSwitcherOpen(true);
                     }}
                     className="p-2 rounded-lg bg-surface hover:bg-brand/15 hover:text-brand border border-border/60 hover:border-brand/40 text-text-muted transition-all"
-                    title="Basculer vers cette entreprise"
+                    title={t('settings.workspaces.switchTooltip', 'Basculer vers cette entreprise')}
                   >
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -156,7 +156,7 @@ export const WorkspacesCard = () => {
               {t('settings.workspaces.createHeading', 'Créer une nouvelle entreprise ?')}
             </h4>
             <p className="text-xs text-text-muted leading-relaxed">
-              Pour ajouter une nouvelle entreprise sous votre compte, il vous suffit de vous rendre sur la page d'inscription et de **créer un compte en utilisant votre même adresse e-mail** mais avec le nom de la nouvelle entreprise. Elle sera instantanément liée à votre profil et apparaîtra ici.
+              {t('settings.workspaces.createInstruction', "Pour ajouter une nouvelle entreprise sous votre compte, il vous suffit de vous rendre sur la page d'inscription et de **créer un compte en utilisant votre même adresse e-mail** mais avec le nom de la nouvelle entreprise. Elle sera instantanément liée à votre profil et apparaîtra ici.")}
             </p>
           </div>
         </div>

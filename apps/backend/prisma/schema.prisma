@@ -31,6 +31,8 @@ model Company {
   predictions        Prediction[]
   valuations         SavedValuation[]
   reports            Report[]
+  superAdminId       String?
+  superAdmin         SuperAdmin?      @relation("SuperAdminCompanies", fields: [superAdminId], references: [id])
   createdAt          DateTime         @default(now())
   deletedAt          DateTime?
 }
@@ -47,14 +49,16 @@ model User {
   company      Company   @relation(fields: [companyId], references: [id])
   memberships  UserCompany[] // Multi-company memberships
   reports      Report[]
-  createdAt    DateTime  @default(now())
-  deletedAt    DateTime?
+  createdAt            DateTime        @default(now())
+  deletedAt            DateTime?
+  superAdmin           SuperAdmin?
+  preference           UserPreference?
 
-  isEmailVerified      Boolean   @default(false)
-  verifyEmailToken     String?   @unique
-  resetPasswordToken   String?   @unique
+  isEmailVerified      Boolean         @default(false)
+  verifyEmailToken     String?         @unique
+  resetPasswordToken   String?         @unique
   resetPasswordExpires DateTime?
-  inviteToken          String?   @unique
+  inviteToken          String?         @unique
   inviteTokenExpires   DateTime?
 }
 
@@ -221,4 +225,25 @@ enum InvitationRequestStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+model SuperAdmin {
+  id         String    @id @default(uuid())
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotedAt DateTime  @default(now())
+  promotedBy String    @default("System")
+  
+  // 1 SuperAdmin gère 1..* Company
+  companies  Company[] @relation("SuperAdminCompanies")
+}
+
+model UserPreference {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme     String   @default("light")
+  language  String   @default("fr")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

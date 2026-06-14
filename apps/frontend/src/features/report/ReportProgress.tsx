@@ -118,14 +118,13 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
           }}
         />
 
-        <div className={`flex items-start gap-5 mb-8 relative z-10 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 border transition-all duration-500 ${
-            isCompleted 
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-scale-in' 
-              : isFailed 
-              ? 'bg-rose-500/10 border-rose-500/20 text-rose-500 shadow-[0_0_20px_rgba(239,68,68,0.15)] animate-scale-in' 
-              : 'bg-brand/10 border-brand/20 text-brand shadow-[0_0_20px_rgba(0,209,255,0.15)] animate-pulse'
-          }`}>
+        <div className="flex items-start gap-5 mb-8 relative z-10">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 border transition-all duration-500 ${isCompleted
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-scale-in'
+              : isFailed
+                ? 'bg-rose-500/10 border-rose-500/20 text-rose-500 shadow-[0_0_20px_rgba(239,68,68,0.15)] animate-scale-in'
+                : 'bg-brand/10 border-brand/20 text-brand shadow-[0_0_20px_rgba(0,209,255,0.15)] animate-pulse'
+            }`}>
             {isCompleted ? (
               <CheckCircle2 className="w-7 h-7" />
             ) : isFailed ? (
@@ -169,7 +168,7 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
               <span className="font-bold text-brand text-sm">{pct}%</span>
             </div>
             <div className="h-3.5 w-full rounded-full bg-border/40 overflow-hidden relative">
-              <div 
+              <div
                 className="h-full rounded-full transition-all duration-500 ease-out relative overflow-hidden"
                 style={{
                   width: `${pct}%`,
@@ -187,12 +186,12 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
         {/* Progress Steps Timeline */}
         <div className="bg-elevated/25 border border-border/40 rounded-3xl p-6 md:p-8 space-y-6 relative z-10 backdrop-blur-sm">
           {/* Vertical Timeline Connector Line */}
-          <div 
+          <div
             className="absolute top-12 bottom-12 w-0.5 rounded-full bg-border/40 pointer-events-none"
             style={{ [isRTL ? 'right' : 'left']: '39px' }}
           >
             {/* Completed vertical line indicator */}
-            <div 
+            <div
               className="w-full bg-gradient-to-b from-brand to-secondary rounded-full transition-all duration-700 ease-out"
               style={{
                 height: `${Math.min(
@@ -207,7 +206,7 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
           {PROGRESS_STEPS.map((step, index) => {
             const isDone = index < currentStep;
             const isCurrent = index === currentStep && !isFailed && !isCompleted;
-            
+
             return (
               <div 
                 key={index} 
@@ -215,34 +214,33 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
                   isCurrent 
                     ? 'scale-[1.01] translate-x-1.5' 
                     : ''
-                } ${isRTL ? 'flex-row-reverse' : ''}`}
+                }`}
               >
                 {/* Circular Number / Bullet */}
-                <div 
-                  className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black font-mono transition-all duration-300 relative z-10 ${
-                    isCurrent ? 'ring-4 ring-brand/20' : ''
-                  }`}
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black font-mono transition-all duration-300 relative z-10 ${isCurrent ? 'ring-4 ring-brand/20' : ''
+                    }`}
                   style={{
                     background: isDone
                       ? 'rgba(16, 185, 129, 0.15)'
                       : isCurrent
-                      ? 'var(--brand)'
-                      : 'var(--bg-elevated)',
+                        ? 'var(--brand)'
+                        : 'var(--bg-elevated)',
                     border: isDone
                       ? '1px solid rgba(16, 185, 129, 0.4)'
                       : isCurrent
-                      ? '1px solid var(--brand)'
-                      : '1px solid var(--border-color)',
-                    boxShadow: isDone 
-                      ? '0 0 10px rgba(16, 185, 129, 0.1)' 
-                      : isCurrent 
-                      ? '0 0 16px rgba(0, 209, 255, 0.4)' 
-                      : 'none',
-                    color: isDone 
-                      ? 'rgba(52, 211, 153, 1)' 
-                      : isCurrent 
-                      ? '#ffffff' 
-                      : 'var(--text-secondary)',
+                        ? '1px solid var(--brand)'
+                        : '1px solid var(--border-color)',
+                    boxShadow: isDone
+                      ? '0 0 10px rgba(16, 185, 129, 0.1)'
+                      : isCurrent
+                        ? '0 0 16px rgba(0, 209, 255, 0.4)'
+                        : 'none',
+                    color: isDone
+                      ? 'rgba(52, 211, 153, 1)'
+                      : isCurrent
+                        ? '#ffffff'
+                        : 'var(--text-secondary)',
                   }}
                 >
                   {isDone ? (
@@ -255,22 +253,20 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
                 </div>
 
                 {/* Timeline step details */}
-                <div 
-                  className={`flex-1 p-3.5 rounded-2xl border transition-all duration-300 ${
-                    isCurrent 
-                      ? 'bg-brand/5 border-brand/25 shadow-md shadow-brand/5' 
+                <div
+                  className={`flex-1 p-3.5 rounded-2xl border transition-all duration-300 ${isCurrent
+                      ? 'bg-brand/5 border-brand/25 shadow-md shadow-brand/5'
                       : isDone
-                      ? 'bg-elevated/10 border-border/30 opacity-80'
-                      : 'bg-transparent border-transparent opacity-40'
-                  }`}
+                        ? 'bg-elevated/10 border-border/30 opacity-80'
+                        : 'bg-transparent border-transparent opacity-40'
+                    }`}
                 >
-                  <span className={`text-sm tracking-wide transition-colors duration-300 ${
-                    isDone 
-                      ? 'text-text-main/80 font-semibold line-through decoration-text-muted/30' 
-                      : isCurrent 
-                      ? 'text-brand font-extrabold animate-pulse' 
-                      : 'text-text-muted font-medium'
-                  }`}>
+                  <span className={`text-sm tracking-wide transition-colors duration-300 ${isDone
+                      ? 'text-text-main/80 font-semibold line-through decoration-text-muted/30'
+                      : isCurrent
+                        ? 'text-brand font-extrabold animate-pulse'
+                        : 'text-text-muted font-medium'
+                    }`}>
                     {step}
                   </span>
                 </div>
@@ -281,12 +277,12 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
       </div>
 
       {/* Action Buttons */}
-      <div className={`flex flex-wrap gap-4 items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <div className="flex flex-wrap gap-4 items-center">
         {onBack && (
           <Button 
             onClick={onBack} 
             variant="outline" 
-            className={`flex items-center gap-2.5 px-6 border-border text-text-muted hover:text-text-main hover:bg-elevated transition-all duration-300 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}
+            className="flex items-center gap-2.5 px-6 border-border text-text-muted hover:text-text-main hover:bg-elevated transition-all duration-300 rounded-xl"
           >
             <ArrowLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             {t('report.newReport', 'New Report')}
@@ -294,10 +290,10 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
         )}
         {isCompleted && (
           <>
-            <Button 
-              onClick={() => setShowPreview((v) => !v)} 
-              variant="outline" 
-              className={`flex items-center gap-2.5 px-6 border-border text-text-muted hover:text-text-main hover:bg-elevated transition-all duration-300 rounded-xl ${isRTL ? 'flex-row-reverse' : ''}`}
+            <Button
+              onClick={() => setShowPreview((v) => !v)}
+              variant="outline"
+              className="flex items-center gap-2.5 px-6 border-border text-text-muted hover:text-text-main hover:bg-elevated transition-all duration-300 rounded-xl"
             >
               {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               {showPreview ? t('report.hidePreview', 'Hide preview') : t('report.showPreview', 'PDF Preview')}
@@ -305,7 +301,7 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
             <Button 
               onClick={handleDownload} 
               disabled={downloading} 
-              className={`flex items-center gap-2.5 px-8 rounded-xl ${isRTL ? 'flex-row-reverse ms-0 me-auto' : 'ml-auto'} bg-gradient-to-r from-brand to-secondary hover:brightness-110 text-background font-bold shadow-[0_4px_20px_rgba(0,209,255,0.25)] dark:shadow-[0_4px_20px_rgba(0,209,255,0.1)] transition-all duration-300 disabled:opacity-50`}
+              className="flex items-center gap-2.5 px-8 rounded-xl ltr:ml-auto rtl:mr-auto bg-gradient-to-r from-brand to-secondary hover:brightness-110 text-background font-bold shadow-[0_4px_20px_rgba(0,209,255,0.25)] dark:shadow-[0_4px_20px_rgba(0,209,255,0.1)] transition-all duration-300 disabled:opacity-50"
             >
               {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               {downloading ? t('report.downloading', 'Downloading...') : t('report.downloadPdf', 'Download PDF')}
@@ -314,8 +310,8 @@ export const ReportProgress = ({ reportId, onBack }: ReportProgressProps) => {
         )}
       </div>
 
-      {isCompleted && showPreview && (
-        <ReportPdfViewer reportId={reportId} onClose={() => setShowPreview(false)} className="min-h-[700px]" />
+      {isCompleted && showPreview && report && (
+        <ReportPdfViewer report={report} onClose={() => setShowPreview(false)} className="min-h-[700px]" />
       )}
     </div>
   );

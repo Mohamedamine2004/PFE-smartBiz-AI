@@ -126,7 +126,7 @@ export class ReportPdfService {
     const contentW = pageW - 112; // margins
 
     const addPage = () => {
-      doc.addPage();
+      doc.addPage({ margins: { top: 60, bottom: 60, left: 56, right: 56 } });
       pageCount += 1;
       // Draw subtle header stripe on every content page
       this.drawPageHeader(doc, pageW);
@@ -141,7 +141,12 @@ export class ReportPdfService {
     // ═══════════════════════════════════════════════════════════════
     // PAGE 1: COVER PAGE - Professional dark design
     // ═══════════════════════════════════════════════════════════════
+    // Disable margins so full-bleed cover elements never trigger an auto-page-break
+    doc.page.margins = { top: 0, bottom: 0, left: 0, right: 0 };
     this.drawCoverPage(doc, input, localized, pageW, pageH);
+    // CRITICAL FIX: force doc.y to a safe position so PDFKit does NOT
+    // silently insert an empty page before our explicit addPage() call.
+    doc.y = 10;
 
     // ═══════════════════════════════════════════════════════════════
     // PAGE 2: TABLE OF CONTENTS
@@ -626,7 +631,7 @@ export class ReportPdfService {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // SECTION PAGE HEADER
+  // SECTION PAGE HEADER — Premium Colorful Design
   // ═══════════════════════════════════════════════════════════════
   private drawSectionPage(
     doc: PDFKit.PDFDocument,
@@ -635,52 +640,80 @@ export class ReportPdfService {
     contentW: number,
   ) {
     const startY = doc.y;
+    const pageW = doc.page.width;
+    const bandH = 52;
 
-    // Subtle micro-category text above section
+    // ── Gradient title band (full width) ──────────────────────────
+    try {
+      const grad = doc.linearGradient(56, startY, 56 + contentW, startY);
+      grad.stop(0, (doc as any).theme.primary || '#1E3A5F');
+      grad.stop(0.6, (doc as any).theme.accent || '#2563EB');
+      grad.stop(1, (doc as any).theme.accentLight || '#3B82F6');
+      doc.roundedRect(56, startY, contentW, bandH, 6).fill(grad);
+    } catch {
+      // Fallback: solid primary color band
+      doc.roundedRect(56, startY, contentW, bandH, 6)
+         .fill((doc as any).theme.primary || '#1E3A5F');
+    }
+
+    // ── Bright left accent stripe on top of band ──────────────────
+    doc.roundedRect(56, startY, 5, bandH, 3)
+       .fill((doc as any).theme.accentLight || '#3B82F6');
+
+    // ── Micro category label (top-left, white on band) ────────────
     doc
       .font(FONTS.heading)
-      .fontSize(7)
-      .fillColor((doc as any).theme.accent)
-      .text('SMARTBIZ STRATEGIC INTELLIGENCE', 56, startY - 14, { characterSpacing: 1 });
+      .fontSize(6.5)
+      .fillColor('rgba(255,255,255,0.65)')
+      .text('SMARTBIZ AI  •  STRATEGIC INTELLIGENCE', 68, startY + 7, {
+        characterSpacing: 0.8,
+        width: contentW - 80,
+      });
 
-    // Double Left Accent Stripes
-    doc.rect(56, startY, 4, 30).fill((doc as any).theme.primary);
-    doc.rect(64, startY + 4, 1.5, 22).fill((doc as any).theme.accent);
-
-    // Title
+    // ── Main Section Title (white, bold, large) ───────────────────
     doc
       .font(FONTS.heading)
       .fontSize(20)
-      .fillColor((doc as any).theme.primary)
-      .text(title, 74, startY + 2, { width: contentW - 24 });
+      .fillColor('#FFFFFF')
+      .text(title, 68, startY + 20, { width: contentW - 80 });
 
+    doc.y = startY + bandH + 6;
+
+    // ── Subtitle below the band ───────────────────────────────────
     if (subtitle) {
-      doc.moveDown(0.2);
       doc
         .font(FONTS.body)
-        .fontSize(9.5)
-        .fillColor((doc as any).theme.textMuted)
-        .text(subtitle, 74);
+        .fontSize(9)
+        .fillColor((doc as any).theme.textMuted || '#64748B')
+        .text(subtitle, 56, doc.y, { width: contentW });
+      doc.moveDown(0.4);
     }
 
-    // Separator line
-    doc.moveDown(0.6);
-    const lineY = doc.y;
+    // ── Three-segment separator line ──────────────────────────────
+    const lineY = doc.y + 4;
+    // Full light line
     doc
       .moveTo(56, lineY)
       .lineTo(56 + contentW, lineY)
-      .strokeColor((doc as any).theme.borderLight)
-      .lineWidth(1)
+      .strokeColor((doc as any).theme.borderLight || '#E2E8F0')
+      .lineWidth(0.8)
       .stroke();
-    // Accent portion of line
+    // Accent segment (left third)
     doc
       .moveTo(56, lineY)
-      .lineTo(56 + 80, lineY)
-      .strokeColor((doc as any).theme.accent)
-      .lineWidth(2)
+      .lineTo(56 + contentW * 0.33, lineY)
+      .strokeColor((doc as any).theme.accent || '#2563EB')
+      .lineWidth(2.5)
+      .stroke();
+    // Lighter segment (middle third)
+    doc
+      .moveTo(56 + contentW * 0.33, lineY)
+      .lineTo(56 + contentW * 0.55, lineY)
+      .strokeColor((doc as any).theme.accentLight || '#3B82F6')
+      .lineWidth(1.5)
       .stroke();
 
-    doc.moveDown(1);
+    doc.y = lineY + 14;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -707,7 +740,7 @@ export class ReportPdfService {
 
       // Check for page overflow
       if (doc.y > doc.page.height - 90) {
-        doc.addPage();
+        doc.addPage({ margins: { top: 60, bottom: 60, left: 56, right: 56 } });
         this.drawPageHeader(doc, doc.page.width);
       }
 
@@ -720,6 +753,11 @@ export class ReportPdfService {
 
       // ## Heading 2
       if (trimmed.startsWith('## ')) {
+        // Prevent orphan headings at the bottom of the page
+        if (doc.y > doc.page.height - 130) {
+          doc.addPage({ margins: { top: 60, bottom: 60, left: 56, right: 56 } });
+          this.drawPageHeader(doc, doc.page.width);
+        }
         doc.moveDown(0.6);
         const headingText = trimmed.replace(/^##\s+/, '');
         // Draw elegant rounded heading background
@@ -740,6 +778,11 @@ export class ReportPdfService {
 
       // ### Heading 3
       if (trimmed.startsWith('### ')) {
+        // Prevent orphan headings at the bottom of the page
+        if (doc.y > doc.page.height - 110) {
+          doc.addPage({ margins: { top: 60, bottom: 60, left: 56, right: 56 } });
+          this.drawPageHeader(doc, doc.page.width);
+        }
         doc.moveDown(0.4);
         const headingText = trimmed.replace(/^###\s+/, '');
         doc
@@ -753,6 +796,11 @@ export class ReportPdfService {
 
       // #### Heading 4
       if (trimmed.startsWith('#### ')) {
+        // Prevent orphan headings at the bottom of the page
+        if (doc.y > doc.page.height - 100) {
+          doc.addPage({ margins: { top: 60, bottom: 60, left: 56, right: 56 } });
+          this.drawPageHeader(doc, doc.page.width);
+        }
         doc.moveDown(0.3);
         const headingText = trimmed.replace(/^####\s+/, '');
         doc
@@ -964,6 +1012,13 @@ export class ReportPdfService {
     } else {
       // Alternating body rows
       doc.rect(x, y, contentW, rowH).fill((doc as any).theme.sectionBg);
+      // Modern subtle border bottom for rows
+      doc
+        .moveTo(x, y + rowH)
+        .lineTo(x + contentW, y + rowH)
+        .strokeColor((doc as any).theme.borderLight || '#E2E8F0')
+        .lineWidth(0.5)
+        .stroke();
       doc
         .font(FONTS.body)
         .fontSize(8.5)
@@ -1267,6 +1322,14 @@ export class ReportPdfService {
           : (doc as any).theme.sectionBg;
       doc.rect(x, y, contentW, rowH).fill(bg);
 
+      // Modern subtle border bottom for rows
+      doc
+        .moveTo(x, y + rowH)
+        .lineTo(x + contentW, y + rowH)
+        .strokeColor((doc as any).theme.borderLight || '#E2E8F0')
+        .lineWidth(0.5)
+        .stroke();
+
       // Metric name
       doc
         .fillColor((doc as any).theme.textPrimary)
@@ -1318,9 +1381,29 @@ export class ReportPdfService {
   // PAGE DECORATIONS
   // ═══════════════════════════════════════════════════════════════
   private drawPageHeader(doc: PDFKit.PDFDocument, pageW: number) {
-    // Thin accent line at top
-    doc.rect(0, 0, pageW, 3).fill((doc as any).theme.accent);
-    // Reset position below header bar area
+    doc.save();
+    
+    // Top accent thin bar
+    doc.rect(0, 0, pageW, 4).fill((doc as any).theme.accent);
+    
+    // Thin header border line
+    doc
+      .moveTo(56, 40)
+      .lineTo(pageW - 56, 40)
+      .strokeColor((doc as any).theme.borderLight || '#E2E8F0')
+      .lineWidth(0.5)
+      .stroke();
+      
+    // Subtle top header text
+    doc
+      .font(FONTS.heading)
+      .fontSize(7)
+      .fillColor((doc as any).theme.textLight || '#94A3B8')
+      .text('SMARTBIZ AI  •  STRATEGIC REPORT', 56, 28, { characterSpacing: 1 });
+      
+    doc.restore();
+    
+    // Reset doc.y below the header area
     doc.y = 60;
   }
 

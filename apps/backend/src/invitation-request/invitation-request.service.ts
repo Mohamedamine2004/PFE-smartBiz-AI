@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import { CreateInvitationRequestDto } from './dto/create-invitation-request.dto';
 import { UpdateInvitationRequestStatusDto } from './dto/update-invitation-request.dto';
-import { InvitationRequestStatus, UserRole } from '@prisma/client';
+import { InvitationRequestStatus, UserRole, InvitationRequest } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 import { AuthService } from '../auth/auth.service';
 
@@ -134,6 +134,40 @@ export class InvitationRequestService {
     }
 
     return updated;
+  }
+
+  async cleanupOrphaned() {
+    const companies = await this.prisma.company.findMany({
+      select: { name: true }
+    });
+    const companyNames = new Set(companies.map(c => c.name.toLowerCase().trim()));
+
+    const invitations = await this.prisma.invitationRequest.findMany({});
+    
+    const toDelete: InvitationRequest[] = [];
+    for (const invite of invitations) {
+      const inviteCompany = invite.companyName ? invite.companyName.toLowerCase().trim() : '';
+      if (!inviteCompany || !companyNames.has(inviteCompany)) {
+        toDelete.push(invite);
+      }
+    }
+
+    if (toDelete.length === 0) {
+      return { message: 'No orphaned invitation requests found.', count: 0 };
+    }
+
+    const ids = toDelete.map(i => i.id);
+    const result = await this.prisma.invitationRequest.deleteMany({
+      where: {
+        id: { in: ids }
+      }
+    });
+
+    return {
+      message: `Successfully cleaned up ${result.count} orphaned invitation request(s).`,
+      deletedCount: result.count,
+      deleted: toDelete.map(i => ({ id: i.id, email: i.email, companyName: i.companyName }))
+    };
   }
 
   private mapRequestedRoleToUserRole(role?: string | null): UserRole {

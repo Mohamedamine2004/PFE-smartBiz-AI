@@ -29,7 +29,35 @@
     },
     "success": "Données importées avec succès ! Redirection vers le tableau de bord...",
     "uploading": "Traitement des données...",
-    "submitBtn": "Lancer l'importation"
+    "submitBtn": "Lancer l'importation",
+    "zoneTitle": "Zone d'Analyse Financière",
+    "sheetLabel": "Feuille",
+    "restart": "Recommencer",
+    "dragDropPrompt": "Glissez-déposez votre fichier Excel ici",
+    "readyForAnalysis": "Prêt à l'analyse",
+    "orPrompt": "ou",
+    "browseLink": "parcourez vos fichiers",
+    "locallyPrompt": "localement",
+    "browsePrompt": "ou parcourez vos fichiers localement",
+    "structureTitle": "Aperçu de la structure requise",
+    "structureSubtitle": "Cliquez sur les feuilles pour visualiser les colonnes et exemples requis.",
+    "sheetTitle": {
+      "annual": "Évaluation Annuelle",
+      "monthly": "Flux de Trésorerie Mensuel",
+      "kpis": "KPIs Stratégiques"
+    },
+    "sheetAnnualDesc": "Données macro-financières annuelles requises pour l'estimation du modèle de valorisation IA (N, N-1, N-2).",
+    "sheetMonthlyDesc": "Suivi mensuel de la trésorerie et des métriques de cashflow sur les 12 derniers mois (TTM).",
+    "sheetKpisDesc": "Indicateurs de performance clés stratégiques pour l'analyse prédictive IA.",
+    "templateTitle": "Template Modèle IA",
+    "templateDesc": "Commencez en téléchargeant notre fichier Excel officiel. Sa structure stricte permet à l'algorithme d'IA de calculer vos scores instantanément.",
+    "instructionsTitle": "Consignes Tactiques",
+    "integrityTitle": "Intégrité des En-têtes",
+    "integrityDesc": "Ne renommez **JAMAIS** les onglets Excel ou les en-têtes de colonnes. Les algorithmes d'IA recherchent ces mots-clés spécifiques.",
+    "formatTitle": "Formatage Temporel",
+    "formatDesc": "Renseignez les dates au format standardisé international `AAAA-MM-JJ` (ex: `2025-01-31`).",
+    "currencyTitle": "Dinar Tunisien (DT)",
+    "currencyDesc": "Saisissez les montants sous forme brute (sans lettres ni symboles `DT`). La devise est configurée automatiquement en Dinar Tunisien (DT) à l'analyse."
   },
   "topbar": {
     "adminSpace": "Espace Administrateur",
@@ -136,6 +164,12 @@
     }
   },
   "team": {
+    "roleLabels": {
+      "owner": "Propriétaire",
+      "admin": "Administrateur",
+      "collab": "Collaborateur",
+      "reader": "Lecteur"
+    },
     "title": "Équipe & Accès",
     "subtitle": "Pilotez vos collaborateurs, attribuez les rôles stratégiques et sécurisez votre espace de travail.",
     "inviteMember": "Inviter un membre",
@@ -178,6 +212,11 @@
     },
     "fetchError": "Échec du chargement des membres de l'équipe",
     "inbox": {
+      "stats": {
+        "total": "Total Demandes",
+        "pending": "En Attente",
+        "processed": "Traitées"
+      },
       "actions": "Actions",
       "companyRole": "Entreprise / Rôle",
       "date": "Date",
@@ -226,6 +265,8 @@
     },
     "company": {
       "heading": "Profil de l'entreprise",
+      "subtitle": "Gérez l'identité et les paramètres de localisation de votre entreprise.",
+      "verified": "Vérifié",
       "name": "Nom de l'entreprise",
       "registrationNumber": "Matricule fiscal",
       "sector": "Secteur d'activité",
@@ -238,6 +279,9 @@
       "save": "Enregistrer le profil",
       "saveSuccess": "Profil de l'entreprise enregistré avec succès.",
       "saveError": "Échec de l'enregistrement du profil.",
+      "deleteError": "Erreur lors de la suppression.",
+      "locked": "Verrouillé",
+      "saving": "Enregistrement...",
       "sectors": {
         "agriculture": "Agriculture",
         "mining": "Mines & Ressources naturelles",
@@ -264,28 +308,108 @@
         "10": "Octobre",
         "11": "Novembre",
         "12": "Décembre"
+      },
+      "dangerZone": {
+        "title": "Zone de Danger",
+        "subtitle": "Cette action est irréversible et supprimera toutes les données de l'entreprise définitivement.",
+        "deleteBtn": "Supprimer l'entreprise",
+        "confirmHeading": "Êtes-vous absolument sûr de vouloir supprimer cette entreprise ?",
+        "confirmYes": "Oui, supprimer définitivement",
+        "confirmNo": "Annuler",
+        "deleting": "Suppression..."
       }
     },
     "account": {
       "heading": "Mon compte",
+      "subtitle": "Gérez vos informations personnelles et vos identifiants de sécurité.",
       "changePassword": "Changer le mot de passe",
       "currentPassword": "Mot de passe actuel",
       "savePassword": "Mettre à jour le mot de passe",
       "passwordChanged": "Mot de passe modifié avec succès.",
-      "passwordError": "Échec du changement de mot de passe."
+      "passwordError": "Échec du changement de mot de passe.",
+      "profileSuccess": "Profil mis à jour avec succès.",
+      "profileError": "Erreur lors de la mise à jour.",
+      "saving": "Enregistrement...",
+      "saveProfile": "Sauvegarder le profil",
+      "strength": {
+        "weak": "Faible",
+        "medium": "Moyen",
+        "strong": "Fort",
+        "secure": "Incassable"
+      }
     },
     "team": {
       "heading": "Équipe",
       "description": "Gérez les membres de l'équipe depuis la page dédiée.",
       "goToTeam": "Aller à Équipe"
     },
+    "workspaces": {
+      "heading": "Mes Entreprises & Workspaces",
+      "subheading": "Gérez et basculez d’un espace de travail à un autre en toute sécurité.",
+      "switchBtn": "Basculer d’entreprise",
+      "activeTitle": "Workspace Actuel",
+      "fiscalId": "Matricule Fiscal : ",
+      "sector": "Secteur d’activité : ",
+      "country": " • Pays : ",
+      "activeSession": "Session Active",
+      "role": "Rôle : ",
+      "otherTitle": "Autres Entreprises",
+      "noOther": "Aucune autre entreprise n’est associée à votre compte.",
+      "regNum": "Matricule : ",
+      "switchTooltip": "Basculer vers cette entreprise",
+      "createHeading": "Créer une nouvelle entreprise ?",
+      "createInstruction": "Pour ajouter une nouvelle entreprise sous votre compte, il vous suffit de vous rendre sur la page d'inscription et de **créer un compte en utilisant votre même adresse e-mail** mais avec le nom de la nouvelle entreprise. Elle sera instantanément liée à votre profil et apparaîtra ici."
+    },
     "preferences": {
       "heading": "Préférences",
+      "subtitle": "Personnalisez votre expérience d'interface et vos paramètres régionaux.",
       "language": "Langue",
       "theme": "Thème",
       "lightTheme": "Clair",
       "darkTheme": "Sombre",
-      "systemTheme": "Système"
+      "systemTheme": "Système",
+      "langSubLabel": {
+        "fr": "Mode latin LTR",
+        "en": "Mode latin LTR",
+        "ar": "Mode RTL arabe"
+      }
+    },
+    "switcher": {
+      "title": "Changer d'entreprise",
+      "alreadyActive": "Cette entreprise est déjà active.",
+      "success": "Basculement d’entreprise réussi !",
+      "error": "Une erreur est survenue lors du basculement.",
+      "activeCompany": "Entreprise Active",
+      "otherCompanies": "Vos autres Espaces de Travail",
+      "noOther": "Aucune autre entreprise associée à votre compte.",
+      "verifyPassword": "Sécurité requise",
+      "verifyDesc": "Veuillez entrer le mot de passe associé à l'entreprise",
+      "switching": "Action...",
+      "confirm": "Valider"
+    },
+    "avatar": {
+      "title": "Choisir un Avatar",
+      "subtitle": "Sélectionnez ou générez votre personnage.",
+      "tabGenerator": "Générateur",
+      "successToast": "Avatar mis à jour !",
+      "placeholderSeed": "Tapez un mot clé...",
+      "titleRandom": "Mot aléatoire",
+      "btnUse": "Utiliser cet avatar",
+      "btnEdit": "Modifier l'avatar",
+      "categories": {
+        "bots": "3D Robots",
+        "avatars": "Avatars",
+        "celebs": "Célébrités",
+        "animals": "Animaux",
+        "pixel": "Pixel Art",
+        "emoji": "Fun Emoji"
+      },
+      "styles": {
+        "portrait": "Portrait",
+        "robot": "Robot",
+        "pixel": "Pixel",
+        "emoji": "Emoji"
+      }
     }
   },
   "dashboard": {
@@ -343,6 +467,15 @@
       "ratioLow": "À optimiser"
     },
     "charts": {
+      "unitEconomicsTitle": "Analyse Économique Unitaire (LTV:CAC)",
+      "unitEconomicsSubtitle": "Rentabilité client comparant le coût d'acquisition à la valeur générée.",
+      "ltvCacRatio": "Ratio LTV:CAC",
+      "paybackPeriod": "Période de Récupération",
+      "monthsSymbol": "mois",
+      "aiDiagnosis": "Diagnostic IA",
+      "diagnosedLive": "Calculé en temps réel",
+      "unitEconomicsHealthy": "Votre ratio LTV:CAC de {{ratio}}x est excellent (supérieur au standard de 3x). L'acquisition client est hautement rentable et vous pouvez accélérer vos dépenses marketing sereinement.",
+      "unitEconomicsWarning": "Votre ratio LTV:CAC de {{ratio}}x est inférieur au seuil recommandé de 3x. Nous vous conseillons d'optimiser vos canaux d'acquisition comptables ou d'accroître la valeur à vie via des stratégies de ventes croisées.",
       "netCashFlow": "Flux de trésorerie net",
       "zeroCashDate": "Date de trésorerie nulle",
       "safetyZone": "Zone de Sécurité",
@@ -464,7 +597,24 @@
       "scenarios": {
         "pessimistic": "Pessimiste",
         "realistic": "Réaliste",
-        "optimistic": "Optimiste"
+        "optimistic": "Optimiste",
+        "confidenceZone": "Zone de Confiance (Monte Carlo)",
+        "recession": "-20% (Récession)",
+        "neutral": "Neutre",
+        "hypergrowth": "+50% (Hypercroissance)"
+      },
+      "volatility": {
+        "certitude": "2% (Certitude)",
+        "standard": "Standard",
+        "highUncertainty": "30% (Haute Incertitude)"
+      },
+      "years": {
+        "yMinus2": "An -2",
+        "yMinus1": "An -1",
+        "current": "Actuel",
+        "yPlus1": "An 1",
+        "yPlus2": "An 2",
+        "yPlus3": "An 3"
       },
       "manualModeHint": "Aucun résultat ML trouvé. Vous pouvez toujours simuler la valeur de l'entreprise et des capitaux propres en temps réel avec les contrôles ci-dessous.",
       "manualModeTitle": "Mode projection manuelle actif",
@@ -583,6 +733,10 @@
     }
   },
   "valuation": {
+    "sectorMultiples": "Multiples Sectoriels :",
+    "sectorRatios": "Ratios Sectoriels :",
+    "expand": "déplier les calculs",
+    "collapse": "masquer",
     "title": "Modélisation de la Valeur",
     "subtitle": "Estimez la valeur de votre entreprise grâce à nos algorithmes d'évaluation avancés.",
     "selectMethod": "Sélectionnez une méthode d'évaluation",
@@ -649,7 +803,10 @@
       "wacc": "CMPC",
       "growthRate": "Taux de croissance",
       "adjustedEV": "VE ajustée",
-      "adjustedEquity": "Capitaux propres ajustés"
+      "adjustedEquity": "Capitaux propres ajustés",
+      "boundsTitle": "Intervalle de Confiance de l'Évaluation",
+      "minBound": "Valeur Minimale (Min)",
+      "maxBound": "Valeur Maximale (Max)"
     },
     "history": {
       "title": "Historique",
@@ -674,14 +831,39 @@
     "saved": "Enregistré ✓",
     "calcSuccess": "Valorisation calculée avec succès !",
     "empty": {
-      "title": "Prêt à calculer"
+      "title": "Prêt à calculer",
+      "description": "Remplissez les paramètres de valorisation à gauche pour calculer la valeur de votre entreprise à l'aide de méthodes alimentées par l'IA."
     },
+    "importedDataAvailable": "Données d'importation détectées",
+    "importedDataDesc": "Pré-remplir les données financières en un clic",
     "methods": {
       "assetBased": "Basé sur l'actif",
+      "assetBased_desc": "Valorise les capitaux propres comme la valeur comptable nette des actifs moins les passifs.",
+      "assetBased_tag": "Actifs Lourds",
       "evEbitda": "VE / EBITDA",
+      "evEbitda_desc": "Valorise l'entreprise sur la base de son excédent brut d'exploitation avant charges non décaissées.",
+      "evEbitda_tag": "Rentable / LBO",
       "evRevenue": "VE / Chiffre d'affaires",
+      "evRevenue_desc": "Valorise l'entreprise sur la base de ses revenus, utile lorsque les bénéfices sont négatifs.",
+      "evRevenue_tag": "Startups / SaaS",
       "gordonGrowth": "Modèle de Gordon",
-      "peRatio": "Ratio P/E"
+      "gordonGrowth_desc": "Approche d'actualisation des flux de trésorerie pour les entreprises stables à croissance prévisible.",
+      "gordonGrowth_tag": "Mature / Stable",
+      "peRatio": "Ratio P/E",
+      "peRatio_desc": "Valorise les capitaux propres directement sur la base des bénéfices et d'un multiple cours/bénéfice.",
+      "peRatio_tag": "Sociétés Publiques"
+    },
+    "result": {
+      "step1Title": "Étape 1 : Valeur d'Entreprise (Enterprise Value)",
+      "step2Title": "Étape 2 : Valeur des Capitaux Propres (Equity Value)",
+      "directEquity": "Calcul Direct de la Valeur des Capitaux Propres (Equity Value)",
+      "assetBased": "Calcul Basé sur l'Actif Net (Net Asset Value)",
+      "gordonGrowth": "Calcul Basé sur le Modèle de Croissance Gordon (Gordon Growth Model)",
+      "explanation_EV_EBITDA": "La valeur d'entreprise est calculée en multipliant l'EBITDA par le multiple sectoriel. La valeur des capitaux propres est obtenue en soustrayant la dette nette de la valeur d'entreprise.",
+      "explanation_EV_REVENUE": "La valeur d'entreprise est calculée en multipliant le chiffre d'affaires par le multiple sectoriel. La valeur des capitaux propres est obtenue en soustrayant la dette nette de la valeur d'entreprise.",
+      "explanation_PE_RATIO": "La valeur des capitaux propres est calculée directement en multipliant le résultat net par le ratio P/E. Aucune valeur d'entreprise distincte n'est calculée.",
+      "explanation_ASSET_BASED": "La valeur des capitaux propres est égale au total des actifs moins le total des passifs (approche de la valeur comptable).",
+      "explanation_GORDON_GROWTH": "La valeur de marché/capitaux propres est estimée à l'aide du modèle de croissance de Gordon en actualisant le FCF de l'année suivante (FCF × (1 + g)) divisé par (WACC − g)."
     },
     "saveError": "Échec de la sauvegarde de la valorisation.",
     "saveSuccess": "Valorisation sauvegardée avec succès !"
@@ -696,6 +878,8 @@
     "library": {
       "title": "Bibliothèque de rapports",
       "refresh": "Actualiser",
+      "viewModeBento": "Grille Bento",
+      "viewModeTable": "Tableau",
       "empty": {
         "title": "Aucun rapport",
         "description": "Vous n'avez généré aucun rapport."
@@ -777,6 +961,27 @@
     }
   },
   "wizard": {
+    "steps": {
+      "type": "Type",
+      "audience": "Audience",
+      "language": "Langue",
+      "length": "Longueur",
+      "sections": "Sections",
+      "customization": "Branding",
+      "problem": "Problématique",
+      "confirm": "Confirmation"
+    },
+    "preview": {
+      "selected": "sélectionnée(s)",
+      "logoLoaded": "Logo chargé",
+      "defaultBranding": "Par défaut",
+      "title": "Aperçu du rapport",
+      "subtitle": "Mis à jour en temps réel",
+      "config": "Configuration",
+      "step": "Étape",
+      "of": "sur",
+      "complete": "complété"
+    },
     "title": "Générateur de Rapport",
     "subtitle": "Créez un rapport personnalisé adapté à vos besoins commerciaux",
     "sections": {
@@ -868,7 +1073,10 @@
       "tip": "Conseil:",
       "tipText": "Plus votre description du defi commercial est precise, plus votre rapport sera personalise et pertinent.",
       "examples": {
-        "title": "Exemples de prompts"
+        "title": "Exemples de prompts",
+        "churn": "Notre taux de churn est élevé, nous souhaitons identifier les causes racines.",
+        "seriesA": "Nous cherchons à lever une Série A et avons besoin d'une analyse prête pour les investisseurs.",
+        "opCost": "Nos coûts opérationnels ont augmenté de 30% ce trimestre sans croissance du chiffre d'affaires."
       },
       "subtitle": "Ce contexte façonne l'analyse IA. Plus de détails = meilleures analyses. (Optionnel mais recommandé)"
     },
@@ -1059,27 +1267,31 @@
   },
   "landing": {
     "nav": {
-      "features": "Features",
-      "testimonials": "Testimonials",
+      "features": "Fonctionnalités",
+      "testimonials": "Témoignages",
       "faq": "FAQ",
-      "login": "Sign in",
-      "invite": "Request Invite",
-      "changeLanguage": "Change language",
-      "toggleTheme": "Toggle theme"
+      "login": "Se connecter",
+      "invite": "Demander une invitation",
+      "changeLanguage": "Changer de langue",
+      "toggleTheme": "Changer de thème"
     },
     "hero": {
-      "badge": "Digital Command Center for Finance",
-      "title1": "Business valuation",
-      "title2": "next generation.",
-      "subtitle": "Financial AI that models your KPIs, projects your cash flows, and generates investor-ready memos in minutes.",
+      "badge": "Cockpit digital pour la finance",
+      "title1": "Évaluation d'entreprise",
+      "title2": "nouvelle génération.",
+      "title2_1": "nouvelle génération.",
+      "title2_2": "augmentée par l'IA.",
+      "title2_3": "précise & instantanée.",
+      "title2_4": "prête pour les investisseurs.",
+      "subtitle": "L'IA financière qui modélise vos indicateurs (KPI), projette vos flux de trésorerie et génère des mémos d'investissement en quelques minutes.",
       "cta": {
         "primary": "Demander une invitation",
         "secondary": "S'inscrire"
       },
       "social": {
-        "count": "450+ professionals",
-        "text1": "in finance",
-        "text2": "already operate from this cockpit."
+        "count": "Plus de 450 professionnels",
+        "text1": "de la finance",
+        "text2": "pilotent déjà leur activité depuis ce cockpit."
       }
     },
     "stats": {
@@ -1308,6 +1520,42 @@
       "button": "Get access"
     }
   },
+  "invitation": {
+    "title": "Demander une invitation",
+    "form": {
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Jean Dupont",
+      "email": "E-mail professionnel",
+      "emailPlaceholder": "jean@entreprise.com",
+      "company": "Entreprise",
+      "companyPlaceholder": "Votre entreprise...",
+      "role": "Profil / Rôle",
+      "rolePlaceholder": "Sélectionnez un rôle",
+      "message": "Message à l'administrateur",
+      "messagePlaceholder": "Décrivez brièvement vos besoins...",
+      "submitting": "Envoi de la demande...",
+      "submit": "Envoyer la demande"
+    },
+    "toasts": {
+      "error": "Échec de l'envoi de la demande. Veuillez réessayer.",
+      "success": "Votre demande a été soumise avec succès."
+    },
+    "success": {
+      "title": "Demande envoyée",
+      "message": "Nous avons bien reçu votre demande d'invitation. L'équipe l'examinera dans les plus brefs délais.",
+      "close": "Fermer"
+    }
+  },
+  "roles": {
+    "admin": "Administrateur",
+    "collaborator": "Collaborateur",
+    "reader": "Lecteur"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "accept": "Accepter",
+    "reject": "Rejeter"
+  },
   "export": {
     "deprecatedMessage": "L'exportation directe du tableau de bord est temporairement désactivée pour maintenance. Veuillez utiliser l'onglet Rapports pour générer un document PDF professionnel complet via notre moteur IA."
   },
@@ -1318,5 +1566,8 @@
   "shortcuts": {
     "modalTitle": "Raccourcis clavier",
     "toggleHelp": "Appuyez sur {{key}} pour afficher cette aide"
+  },
+  "fields": {
+    "password": "Mot de passe de l'entreprise"
   }
 }

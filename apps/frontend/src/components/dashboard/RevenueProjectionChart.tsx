@@ -44,7 +44,7 @@ export const RevenueProjectionChart = ({ scenarios, valuation, historicalMetrics
           setCurrencySymbol(getCurrencySymbol(res.data.currency, i18n.resolvedLanguage));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [i18n.resolvedLanguage]);
 
   // New Simulation Modifiers (Dynamic & Connected to Real Data)
@@ -73,7 +73,7 @@ export const RevenueProjectionChart = ({ scenarios, valuation, historicalMetrics
   // Apply growthModifier to the scenarios
   const adjustedScenarios = useMemo(() => {
     const currentRevenue = valuation.Current_Revenue || 100000;
-    
+
     return scenarios.map((scenario) => {
       // Add the growth offset directly to the scenario CAGR
       const y1_cagr = scenario.Y1_CAGR + (growthModifier / 100);
@@ -151,7 +151,7 @@ export const RevenueProjectionChart = ({ scenarios, valuation, historicalMetrics
 
   return (
     <div className="chart-container overflow-hidden space-y-6">
-      
+
       <RevenueProjectionControls
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -185,18 +185,32 @@ export const RevenueProjectionChart = ({ scenarios, valuation, historicalMetrics
             <linearGradient id="projOptimistic" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10B981" stopOpacity={0.12} /><stop offset="100%" stopColor="#10B981" stopOpacity={0.01} /></linearGradient>
             <linearGradient id="projPessimistic" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F43F5E" stopOpacity={0.05} /><stop offset="100%" stopColor="#F43F5E" stopOpacity={0.01} /></linearGradient>
             <linearGradient id="projRealistic" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366F1" stopOpacity={0.22} /><stop offset="100%" stopColor="#6366F1" stopOpacity={0.01} /></linearGradient>
-            
+
             <linearGradient id="stackEquity" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F59E0B" stopOpacity={0.3} /><stop offset="100%" stopColor="#F59E0B" stopOpacity={0.1} /></linearGradient>
             <linearGradient id="stackDebt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EF4444" stopOpacity={0.3} /><stop offset="100%" stopColor="#EF4444" stopOpacity={0.1} /></linearGradient>
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" strokeOpacity={0.5} vertical={false} />
-          <XAxis dataKey="year" tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 700 }} axisLine={{ stroke: 'var(--border-color)' }} tickLine={false} />
+          <XAxis
+            dataKey="year"
+            tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 700 }}
+            axisLine={{ stroke: 'var(--border-color)' }}
+            tickLine={false}
+            tickFormatter={(tick) => {
+              if (tick === 'Year -2') return t('dashboard.mlZone.years.yMinus2', 'An -2');
+              if (tick === 'Year -1') return t('dashboard.mlZone.years.yMinus1', 'An -1');
+              if (tick === 'Current') return t('dashboard.mlZone.years.current', 'Actuel');
+              if (tick === 'Year 1') return t('dashboard.mlZone.years.yPlus1', 'An 1');
+              if (tick === 'Year 2') return t('dashboard.mlZone.years.yPlus2', 'An 2');
+              if (tick === 'Year 3') return t('dashboard.mlZone.years.yPlus3', 'An 3');
+              return tick;
+            }}
+          />
           <YAxis domain={yDomain} tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} tickFormatter={(v) => {
-              if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B ${currencySymbol}`;
-              if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M ${currencySymbol}`;
-              if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K ${currencySymbol}`;
-              return `${v} ${currencySymbol}`;
+            if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B ${currencySymbol}`;
+            if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M ${currencySymbol}`;
+            if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K ${currencySymbol}`;
+            return `${v} ${currencySymbol}`;
           }} />
           <Tooltip content={<RevenueProjectionTooltip viewMode={viewMode} currencySymbol={currencySymbol} />} cursor={{ stroke: 'var(--border-color)', strokeWidth: 2, strokeDasharray: '4 4' }} />
           <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 600, paddingTop: '15px' }} iconType="circle" iconSize={8} />
@@ -223,10 +237,10 @@ export const RevenueProjectionChart = ({ scenarios, valuation, historicalMetrics
 
           {/* ────── RENDER VALUATION (STACKED) ────── */}
           {viewMode === 'valuation' && (
-             <>
-               <Area type="monotone" dataKey="equity" name={t('valuation.equityValue')} stackId="1" stroke="#F59E0B" strokeWidth={3} fill="url(#stackEquity)" animationDuration={1000} activeDot={{ r: 6 }} />
-               <Area type="monotone" dataKey="debt" name={t('valuation.fields.netDebt')} stackId="1" stroke="#EF4444" strokeWidth={3} fill="url(#stackDebt)" animationDuration={1200} activeDot={{ r: 6 }} />
-             </>
+            <>
+              <Area type="monotone" dataKey="equity" name={t('valuation.equityValue')} stackId="1" stroke="#F59E0B" strokeWidth={3} fill="url(#stackEquity)" animationDuration={1000} activeDot={{ r: 6 }} />
+              <Area type="monotone" dataKey="debt" name={t('valuation.fields.netDebt')} stackId="1" stroke="#EF4444" strokeWidth={3} fill="url(#stackDebt)" animationDuration={1200} activeDot={{ r: 6 }} />
+            </>
           )}
 
         </AreaChart>

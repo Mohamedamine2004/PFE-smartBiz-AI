@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { AuthInitializer } from './components/AuthInitializer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToasterProvider } from './components/ui/ToasterProvider';
+import { RoleGuard } from './components/RoleGuard';
 
 // Layouts (small — always loaded)
 import { PrivateLayout } from './layouts/PrivateLayout';
@@ -53,10 +54,22 @@ function App() {
               {/* Private Routes */}
               <Route element={<PrivateLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/import" element={<ImportPage />} />
+                <Route path="/import" element={
+                  <RoleGuard allowedRoles={['OWNER', 'ADMIN', 'COLLAB']}>
+                    <ImportPage />
+                  </RoleGuard>
+                } />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/team" element={<Team />} />
-                <Route path="/valuation" element={<Valuation />} />
+                <Route path="/team" element={
+                  <RoleGuard allowedRoles={['OWNER', 'ADMIN']}>
+                    <Team />
+                  </RoleGuard>
+                } />
+                <Route path="/valuation" element={
+                  <RoleGuard allowedRoles={['OWNER', 'ADMIN', 'COLLAB']}>
+                    <Valuation />
+                  </RoleGuard>
+                } />
                 <Route path="/reports" element={<Reports />} />
               </Route>
 

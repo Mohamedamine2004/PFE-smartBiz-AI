@@ -142,9 +142,10 @@ export const PublicLayout = () => {
         }}
       />
       <div
-        className="absolute inset-0 opacity-[0.012] pointer-events-none z-0"
+        className="absolute inset-0 opacity-[0.1] pointer-events-none z-0"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADt2CnHAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RSTlMAoKCgoKCgp6V9pQAAAFRJREFUeNqV0LENwDAMA0FzgcwGsYHMBrODzB2xA6hEivw8B1H0Yv9Qy4sLh/x1d1+O1cTj8o4v6hH/KkdxUo7iJE7iJE7iJE7iJE7iJE7iJE7iJE7iJE7i9ANo9Xf1797kXgAAAABJRU5ErkJggg==")`,
+          backgroundSize: '128px 128px',
         }}
       />
 
@@ -157,13 +158,13 @@ export const PublicLayout = () => {
         {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-600" />}
       </button>
 
-      {/* 6. Center Glassmorphic Card Container */}
+      {/* 6. Center Solid Card Container (Made solid for readability) */}
       <div className={`w-full relative z-10 transition-all duration-500
         ${isRegister ? 'max-w-[530px]' : 'max-w-[450px]'}
-        [&_.card]:!backdrop-blur-3xl [&_.card]:!transition-all [&_.card]:!duration-500
-        [&_.card]:!bg-white/70 [&_.card]:!border [&_.card]:!border-slate-200/80
+        [&_.card]:!transition-all [&_.card]:!duration-500
+        [&_.card]:!bg-white [&_.card]:!border [&_.card]:!border-slate-200/80
         [&_.card]:!shadow-[0_40px_80px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.7)]
-        dark:[&_.card]:!bg-[#0a0f1d]/70 dark:[&_.card]:!border-white/10
+        dark:[&_.card]:!bg-[#0a0f1d] dark:[&_.card]:!border-white/10
         dark:[&_.card]:!shadow-[0_40px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]
         [&_.card]:!rounded-3xl [&_.card]:!p-8 md:[&_.card]:!p-10`}
       >

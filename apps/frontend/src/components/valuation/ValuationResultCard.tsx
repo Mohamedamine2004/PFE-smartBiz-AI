@@ -29,28 +29,28 @@ export const ValuationResultCard = ({ result }: Props) => {
         return (
           <div className="space-y-4 text-xs sm:text-sm">
             <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2">
-              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Étape 1 : Valeur d'Entreprise (Enterprise Value)</p>
+              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.step1Title', "Étape 1 : Valeur d'Entreprise (Enterprise Value)")}</p>
               <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary">
                 <span>EV =</span>
-                <span className={`${colorVal} text-[#00D1FF]`} title="EBITDA">EBITDA ({formatCurrency(inputs.ebitda)})</span>
+                <span className={`${colorVal} text-[#00D1FF]`} title={t('valuation.fields.ebitda', 'EBITDA')}>{t('valuation.fields.ebitda', 'EBITDA')} ({formatCurrency(inputs.ebitda)})</span>
                 <span>×</span>
-                <span className={`${colorVal} text-purple-400`} title="Multiple">Multiple ({inputs.multiple}x)</span>
+                <span className={`${colorVal} text-purple-400`} title={t('valuation.fields.multiple', 'Multiple')}>{t('valuation.fields.multiple', 'Multiple')} ({inputs.multiple}x)</span>
               </div>
               <div className="text-[11px] text-text-muted mt-1">
-                Calcul : <span className="font-mono text-text-secondary">{formatCurrency(inputs.ebitda)} × {inputs.multiple} = {formatCurrency(enterpriseValue ?? 0)}</span>
+                {t('valuation.calculation', 'Calcul :')} <span className="font-mono text-text-secondary">{formatCurrency(inputs.ebitda)} × {inputs.multiple} = {formatCurrency(enterpriseValue ?? 0)}</span>
               </div>
             </div>
             
             <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2">
-              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Étape 2 : Valeur des Capitaux Propres (Equity Value)</p>
+              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.step2Title', "Étape 2 : Valeur des Capitaux Propres (Equity Value)")}</p>
               <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary">
                 <span>Equity =</span>
-                <span className={`${colorVal} text-indigo-400`} title="Valeur d'Entreprise">EV ({formatCurrency(enterpriseValue ?? 0)})</span>
+                <span className={`${colorVal} text-indigo-400`} title={t('valuation.enterpriseValue', "Valeur d'Entreprise")}>EV ({formatCurrency(enterpriseValue ?? 0)})</span>
                 <span>−</span>
-                <span className={`${colorVal} text-amber-400`} title="Dette Nette">Dette Nette ({formatCurrency(inputs.netDebt)})</span>
+                <span className={`${colorVal} text-amber-400`} title={t('valuation.fields.netDebt', 'Dette Nette')}>{t('valuation.fields.netDebt', 'Dette Nette')} ({formatCurrency(inputs.netDebt)})</span>
               </div>
               <div className="text-[11px] text-text-muted mt-1">
-                Calcul : <span className="font-mono text-text-secondary">{formatCurrency(enterpriseValue ?? 0)} − {formatCurrency(inputs.netDebt)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
+                {t('valuation.calculation', 'Calcul :')} <span className="font-mono text-text-secondary">{formatCurrency(enterpriseValue ?? 0)} − {formatCurrency(inputs.netDebt)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
               </div>
             </div>
           </div>
@@ -59,28 +59,28 @@ export const ValuationResultCard = ({ result }: Props) => {
         return (
           <div className="space-y-4 text-xs sm:text-sm">
             <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2">
-              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Étape 1 : Valeur d'Entreprise (Enterprise Value)</p>
+              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.step1Title', "Étape 1 : Valeur d'Entreprise (Enterprise Value)")}</p>
               <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary">
                 <span>EV =</span>
-                <span className={`${colorVal} text-[#00D1FF]`} title="Chiffre d'Affaires">Chiffre d'Affaires ({formatCurrency(inputs.revenue)})</span>
+                <span className={`${colorVal} text-[#00D1FF]`} title={t('valuation.fields.revenue', "Chiffre d'Affaires")}>{t('valuation.fields.revenue', "Chiffre d'Affaires")} ({formatCurrency(inputs.revenue)})</span>
                 <span>×</span>
-                <span className={`${colorVal} text-purple-400`} title="Multiple">Multiple ({inputs.multiple}x)</span>
+                <span className={`${colorVal} text-purple-400`} title={t('valuation.fields.multiple', 'Multiple')}>{t('valuation.fields.multiple', 'Multiple')} ({inputs.multiple}x)</span>
               </div>
               <div className="text-[11px] text-text-muted mt-1">
-                Calcul : <span className="font-mono text-text-secondary">{formatCurrency(inputs.revenue)} × {inputs.multiple} = {formatCurrency(enterpriseValue ?? 0)}</span>
+                {t('valuation.calculation', 'Calcul :')} <span className="font-mono text-text-secondary">{formatCurrency(inputs.revenue)} × {inputs.multiple} = {formatCurrency(enterpriseValue ?? 0)}</span>
               </div>
             </div>
             
             <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2">
-              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Étape 2 : Valeur des Capitaux Propres (Equity Value)</p>
+              <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.step2Title', "Étape 2 : Valeur des Capitaux Propres (Equity Value)")}</p>
               <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary">
                 <span>Equity =</span>
-                <span className={`${colorVal} text-indigo-400`} title="Valeur d'Entreprise">EV ({formatCurrency(enterpriseValue ?? 0)})</span>
+                <span className={`${colorVal} text-indigo-400`} title={t('valuation.enterpriseValue', "Valeur d'Entreprise")}>EV ({formatCurrency(enterpriseValue ?? 0)})</span>
                 <span>−</span>
-                <span className={`${colorVal} text-amber-400`} title="Dette Nette">Dette Nette ({formatCurrency(inputs.netDebt)})</span>
+                <span className={`${colorVal} text-amber-400`} title={t('valuation.fields.netDebt', 'Dette Nette')}>{t('valuation.fields.netDebt', 'Dette Nette')} ({formatCurrency(inputs.netDebt)})</span>
               </div>
               <div className="text-[11px] text-text-muted mt-1">
-                Calcul : <span className="font-mono text-text-secondary">{formatCurrency(enterpriseValue ?? 0)} − {formatCurrency(inputs.netDebt)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
+                {t('valuation.calculation', 'Calcul :')} <span className="font-mono text-text-secondary">{formatCurrency(enterpriseValue ?? 0)} − {formatCurrency(inputs.netDebt)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
               </div>
             </div>
           </div>
@@ -88,30 +88,30 @@ export const ValuationResultCard = ({ result }: Props) => {
       case 'PE_RATIO':
         return (
           <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2 text-xs sm:text-sm">
-            <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Calcul Direct de la Valeur des Capitaux Propres (Equity Value)</p>
+            <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.directEquity', "Calcul Direct de la Valeur des Capitaux Propres (Equity Value)")}</p>
             <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary">
               <span>Equity =</span>
-              <span className={`${colorVal} text-[#00D1FF]`} title="Résultat Net">Résultat Net ({formatCurrency(inputs.netIncome)})</span>
+              <span className={`${colorVal} text-[#00D1FF]`} title={t('valuation.fields.netIncome', 'Résultat Net')}>{t('valuation.fields.netIncome', 'Résultat Net')} ({formatCurrency(inputs.netIncome)})</span>
               <span>×</span>
-              <span className={`${colorVal} text-purple-400`} title="Ratio P/E">Ratio P/E ({inputs.peRatio}x)</span>
+              <span className={`${colorVal} text-purple-400`} title={t('valuation.fields.peRatio', 'Ratio P/E')}>{t('valuation.fields.peRatio', 'Ratio P/E')} ({inputs.peRatio}x)</span>
             </div>
             <div className="text-[11px] text-text-muted mt-1">
-              Calcul : <span className="font-mono text-text-secondary">{formatCurrency(inputs.netIncome)} × {inputs.peRatio} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
+              {t('valuation.calculation', 'Calcul :')} <span className="font-mono text-text-secondary">{formatCurrency(inputs.netIncome)} × {inputs.peRatio} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
             </div>
           </div>
         );
       case 'ASSET_BASED':
         return (
           <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2 text-xs sm:text-sm">
-            <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Calcul Basé sur l'Actif Net (Net Asset Value)</p>
+            <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.assetBased', "Calcul Basé sur l'Actif Net (Net Asset Value)")}</p>
             <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary">
               <span>Equity =</span>
-              <span className={`${colorVal} text-[#00D1FF]`} title="Actifs Totaux">Actifs Totaux ({formatCurrency(inputs.totalAssets)})</span>
+              <span className={`${colorVal} text-[#00D1FF]`} title={t('valuation.fields.totalAssets', 'Actifs Totaux')}>{t('valuation.fields.totalAssets', 'Actifs Totaux')} ({formatCurrency(inputs.totalAssets)})</span>
               <span>−</span>
-              <span className={`${colorVal} text-amber-400`} title="Passifs Totaux">Passifs ({formatCurrency(inputs.totalLiabilities)})</span>
+              <span className={`${colorVal} text-amber-400`} title={t('valuation.fields.totalLiabilities', 'Passifs Totaux')}>{t('valuation.fields.totalLiabilities', 'Passifs Totaux')} ({formatCurrency(inputs.totalLiabilities)})</span>
             </div>
             <div className="text-[11px] text-text-muted mt-1">
-              Calcul : <span className="font-mono text-text-secondary">{formatCurrency(inputs.totalAssets)} − {formatCurrency(inputs.totalLiabilities)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
+              {t('valuation.calculation', 'Calcul :')} <span className="font-mono text-text-secondary">{formatCurrency(inputs.totalAssets)} − {formatCurrency(inputs.totalLiabilities)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
             </div>
           </div>
         );
@@ -120,23 +120,23 @@ export const ValuationResultCard = ({ result }: Props) => {
         const growthFactor = 1 + inputs.growthRate;
         return (
           <div className="p-3 bg-surface/50 border border-border/30 rounded-xl space-y-2 text-xs sm:text-sm">
-            <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">Calcul Basé sur le Modèle de Croissance Gordon (Gordon Growth Model)</p>
+            <p className="font-semibold text-text-secondary uppercase text-[10px] tracking-wider">{t('valuation.result.gordonGrowth', "Calcul Basé sur le Modèle de Croissance Gordon (Gordon Growth Model)")}</p>
             <div className="flex flex-wrap items-center gap-1.5 font-mono text-text-primary leading-loose">
               <span>Equity =</span>
-              <span className={`${colorVal} text-[#00D1FF]`} title="Flux de Trésorerie Disponible (FCF)">FCF ({formatCurrency(inputs.freeCashFlow)})</span>
+              <span className={`${colorVal} text-[#00D1FF]`} title={t('valuation.fields.freeCashFlow', 'Flux de Trésorerie Disponible (FCF)')}>{t('valuation.fields.freeCashFlow', 'Flux de Trésorerie Disponible (FCF)')} ({formatCurrency(inputs.freeCashFlow)})</span>
               <span>× ( 1 +</span>
-              <span className={`${colorVal} text-purple-400`} title="Taux de croissance permanent (g)">g ({(inputs.growthRate * 100).toFixed(2)}%)</span>
+              <span className={`${colorVal} text-purple-400`} title={t('valuation.fields.growthRate', 'Taux de croissance permanent (g)')}>g ({(inputs.growthRate * 100).toFixed(2)}%)</span>
               <span>) / (</span>
-              <span className={`${colorVal} text-purple-400`} title="WACC (Coût moyen pondéré du capital)">WACC ({(inputs.wacc * 100).toFixed(2)}%)</span>
+              <span className={`${colorVal} text-purple-400`} title={t('valuation.fields.wacc', 'WACC (Coût moyen pondéré du capital)')}>WACC ({(inputs.wacc * 100).toFixed(2)}%)</span>
               <span>−</span>
-              <span className={`${colorVal} text-purple-400`} title="Taux de croissance permanent (g)">g ({(inputs.growthRate * 100).toFixed(2)}%)</span>
+              <span className={`${colorVal} text-purple-400`} title={t('valuation.fields.growthRate', 'Taux de croissance permanent (g)')}>g ({(inputs.growthRate * 100).toFixed(2)}%)</span>
               <span>)</span>
             </div>
             <div className="text-[11px] text-text-muted mt-2 space-y-1">
-              <div>Numérateur (FCF de l'année N+1) : <span className="font-mono text-text-secondary">{formatCurrency(inputs.freeCashFlow)} × {growthFactor.toFixed(3)} = {formatCurrency(inputs.freeCashFlow * growthFactor)}</span></div>
-              <div>Dénominateur (WACC − g) : <span className="font-mono text-text-secondary">{(inputs.wacc * 100).toFixed(2)}% − {(inputs.growthRate * 100).toFixed(2)}% = {(denom * 100).toFixed(2)}%</span></div>
+              <div>{t('valuation.gordon.numerator', "Numérateur (FCF de l'année N+1) :")} <span className="font-mono text-text-secondary">{formatCurrency(inputs.freeCashFlow)} × {growthFactor.toFixed(3)} = {formatCurrency(inputs.freeCashFlow * growthFactor)}</span></div>
+              <div>{t('valuation.gordon.denominator', "Dénominateur (WACC − g) :")} <span className="font-mono text-text-secondary">{(inputs.wacc * 100).toFixed(2)}% − {(inputs.growthRate * 100).toFixed(2)}% = {(denom * 100).toFixed(2)}%</span></div>
               <div className="pt-1 border-t border-border/20 mt-1">
-                Calcul final : <span className="font-mono text-text-secondary">{formatCurrency(inputs.freeCashFlow * growthFactor)} / {denom.toFixed(4)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
+                {t('valuation.gordon.final', 'Calcul final :')} <span className="font-mono text-text-secondary">{formatCurrency(inputs.freeCashFlow * growthFactor)} / {denom.toFixed(4)} = <span className="text-emerald-400 font-bold">{formatCurrency(equityValue)}</span></span>
               </div>
             </div>
           </div>
@@ -231,7 +231,7 @@ export const ValuationResultCard = ({ result }: Props) => {
               {t('valuation.explanation')}
             </p>
             <p className="text-sm text-text-secondary leading-relaxed font-medium">
-              {result.explanation}
+              {t(`valuation.result.explanation_${result.method}`, { defaultValue: result.explanation })}
             </p>
           </div>
         </div>

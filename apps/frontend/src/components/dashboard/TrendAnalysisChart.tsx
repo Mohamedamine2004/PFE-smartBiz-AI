@@ -47,7 +47,7 @@ export const TrendAnalysisChart = ({ data }: TrendAnalysisChartProps) => {
     const rev = getMetricByAliases(d as Record<string, unknown>, ['Gross_Revenue', 'Revenue']);
     const exp = getMetricByAliases(d as Record<string, unknown>, ['Operating_Expenses_Total', 'Expenses']);
     const margin = rev > 0 ? ((rev - exp) / rev) * 100 : 0;
-    
+
     return {
       period: String(d.period || ''),
       revenue: rev,
@@ -105,15 +105,15 @@ export const TrendAnalysisChart = ({ data }: TrendAnalysisChartProps) => {
               tickLine={false}
               tickFormatter={(v) => `${v}%`}
             />
-            
+
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--border-color)', opacity: 0.1 }} />
-            
+
             <Legend
               wrapperStyle={{ fontSize: '12px', fontFamily: 'var(--font-sans)', paddingTop: '20px' }}
               iconType="circle"
               iconSize={8}
             />
-            
+
             <Bar
               yAxisId="left"
               dataKey="revenue"
@@ -127,7 +127,7 @@ export const TrendAnalysisChart = ({ data }: TrendAnalysisChartProps) => {
                 <Cell key={`cell-${index}`} fillOpacity={entry.margin < 0 ? 0.3 : 1} />
               ))}
             </Bar>
-            
+
             <Line
               yAxisId="right"
               type="monotone"

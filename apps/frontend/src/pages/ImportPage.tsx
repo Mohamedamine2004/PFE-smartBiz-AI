@@ -169,6 +169,19 @@ export const ImportPage = () => {
 
   const currentPreview = EXCEL_PREVIEWS[activeTab];
 
+  const getSheetDesc = () => {
+    switch (activeTab) {
+      case 'annual':
+        return t('import.sheetAnnualDesc', "Données macro-financières annuelles requises pour l'estimation du modèle de valorisation IA (N, N-1, N-2).");
+      case 'monthly':
+        return t('import.sheetMonthlyDesc', "Suivi mensuel de la trésorerie et des métriques de cashflow sur les 12 derniers mois (TTM).");
+      case 'kpis':
+        return t('import.sheetKpisDesc', "Indicateurs de performance clés stratégiques pour l'analyse prédictive IA.");
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="page-animate space-y-8 max-w-7xl mx-auto pb-12">
       
@@ -195,14 +208,14 @@ export const ImportPage = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="section-heading flex items-center gap-2.5 font-bold">
                 <Database className="w-5 h-5 text-brand" />
-                <span>Zone d'Analyse Financière</span>
+                <span>{t('import.zoneTitle', "Zone d'Analyse Financière")}</span>
               </h3>
               {file && (
                 <button 
                   onClick={() => setFile(null)}
                   className="text-xs text-text-muted hover:text-error transition-colors flex items-center gap-1 cursor-pointer"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" /> Recommencer
+                  <RefreshCw className="w-3.5 h-3.5" /> {t('import.restart', 'Recommencer')}
                 </button>
               )}
             </div>
@@ -260,7 +273,7 @@ export const ImportPage = () => {
                     >
                       <span className="text-text-main font-bold text-lg block">{file.name}</span>
                       <span className="text-xs text-text-muted bg-elevated/80 px-3 py-1 rounded-full border border-border/30 inline-block font-mono">
-                        {(file.size / 1024).toFixed(1)} KB • Prêt à l'analyse
+                        {(file.size / 1024).toFixed(1)} KB • {t('import.readyForAnalysis', "Prêt à l'analyse")}
                       </span>
                     </motion.div>
                   ) : (
@@ -271,13 +284,17 @@ export const ImportPage = () => {
                       className="space-y-1.5"
                     >
                       <span className="text-text-main font-bold text-base block">
-                        Glissez-déposez votre fichier Excel ici
+                        {t('import.dragDropPrompt', 'Glissez-déposez votre fichier Excel ici')}
                       </span>
                       <span className="text-sm text-text-muted block">
-                        ou <span className="text-brand font-semibold hover:underline">parcourez vos fichiers</span> localement
+                        {t('import.orPrompt', 'ou')}{' '}
+                        <span className="text-brand font-semibold hover:underline">
+                          {t('import.browseLink', 'parcourez vos fichiers')}
+                        </span>{' '}
+                        {t('import.locallyPrompt', 'localement')}
                       </span>
                       <span className="text-[11px] text-text-muted/60 block pt-2 font-mono">
-                        Formats acceptés : .xlsx, .xls (Max: 10 Mo)
+                        {t('import.fileSpecs', 'Formats acceptés : .xlsx, .xls (Max: 10 Mo)')}
                       </span>
                     </motion.div>
                   )}
@@ -331,10 +348,10 @@ export const ImportPage = () => {
               <div>
                 <h3 className="section-heading flex items-center gap-2.5 font-bold">
                   <FileSpreadsheet className="w-5 h-5 text-brand" />
-                  <span>Aperçu de la structure requise</span>
+                  <span>{t('import.structureTitle', 'Aperçu de la structure requise')}</span>
                 </h3>
                 <p className="text-xs text-text-muted mt-1">
-                  Cliquez sur les feuilles pour visualiser les colonnes et exemples requis.
+                  {t('import.structureSubtitle', 'Cliquez sur les feuilles pour visualiser les colonnes et exemples requis.')}
                 </p>
               </div>
 
@@ -350,7 +367,7 @@ export const ImportPage = () => {
                         : 'text-text-muted hover:text-text-main border border-transparent'
                     }`}
                   >
-                    {EXCEL_PREVIEWS[tab].title}
+                    {t(`import.sheetTitle.${tab}`, EXCEL_PREVIEWS[tab].title)}
                   </button>
                 ))}
               </div>
@@ -360,7 +377,10 @@ export const ImportPage = () => {
             <div className="bg-surface/30 p-3.5 rounded-xl border border-border/30 flex items-start gap-2.5 mb-5">
               <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
               <p className="text-xs text-text-muted leading-relaxed">
-                <strong className="text-text-main">Feuille [{currentPreview.title}] :</strong> {currentPreview.desc}
+                <strong className="text-text-main">
+                  {t('import.sheetLabel', 'Feuille')} [{currentPreview.title}] :
+                </strong>{' '}
+                {getSheetDesc()}
               </p>
             </div>
 
@@ -431,9 +451,9 @@ export const ImportPage = () => {
                 <FileSpreadsheet className="w-6 h-6 text-brand" />
               </div>
               <div>
-                <h4 className="font-bold text-text-main text-base">Template Modèle IA</h4>
+                <h4 className="font-bold text-text-main text-base">{t('import.templateTitle', 'Template Modèle IA')}</h4>
                 <p className="text-xs text-text-muted mt-1 leading-relaxed">
-                  Commencez en téléchargeant notre fichier Excel officiel. Sa structure stricte permet à l'algorithme d'IA de calculer vos scores instantanément.
+                  {t('import.templateDesc', 'Commencez en téléchargeant notre fichier Excel officiel. Sa structure stricte permet à l\'algorithme d\'IA de calculer vos scores instantanément.')}
                 </p>
                 <div className="mt-5">
                   <DownloadTemplateButton variant="outline" className="w-full py-2.5 rounded-xl border-brand/30 hover:border-brand text-xs font-bold" />
@@ -446,7 +466,7 @@ export const ImportPage = () => {
           <div className="dashboard-card p-6">
             <h3 className="section-heading flex items-center gap-2.5 font-bold mb-4">
               <HelpCircle className="w-5 h-5 text-brand" />
-              <span>Consignes Tactiques</span>
+              <span>{t('import.instructionsTitle', 'Consignes Tactiques')}</span>
             </h3>
             
             <div className="space-y-4">
@@ -454,30 +474,30 @@ export const ImportPage = () => {
               <div className="p-3.5 rounded-xl bg-surface/30 border border-border/30 space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-brand shadow-[0_0_6px_var(--brand)]" />
-                  <strong className="text-xs text-text-main">Intégrité des En-têtes</strong>
+                  <strong className="text-xs text-text-main">{t('import.integrityTitle', 'Intégrité des En-têtes')}</strong>
                 </div>
                 <p className="text-[11px] text-text-muted leading-relaxed">
-                  Ne renommez **JAMAIS** les onglets Excel ou les en-têtes de colonnes. Les algorithmes d'IA recherchent ces mots-clés spécifiques.
+                  {t('import.integrityDesc', 'Ne renommez **JAMAIS** les onglets Excel ou les en-têtes de colonnes. Les algorithmes d\'IA recherchent ces mots-clés spécifiques.')}
                 </p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-surface/30 border border-border/30 space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-brand shadow-[0_0_6px_var(--brand)]" />
-                  <strong className="text-xs text-text-main">Formatage Temporel</strong>
+                  <strong className="text-xs text-text-main">{t('import.formatTitle', 'Formatage Temporel')}</strong>
                 </div>
                 <p className="text-[11px] text-text-muted leading-relaxed">
-                  Renseignez les dates au format standardisé international `AAAA-MM-JJ` (ex: `2025-01-31`).
+                  {t('import.formatDesc', 'Renseignez les dates au format standardisé international `AAAA-MM-JJ` (ex: `2025-01-31`).')}
                 </p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-surface/30 border border-border/30 space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_6px_#10B981]" />
-                  <strong className="text-xs text-text-main">Dinar Tunisien (DT)</strong>
+                  <strong className="text-xs text-text-main">{t('import.currencyTitle', 'Dinar Tunisien (DT)')}</strong>
                 </div>
                 <p className="text-[11px] text-text-muted leading-relaxed">
-                  Saisissez les montants sous forme brute (sans lettres ni symboles `DT`). La devise est configurée automatiquement en Dinar Tunisien (DT) à l'analyse.
+                  {t('import.currencyDesc', 'Saisissez les montants sous forme brute (sans lettres ni symboles `DT`). La devise est configurée automatiquement en Dinar Tunisien (DT) à l\'analyse.')}
                 </p>
               </div>
 

@@ -29,7 +29,35 @@
     },
     "success": "Data imported successfully! Redirecting to dashboard...",
     "uploading": "Processing Data...",
-    "submitBtn": "Run Import"
+    "submitBtn": "Run Import",
+    "zoneTitle": "Financial Analysis Zone",
+    "sheetLabel": "Sheet",
+    "restart": "Restart",
+    "dragDropPrompt": "Drag and drop your Excel file here",
+    "readyForAnalysis": "Ready for analysis",
+    "orPrompt": "or",
+    "browseLink": "browse your files",
+    "locallyPrompt": "locally",
+    "browsePrompt": "or browse your files locally",
+    "structureTitle": "Preview of Required Structure",
+    "structureSubtitle": "Click on the sheets to visualize the columns and required examples.",
+    "sheetTitle": {
+      "annual": "Annual Valuation",
+      "monthly": "Monthly Cash Flow",
+      "kpis": "Strategic KPIs"
+    },
+    "sheetAnnualDesc": "Annual macro-financial data required for AI valuation model estimation (N, N-1, N-2).",
+    "sheetMonthlyDesc": "Monthly tracking of cash and cash flow metrics over the last 12 months (TTM).",
+    "sheetKpisDesc": "Strategic key performance indicators for AI predictive analysis.",
+    "templateTitle": "AI Model Template",
+    "templateDesc": "Start by downloading our official Excel template. Its strict structure allows the AI algorithm to calculate your scores instantly.",
+    "instructionsTitle": "Tactical Instructions",
+    "integrityTitle": "Header Integrity",
+    "integrityDesc": "NEVER rename Excel sheets or column headers. AI algorithms look for these specific keywords.",
+    "formatTitle": "Temporal Formatting",
+    "formatDesc": "Fill in dates in standardized international format `YYYY-MM-DD` (e.g., `2025-01-31`).",
+    "currencyTitle": "Tunisian Dinar (DT)",
+    "currencyDesc": "Enter amounts in raw form (no letters or `DT` symbols). Currency is automatically configured to Tunisian Dinar (DT) during analysis."
   },
   "topbar": {
     "adminSpace": "Admin Workspace",
@@ -136,6 +164,12 @@
     }
   },
   "team": {
+    "roleLabels": {
+      "owner": "Owner",
+      "admin": "Administrator",
+      "collab": "Collaborator",
+      "reader": "Reader"
+    },
     "title": "Team Management",
     "subtitle": "Manage your company members and their access.",
     "inviteMember": "Invite a member",
@@ -178,6 +212,11 @@
     },
     "fetchError": "Failed to fetch team members",
     "inbox": {
+      "stats": {
+        "total": "Total Requests",
+        "pending": "Pending",
+        "processed": "Processed"
+      },
       "actions": "Actions",
       "companyRole": "Company / Role",
       "date": "Date",
@@ -226,6 +265,8 @@
     },
     "company": {
       "heading": "Company Profile",
+      "subtitle": "Manage your company identity, localization settings and preferences.",
+      "verified": "Verified",
       "name": "Company name",
       "registrationNumber": "Registration number",
       "sector": "Industry sector",
@@ -238,6 +279,9 @@
       "save": "Save profile",
       "saveSuccess": "Company profile saved successfully.",
       "saveError": "Failed to save company profile.",
+      "deleteError": "Error during deletion.",
+      "locked": "Locked",
+      "saving": "Saving...",
       "sectors": {
         "agriculture": "Agriculture",
         "mining": "Mining & Natural Resources",
@@ -264,28 +308,108 @@
         "10": "October",
         "11": "November",
         "12": "December"
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "subtitle": "This action is irreversible and will permanently delete all company data.",
+        "deleteBtn": "Delete company",
+        "confirmHeading": "Are you absolutely sure you want to delete this company?",
+        "confirmYes": "Yes, permanently delete",
+        "confirmNo": "Cancel",
+        "deleting": "Deleting..."
       }
     },
     "account": {
       "heading": "My Account",
+      "subtitle": "Manage your personal information and security credentials.",
       "changePassword": "Change password",
       "currentPassword": "Current password",
       "savePassword": "Update password",
       "passwordChanged": "Password changed successfully.",
-      "passwordError": "Failed to change password."
+      "passwordError": "Failed to change password.",
+      "profileSuccess": "Profile updated successfully.",
+      "profileError": "Error during update.",
+      "saving": "Saving...",
+      "saveProfile": "Save Profile",
+      "strength": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong",
+        "secure": "Unbreakable"
+      }
     },
     "team": {
       "heading": "Team",
       "description": "Manage team members from the dedicated Team page.",
       "goToTeam": "Go to Team"
     },
+    "workspaces": {
+      "heading": "My Companies & Workspaces",
+      "subheading": "Securely manage and switch between your different corporate spaces.",
+      "switchBtn": "Switch Company",
+      "activeTitle": "Current Workspace",
+      "fiscalId": "Registration Number: ",
+      "sector": "Industry Sector: ",
+      "country": " • Country: ",
+      "activeSession": "Active Session",
+      "role": "Role: ",
+      "otherTitle": "Other Companies",
+      "noOther": "No other companies associated with your account.",
+      "regNum": "Reg Number: ",
+      "switchTooltip": "Switch to this workspace",
+      "createHeading": "Create a new company?",
+      "createInstruction": "To add a new company to your profile, simply go to the signup page and **create a new workspace using the same email address** but with the name of the new company. It will be instantly linked to your profile."
+    },
     "preferences": {
       "heading": "Preferences",
+      "subtitle": "Customize your interface experience and regional settings.",
       "language": "Language",
       "theme": "Theme",
       "lightTheme": "Light",
       "darkTheme": "Dark",
-      "systemTheme": "System"
+      "systemTheme": "System",
+      "langSubLabel": {
+        "fr": "Latin LTR mode",
+        "en": "Latin LTR mode",
+        "ar": "Arabic RTL mode"
+      }
+    },
+    "switcher": {
+      "title": "Switch Company",
+      "alreadyActive": "This company is already active.",
+      "success": "Company switched successfully!",
+      "error": "An error occurred during switch.",
+      "activeCompany": "Active Company",
+      "otherCompanies": "Your other Workspaces",
+      "noOther": "No other companies associated with your account.",
+      "verifyPassword": "Security Required",
+      "verifyDesc": "Please enter the password associated with the company",
+      "switching": "Switching...",
+      "confirm": "Confirm"
+    },
+    "avatar": {
+      "title": "Choose an Avatar",
+      "subtitle": "Select or generate your character.",
+      "tabGenerator": "Generator",
+      "successToast": "Avatar updated!",
+      "placeholderSeed": "Type a keyword...",
+      "titleRandom": "Random word",
+      "btnUse": "Use this avatar",
+      "btnEdit": "Edit avatar",
+      "categories": {
+        "bots": "3D Robots",
+        "avatars": "Avatars",
+        "celebs": "Celebrities",
+        "animals": "Animals",
+        "pixel": "Pixel Art",
+        "emoji": "Fun Emoji"
+      },
+      "styles": {
+        "portrait": "Portrait",
+        "robot": "Robot",
+        "pixel": "Pixel",
+        "emoji": "Emoji"
+      }
     }
   },
   "dashboard": {
@@ -343,6 +467,15 @@
       "ratioLow": "To Optimize"
     },
     "charts": {
+      "unitEconomicsTitle": "Unit Economics Analysis (LTV:CAC)",
+      "unitEconomicsSubtitle": "Customer profitability comparing acquisition cost to generated value.",
+      "ltvCacRatio": "LTV:CAC Ratio",
+      "paybackPeriod": "Payback Period",
+      "monthsSymbol": "months",
+      "aiDiagnosis": "AI Diagnosis",
+      "diagnosedLive": "Calculated in real time",
+      "unitEconomicsHealthy": "Your LTV:CAC ratio of {{ratio}}x is excellent (above the 3x standard). Customer acquisition is highly profitable and you can confidently accelerate your marketing spend.",
+      "unitEconomicsWarning": "Your LTV:CAC ratio of {{ratio}}x is below the recommended threshold of 3x. We advise optimizing your customer acquisition channels or increasing customer lifetime value via cross-selling strategies.",
       "netCashFlow": "Net Cash Flow",
       "zeroCashDate": "Zero Cash Date",
       "safetyZone": "Safety Zone",
@@ -459,7 +592,24 @@
       "scenarios": {
         "pessimistic": "Pessimistic",
         "realistic": "Realistic",
-        "optimistic": "Optimistic"
+        "optimistic": "Optimistic",
+        "confidenceZone": "Confidence Zone (Monte Carlo)",
+        "recession": "-20% (Recession)",
+        "neutral": "Neutral",
+        "hypergrowth": "+50% (Hypergrowth)"
+      },
+      "volatility": {
+        "certitude": "2% (Certainty)",
+        "standard": "Standard",
+        "highUncertainty": "30% (High Uncertainty)"
+      },
+      "years": {
+        "yMinus2": "Year -2",
+        "yMinus1": "Year -1",
+        "current": "Current",
+        "yPlus1": "Year 1",
+        "yPlus2": "Year 2",
+        "yPlus3": "Year 3"
       },
       "manualModeHint": "No ML result found. You can still simulate company and equity value in real time using the controls below.",
       "manualModeTitle": "Manual projection mode active",
@@ -522,7 +672,10 @@
       "month6": "6 Months"
     },
     "export": {
-      "pdf": "Export PDF"
+      "pdf": "Export PDF",
+      "generating": "Generating PDF…",
+      "success": "PDF exported successfully!",
+      "error": "Failed to export PDF. Please try again."
     },
     "exportPDF": {
       "short": "PDF"
@@ -578,6 +731,10 @@
     }
   },
   "valuation": {
+    "sectorMultiples": "Industry Multiples:",
+    "sectorRatios": "Industry Ratios:",
+    "expand": "expand calculations",
+    "collapse": "hide",
     "title": "Business Valuation",
     "subtitle": "Estimate your company's value using industry-standard methods.",
     "selectMethod": "Select Valuation Method",
@@ -644,7 +801,10 @@
       "wacc": "WACC",
       "growthRate": "Growth Rate",
       "adjustedEV": "Adjusted EV",
-      "adjustedEquity": "Adjusted Equity"
+      "adjustedEquity": "Adjusted Equity",
+      "boundsTitle": "Evaluation Confidence Interval",
+      "minBound": "Minimum Value (Min)",
+      "maxBound": "Maximum Value (Max)"
     },
     "history": {
       "title": "History",
@@ -669,14 +829,39 @@
     "saved": "Saved ✓",
     "calcSuccess": "Valuation calculated successfully!",
     "empty": {
-      "title": "Ready to calculate"
+      "title": "Ready to calculate",
+      "description": "Fill in the valuation parameters on the left to calculate your company's worth using AI-powered methods."
     },
+    "importedDataAvailable": "Imported data detected",
+    "importedDataDesc": "Pre-fill financial data in one click",
     "methods": {
       "assetBased": "Asset-Based",
+      "assetBased_desc": "Values equity as the net book value of assets minus liabilities.",
+      "assetBased_tag": "Asset-Heavy",
       "evEbitda": "EV / EBITDA",
+      "evEbitda_desc": "Values a company based on its operating earnings before non-cash charges.",
+      "evEbitda_tag": "Profitable / LBO",
       "evRevenue": "EV / Revenue",
+      "evRevenue_desc": "Values a company based on its top-line revenue, useful when earnings are negative.",
+      "evRevenue_tag": "Startups / SaaS",
       "gordonGrowth": "Gordon Growth",
-      "peRatio": "P/E Ratio"
+      "gordonGrowth_desc": "Discounted cash flow approach for stable, mature companies with predictable growth.",
+      "gordonGrowth_tag": "Mature / Stable",
+      "peRatio": "P/E Ratio",
+      "peRatio_desc": "Values equity directly based on earnings and a price-to-earnings multiple.",
+      "peRatio_tag": "Public Companies"
+    },
+    "result": {
+      "step1Title": "Step 1: Enterprise Value (Enterprise Value)",
+      "step2Title": "Step 2: Equity Value (Equity Value)",
+      "directEquity": "Direct Equity Value Calculation (Equity Value)",
+      "assetBased": "Net Asset Value Calculation (Net Asset Value)",
+      "gordonGrowth": "Gordon Growth Model Calculation (Gordon Growth Model)",
+      "explanation_EV_EBITDA": "Enterprise Value is calculated by multiplying EBITDA by the industry multiple. Equity Value is derived by subtracting Net Debt from EV.",
+      "explanation_EV_REVENUE": "Enterprise Value is calculated by multiplying Revenue by the industry multiple. Equity Value subtracts Net Debt.",
+      "explanation_PE_RATIO": "Equity Value is calculated directly by multiplying Net Income by the P/E ratio. No separate Enterprise Value is computed.",
+      "explanation_ASSET_BASED": "Equity Value equals Total Assets minus Total Liabilities (book value approach).",
+      "explanation_GORDON_GROWTH": "Intrinsic value is estimated using the Gordon Growth Model by discounting future free cash flows at the WACC minus the perpetual growth rate."
     },
     "saveError": "Failed to save valuation.",
     "saveSuccess": "Valuation saved successfully!"
@@ -691,6 +876,8 @@
     "library": {
       "title": "Report Library",
       "refresh": "Refresh",
+      "viewModeBento": "Bento Grid",
+      "viewModeTable": "Table",
       "empty": {
         "title": "No reports",
         "description": "You haven't generated any reports yet."
@@ -772,6 +959,27 @@
     }
   },
   "wizard": {
+    "steps": {
+      "type": "Type",
+      "audience": "Audience",
+      "language": "Language",
+      "length": "Length",
+      "sections": "Sections",
+      "customization": "Branding",
+      "problem": "Problem",
+      "confirm": "Confirmation"
+    },
+    "preview": {
+      "selected": "selected",
+      "logoLoaded": "Logo loaded",
+      "defaultBranding": "Default",
+      "title": "Report Preview",
+      "subtitle": "Updated in real-time",
+      "config": "Configuration",
+      "step": "Step",
+      "of": "of",
+      "complete": "complete"
+    },
     "title": "Report Generator",
     "subtitle": "Create a custom report tailored to your business needs",
     "sections": {
@@ -863,7 +1071,10 @@
       "tip": "Tip:",
       "tipText": "The more specific you are about your business challenge, the more tailored and relevant your report will be.",
       "examples": {
-        "title": "Example prompts"
+        "title": "Example prompts",
+        "churn": "Our churn rate is high, we want to identify the root causes.",
+        "seriesA": "We are looking to raise a Series A and need an investor-ready analysis.",
+        "opCost": "Our operational costs increased by 30% this quarter without revenue growth."
       },
       "subtitle": "This context shapes the AI analysis. More detail = better insights. (Optional but recommended)"
     },
@@ -1032,6 +1243,10 @@
       "badge": "Digital Command Center for Finance",
       "title1": "Business valuation",
       "title2": "next generation.",
+      "title2_1": "next generation.",
+      "title2_2": "powered by AI.",
+      "title2_3": "precise & instant.",
+      "title2_4": "investor-ready.",
       "subtitle": "Financial AI that models your KPIs, projects your cash flows, and generates investor-ready memos in minutes.",
       "cta": {
         "primary": "Request an Invitation",
@@ -1301,7 +1516,9 @@
     "reader": "Reader"
   },
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "accept": "Accept",
+    "reject": "Reject"
   },
   "export": {
     "deprecatedMessage": "Direct dashboard export is temporarily disabled for maintenance. Please use the Reports tab to generate a professional PDF document through our AI engine."
@@ -1313,5 +1530,8 @@
   "shortcuts": {
     "modalTitle": "Keyboard Shortcuts",
     "toggleHelp": "Press {{key}} to toggle this help"
+  },
+  "fields": {
+    "password": "Password"
   }
 }

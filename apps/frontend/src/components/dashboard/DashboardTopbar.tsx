@@ -5,6 +5,7 @@ import {
 import { Button } from '../ui/Button';
 import type { DashboardTab } from '../../types/dashboard';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '../../store/authStore';
 
 interface DashboardTopbarProps {
   userName: string;
@@ -53,6 +54,7 @@ export const DashboardTopbar = ({
 }: DashboardTopbarProps) => {
   const { t, i18n } = useTranslation();
   const hour = new Date().getHours();
+  const user = useAuthStore(state => state.user);
 
   // Dynamic SVG animated weather/time icon based on time of day
   const getGreetingIcon = () => {
@@ -113,14 +115,14 @@ export const DashboardTopbar = ({
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-4 relative">
         {/* Ambient background glow for greeting */}
         <div className="absolute -top-10 -left-10 w-48 h-48 bg-brand/10 rounded-full blur-[60px] pointer-events-none" />
-        
+
         {/* Dynamic Glassmorphic Greeting Header */}
         <div className="relative z-10 flex items-center gap-4.5">
           <div className="w-12 h-12 rounded-2xl bg-surface/50 dark:bg-white/5 border border-border/40 flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.02)] backdrop-blur-md shrink-0">
             {getGreetingIcon()}
           </div>
           <div>
-            <h1 
+            <h1
               className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-br from-text-main via-text-main to-text-muted bg-clip-text text-transparent"
               style={{ fontFamily: 'var(--font-display)' }}
             >
@@ -139,9 +141,12 @@ export const DashboardTopbar = ({
 
         {/* Unified Actions Bar (Bento-like alignment) */}
         <div className="flex flex-wrap items-center gap-2.5 xl:justify-end no-print">
-          
+
           {/* Period Filter (Premium Sliding Capsule Tab) */}
-          <div className="relative flex items-center gap-0.5 bg-surface/80 dark:bg-white/5 border border-border/60 p-1 rounded-2xl sm:mr-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] backdrop-blur-md">
+          <div
+            className="relative flex items-center gap-0.5 bg-surface border border-border/60 p-1 rounded-2xl sm:mr-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.02)]"
+            style={{ backgroundColor: 'var(--bg-surface)' }}
+          >
             {[
               { id: 'all', label: t('dashboard.filters.all', 'Tout') },
               { id: '12m', label: t('dashboard.filters.month12') },
@@ -150,11 +155,10 @@ export const DashboardTopbar = ({
               <button
                 key={p.id}
                 onClick={() => onPeriodChange(p.id as 'all' | '12m' | '6m')}
-                className={`relative px-3.5 py-1.5 text-xs font-bold transition-all duration-300 rounded-xl cursor-pointer ${
-                  period === p.id 
-                    ? 'text-indigo-600 dark:text-brand' 
+                className={`relative px-3.5 py-1.5 text-xs font-bold transition-all duration-300 rounded-xl cursor-pointer ${period === p.id
+                    ? 'text-indigo-600 dark:text-brand'
                     : 'text-text-muted hover:text-text-main'
-                }`}
+                  }`}
               >
                 {period === p.id && (
                   <motion.div
@@ -169,7 +173,7 @@ export const DashboardTopbar = ({
           </div>
 
           {/* Export PDF (Interactive Slide Hover) */}
-          <button 
+          <button
             onClick={onExportPDF}
             className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl border border-border/80 bg-surface/80 hover:bg-elevated hover:border-brand/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_12px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_20px_rgba(0,209,255,0.05)] cursor-pointer text-text-main group"
           >
@@ -183,8 +187,8 @@ export const DashboardTopbar = ({
           </button>
 
           {/* Import History (Glowing Count Badge) */}
-          <button 
-            onClick={onToggleHistory} 
+          <button
+            onClick={onToggleHistory}
             className="relative flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl border border-border/80 bg-surface/80 hover:bg-elevated hover:border-brand/30 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_12px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_20px_rgba(0,209,255,0.05)] cursor-pointer text-text-main group"
           >
             <ClipboardList className="w-4 h-4 text-text-muted group-hover:text-indigo-600 dark:group-hover:text-brand transition-colors" />
@@ -197,24 +201,26 @@ export const DashboardTopbar = ({
           </button>
 
           {/* Import Button (Prominent Cyan-to-Indigo Call-to-Action) */}
-          <button 
-            onClick={onNavigateImport}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl border border-transparent transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-[0_8px_25px_rgba(99,102,241,0.25)] cursor-pointer text-white"
-            style={{
-              background: 'linear-gradient(135deg, var(--brand) 0%, #6366F1 100%)',
-            }}
-          >
-            <motion.div
-              animate={{ y: [0, -1.5, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          {user?.role !== 'READER' && (
+            <button
+              onClick={onNavigateImport}
+              className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl border border-transparent transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-[0_8px_25px_rgba(99,102,241,0.25)] cursor-pointer text-white"
+              style={{
+                background: 'linear-gradient(135deg, var(--brand) 0%, #6366F1 100%)',
+              }}
             >
-              <Upload className="w-4 h-4 text-white" />
-            </motion.div>
-            <span className="hidden sm:inline">{t('dashboard.importBtn')}</span>
-          </button>
+              <motion.div
+                animate={{ y: [0, -1.5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Upload className="w-4 h-4 text-white" />
+              </motion.div>
+              <span className="hidden sm:inline">{t('dashboard.importBtn')}</span>
+            </button>
+          )}
 
           {/* Run AI Prediction — only visible on ML Projection tab */}
-          {activeTab === 'ml-projection' && (
+          {activeTab === 'ml-projection' && user?.role !== 'READER' && (
             <Button
               onClick={onRunPrediction}
               disabled={predictionLoading}
@@ -233,15 +239,17 @@ export const DashboardTopbar = ({
         </div>
       </div>
 
-      {/* Row 2: Tabs (Glassmorphic Navigation Capsule) */}
-      <div className="relative p-1.5 flex gap-1 rounded-2xl bg-surface/50 dark:bg-white/5 border border-border/50 backdrop-blur-md self-start w-fit overflow-x-auto scrollbar-hide max-w-full">
+      {/* Row 2: Tabs (Solid Navigation Capsule) */}
+      <div
+        className="relative p-1.5 flex gap-1 rounded-2xl bg-surface border border-border/50 self-start w-fit overflow-x-auto scrollbar-hide max-w-full"
+        style={{ backgroundColor: 'var(--bg-surface)' }}
+      >
         {TABS.map(({ key, labelKey }) => (
           <button
             key={key}
             onClick={() => onTabChange(key)}
-            className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 whitespace-nowrap flex-shrink-0 cursor-pointer ${
-              activeTab === key ? 'text-text-main' : 'text-text-muted hover:text-text-main'
-            }`}
+            className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors z-10 whitespace-nowrap flex-shrink-0 cursor-pointer ${activeTab === key ? 'text-text-main' : 'text-text-muted hover:text-text-main'
+              }`}
           >
             {activeTab === key && (
               <motion.div

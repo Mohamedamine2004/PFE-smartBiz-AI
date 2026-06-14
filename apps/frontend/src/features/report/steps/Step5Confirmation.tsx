@@ -17,9 +17,9 @@ const LENGTH_LABELS: Record<string, { label: string; pages: string }> = {
 };
 
 const LANG_LABELS: Record<string, string> = {
-  FR: 'FR — Français',
-  EN: 'EN — English',
-  AR: 'AR — العربية',
+  FR: 'reports.languages.fr',
+  EN: 'reports.languages.en',
+  AR: 'reports.languages.ar',
 };
 
 export const Step5Confirmation = ({ state }: WizardStepProps) => {
@@ -30,7 +30,7 @@ export const Step5Confirmation = ({ state }: WizardStepProps) => {
     {
       icon: FileBarChart,
       label: t('wizard.confirmation.type', 'Type d\'analyse'),
-      value: state.reportType.replace(/_/g, ' '),
+      value: t(`wizard.step1.types.${state.reportType}.label`, state.reportType.replace(/_/g, ' ')),
       accent: 'rgba(0,209,255,0.9)',
       glow: 'rgba(0,209,255,0.1)',
     },
@@ -44,7 +44,9 @@ export const Step5Confirmation = ({ state }: WizardStepProps) => {
     {
       icon: Globe,
       label: t('wizard.confirmation.language', 'Langue'),
-      value: LANG_LABELS[state.language] ?? state.language,
+      value: LANG_LABELS[state.language]
+        ? `${state.language} — ${t(LANG_LABELS[state.language])}`
+        : state.language,
       accent: 'rgba(16,185,129,0.9)',
       glow: 'rgba(16,185,129,0.1)',
     },

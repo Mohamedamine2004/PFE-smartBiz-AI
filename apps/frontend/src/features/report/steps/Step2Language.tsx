@@ -38,17 +38,17 @@ export const Step2Language = ({ state, setState, errors, setErrors }: WizardStep
               onClick={() => handleSelect(lang.value)}
               className="relative flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-200"
               style={{
-                background: isActive ? lang.glow : 'var(--bg-elevated)',
-                border: `1.5px solid ${isActive ? lang.accent.replace('0.9)', '0.35)') : 'var(--border-color)'}`,
-                boxShadow: isActive ? `0 4px 20px ${lang.glow}` : 'none',
+                background: isActive ? `color-mix(in srgb, ${lang.accent} 8%, var(--bg-elevated))` : 'var(--bg-elevated)',
+                border: `1.5px solid ${isActive ? lang.accent : 'var(--border-color)'}`,
+                boxShadow: isActive ? `0 8px 24px ${lang.glow}` : 'none',
               }}
             >
               {/* Language code badge */}
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200"
                 style={{
-                  background: isActive ? lang.glow : 'var(--bg-surface)',
-                  border: `1px solid ${isActive ? lang.accent.replace('0.9)', '0.25)') : 'var(--border-color)'}`,
+                  background: isActive ? `color-mix(in srgb, ${lang.accent} 16%, var(--bg-elevated))` : 'var(--bg-surface)',
+                  border: `1px solid ${isActive ? lang.accent : 'var(--border-color)'}`,
                   boxShadow: isActive ? `0 0 16px ${lang.glow}` : 'none',
                 }}
               >

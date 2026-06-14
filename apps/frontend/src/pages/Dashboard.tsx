@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+import { exportToPDF } from '../lib/export.utils';
 
 import { useAuthStore } from '../store/authStore';
 import { financialApi } from '../lib/financial.service';
@@ -36,7 +37,7 @@ export const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const user = useAuthStore((state) => state.user);
-  
+
   // State for data
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +79,7 @@ export const Dashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = batchIdParam 
+      const data = batchIdParam
         ? await financialApi.getDashboardMetricsByBatchId(batchIdParam)
         : await financialApi.getDashboardMetrics();
       setMetrics(data);
@@ -193,7 +194,8 @@ export const Dashboard = () => {
 
   const handleExportPDF = () => {
     const originalTitle = document.title;
-    document.title = `SmartBiz AI — Dashboard — ${new Date().toLocaleDateString('fr-FR')}`;
+    const formattedDate = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
+    document.title = `SmartBiz-AI-Dashboard-${formattedDate}`;
     window.print();
     document.title = originalTitle;
   };
@@ -201,15 +203,15 @@ export const Dashboard = () => {
   // Derive filtered metrics based on period
   const getFilteredChartData = () => {
     if (!metrics?.chartData) return [];
-    
+
     // Sort array by date (assuming they are strictly sequential ascending by 'month' strings like '2023-01' or similar format)
     // If it's already sorted from API, that's fine. We slice from end.
     const len = metrics.chartData.length;
-    
+
     if (period === 'all') return metrics.chartData;
     if (period === '12m') return metrics.chartData.slice(Math.max(0, len - 12));
     if (period === '6m') return metrics.chartData.slice(Math.max(0, len - 6));
-    
+
     return metrics.chartData;
   };
 
@@ -327,7 +329,7 @@ export const Dashboard = () => {
         activeBatchId={batchIdParam}
         onClearBatchId={handleClearBatchId}
       />
-      
+
       {/* Zone 1: Strategic KPIs */}
       <StrategicKpisGrid data={metrics?.strategicKpis} activeTab={activeTab} chartData={filteredChartData} />
 
@@ -365,11 +367,8 @@ export const Dashboard = () => {
               <CustomerRetentionChart data={filteredChartData} />
               <RevenuePieChart data={filteredChartData} />
             </div>
-            <CohortRetentionGrid />
+            <CohortRetentionGrid data={filteredChartData} />
             <UnitEconomicsChart kpis={metrics?.strategicKpis} />
-            <div className="grid grid-cols-1 gap-5">
-              <CashRunwayChart data={filteredChartData} />
-            </div>
           </div>
         )}
 

@@ -42,11 +42,11 @@ services:
       - JWT_EXPIRES_IN=15m
       - JWT_REFRESH_SECRET=your-super-secret-jwt-refresh-key-change-this-in-production
       - JWT_REFRESH_EXPIRES_IN=7d
-      - MAIL_HOST=smtp.gmail.com
-      - MAIL_PORT=587
-      - MAIL_USER=saidanemohamedamine72@gmail.com
-      - MAIL_PASSWORD=dazmphdftlxffsnh
-      - MAIL_FROM=saidanemohamedamine72@gmail.com
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USER=${MAIL_USER:-your-email@gmail.com}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-your-gmail-app-password}
+      - MAIL_FROM=${MAIL_FROM:-your-email@gmail.com}
       - FRONTEND_URL=http://localhost:5173
       - API_URL=http://localhost:3001/api/v1
       - ML_ENGINE_URL=http://ml-engine:8000
@@ -54,6 +54,7 @@ services:
       # GEMINI_MODEL and OPENROUTER_MODEL are set in apps/backend/.env
     ports:
       - "3001:3000"
+      - "5555:5555"
     volumes:
       - ./apps/backend:/usr/src/app
       - backend_modules:/usr/src/app/node_modules
@@ -82,6 +83,7 @@ services:
       - backend
     networks:
       - smartbiz-network
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     restart: unless-stopped
 
   # ==================== ML Engine (Python) ====================

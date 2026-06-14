@@ -92,11 +92,10 @@ const NeuralScanLoader = () => {
                     <span className="text-text-muted/40">○</span>
                   )}
                 </div>
-                <span className={`text-xs font-medium transition-colors ${
-                  isCompleted ? 'text-text-muted/65 line-through decoration-text-muted/30' :
-                  isActive ? 'text-brand drop-shadow-[0_0_8px_rgba(0,209,255,0.4)]' :
-                  'text-text-muted/40'
-                }`}>
+                <span className={`text-xs font-medium transition-colors ${isCompleted ? 'text-text-muted/65 line-through decoration-text-muted/30' :
+                    isActive ? 'text-brand drop-shadow-[0_0_8px_rgba(0,209,255,0.4)]' :
+                      'text-text-muted/40'
+                  }`}>
                   {step}
                 </span>
               </div>

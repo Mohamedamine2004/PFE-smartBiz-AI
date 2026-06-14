@@ -90,11 +90,10 @@ export const FeatureImportanceChart = ({ featureImportance }: FeatureImportanceC
             <button
               key={h}
               onClick={() => setActiveHorizon(h)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                activeHorizon === h
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeHorizon === h
                   ? 'bg-surface text-text-main shadow-sm'
                   : 'text-text-muted hover:text-text-main'
-              }`}
+                }`}
             >
               {h}
             </button>

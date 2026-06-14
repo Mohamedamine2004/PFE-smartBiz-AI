@@ -59,6 +59,11 @@ export const PreferencesCard = () => {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useThemeStore();
 
+  const localizedLanguages = LANGUAGES.map((lang) => ({
+    ...lang,
+    subLabel: t(`settings.preferences.langSubLabel.${lang.code}`, lang.subLabel),
+  }));
+
   const handleLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -76,7 +81,7 @@ export const PreferencesCard = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-text-main tracking-tight">{t('settings.preferences.heading')}</h2>
-          <p className="text-sm text-text-muted mt-0.5">Customize your interface experience and regional settings.</p>
+          <p className="text-sm text-text-muted mt-0.5">{t('settings.preferences.subtitle', 'Customize your interface experience and regional settings.')}</p>
         </div>
       </div>
 
@@ -86,7 +91,7 @@ export const PreferencesCard = () => {
       <div className="relative z-10 space-y-4">
         <label className="text-sm font-semibold text-text-main block">{t('settings.preferences.language')}</label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {LANGUAGES.map((lang) => {
+          {localizedLanguages.map((lang) => {
             const isActive = i18n.language === lang.code;
             return (
               <button

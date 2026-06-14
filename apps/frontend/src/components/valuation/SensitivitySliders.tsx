@@ -304,11 +304,11 @@ export const SensitivitySliders = ({ result }: Props) => {
         {/* Bounds Labels */}
         <div className="flex justify-between text-[10px] text-text-muted font-bold tracking-wide">
           <div className="text-left">
-            <span className="block text-[8px] uppercase tracking-wider text-text-muted mb-0.5">Valeur Minimale (Min)</span>
+            <span className="block text-[8px] uppercase tracking-wider text-text-muted mb-0.5">{t('valuation.sensitivity.minBound', 'Valeur Minimale (Min)')}</span>
             <span className="font-mono text-text-secondary">{formatCurrency(minValuation)}</span>
           </div>
           <div className="text-right">
-            <span className="block text-[8px] uppercase tracking-wider text-text-muted mb-0.5">Valeur Maximale (Max)</span>
+            <span className="block text-[8px] uppercase tracking-wider text-text-muted mb-0.5">{t('valuation.sensitivity.maxBound', 'Valeur Maximale (Max)')}</span>
             <span className="font-mono text-text-secondary">{formatCurrency(maxValuation)}</span>
           </div>
         </div>

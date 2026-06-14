@@ -92,17 +92,17 @@ export const MethodSelector = ({ methods, selected, onSelect }: Props) => {
                   </div>
                   
                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide border ${meta.badgeBg}`}>
-                    {meta.tag}
+                    {t(`valuation.methods.${m.id.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())}_tag`, { defaultValue: meta.tag })}
                   </span>
                 </div>
 
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-text-primary flex items-center gap-1">
-                    {m.name}
+                    {t(`valuation.methods.${m.id.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())}`, { defaultValue: m.name })}
                     {isActive && <Sparkles className="w-3.5 h-3.5 text-brand animate-pulse" />}
                   </h4>
                   <p className="text-[11px] leading-snug text-text-muted font-medium line-clamp-2">
-                    {m.description}
+                    {t(`valuation.methods.${m.id.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())}_desc`, { defaultValue: m.description })}
                   </p>
                 </div>
 

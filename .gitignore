@@ -1,59 +1,216 @@
-# ML Engine Models & Generated Artifacts
+# =============================================================================
+#  SmartBiz AI — Root .gitignore
+#  NEVER commit real secrets, API keys, or personal credentials to Git!
+# =============================================================================
+
+# ─────────────────────────────────────────
+#  ENVIRONMENT FILES (contain secrets!)
+# ─────────────────────────────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.staging
+.env.*.local
+*.env
+
+# Keep example/template files
+!.env.example
+!.env.template
+!**/.env.example
+!**/.env.template
+
+# ─────────────────────────────────────────
+#  DOCKER FILES WITH HARDCODED SECRETS
+#  (use docker-compose.override.yml locally)
+# ─────────────────────────────────────────
+docker-compose.override.yml
+docker-compose.local.yml
+.docker-secrets/
+
+# ─────────────────────────────────────────
+#  ML ENGINE — MODELS & LARGE DATA FILES
+# ─────────────────────────────────────────
 apps/ml-engine/*.cbm
 apps/ml-engine/model_*.cbm
 apps/ml-engine/dataset_*.csv
 apps/ml-engine/clip_bounds_*.json
 apps/ml-engine/model_error.json
 apps/ml-engine/catboost_info/
-apps/ml-engine/__pycache__/
 apps/ml-engine/sec_data_raw/
+apps/ml-engine/models/
+apps/ml-engine/test/output/
 
-# Python
+# ─────────────────────────────────────────
+#  PYTHON
+# ─────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
+.venv/
 venv/
 ENV/
-build/
-develop-eggs/
+env/
+env.bak/
+venv.bak/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+*.egg-info/
+.eggs/
 dist/
+build/
+wheels/
+*.egg
+MANIFEST
+develop-eggs/
 downloads/
 eggs/
 .eggs/
+lib/
 lib64/
 parts/
 sdist/
 var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+*.manifest
+*.spec
 
-# Node
+# ─────────────────────────────────────────
+#  NODE / JAVASCRIPT / TYPESCRIPT
+# ─────────────────────────────────────────
 node_modules/
-npm-debug.log
-package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm
+.yarn/
+.pnp.*
+*.tgz
+.eslintcache
+.stylelintcache
 
-# Environment variables
-.env
-.env.local
-.env.*.local
+# Build outputs
+dist/
+dist-ssr/
+build/
+.next/
+out/
 
-# IDE
+# TypeScript
+*.tsbuildinfo
+
+# ─────────────────────────────────────────
+#  GENERATED / RUNTIME ARTIFACTS
+# ─────────────────────────────────────────
+# Generated report PDFs (runtime artifacts)
+apps/backend/reports/generated/
+apps/backend/reports/*.pdf
+
+# Prisma generated client
+apps/backend/src/generated/
+
+# Coverage reports
+coverage/
+*.lcov
+.nyc_output/
+
+# ─────────────────────────────────────────
+#  CERTIFICATES & KEYS
+# ─────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+*.der
+*.jks
+*.keystore
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# ─────────────────────────────────────────
+#  LOGS
+# ─────────────────────────────────────────
+logs/
+*.log
+*.log.*
+
+# ─────────────────────────────────────────
+#  IDE & EDITOR FILES
+# ─────────────────────────────────────────
 .vscode/
 .idea/
 .history/
 *.swp
 *.swo
 *~
-.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
 
-# OS
+# ─────────────────────────────────────────
+#  OS FILES
+# ─────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+eject
 Thumbs.db
 temp_auto_push.bat
 temp_interactive_push.bat
 branch_structure.json
+Thumbs.db:encryptable
+desktop.ini
+$RECYCLE.BIN/
+
+# ─────────────────────────────────────────
+#  TEMP / SCRATCH FILES
+# ─────────────────────────────────────────
+temp_*.bat
+temp_*.sh
+*.tmp
+*.temp
+.tmp/
+.temp/
+*.bak
+*.orig
+*.cache
+
+# ─────────────────────────────────────────
+#  LOCK FILES (optional — remove if you want
+#  to commit them for reproducible installs)
+# ─────────────────────────────────────────
+# package-lock.json  ← keep this for reproducibility
+# yarn.lock          ← keep this for reproducibility
+
+# ─────────────────────────────────────────
+#  DOCKER DESKTOP CREDENTIALS
+# ─────────────────────────────────────────
+docker-credential-*
+
