@@ -6,12 +6,6 @@
 # ─────────────────────────────────────────
 #  ENVIRONMENT FILES (contain secrets!)
 # ─────────────────────────────────────────
-.env
-.env.local
-.env.development
-.env.production
-.env.test
-.env.staging
 .env.*.local
 *.env
 
@@ -154,7 +148,6 @@ logs/
 # ─────────────────────────────────────────
 #  IDE & EDITOR FILES
 # ─────────────────────────────────────────
-.vscode/
 .idea/
 .history/
 *.swp
@@ -214,3 +207,4 @@ temp_*.sh
 # ─────────────────────────────────────────
 docker-credential-*
 
+config.bat
